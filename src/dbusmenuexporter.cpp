@@ -128,7 +128,9 @@ public:
         }
         if (action->isCheckable()) {
             map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
-            map.insert("toggle-state", action->isChecked() ? 1 : 0);
+            if (action->isChecked()) {
+                map.insert("toggle-state", 1);
+            }
         }
         QString iconName = m_iconNameForActionFunction(action);
         if (!iconName.isEmpty()) {
