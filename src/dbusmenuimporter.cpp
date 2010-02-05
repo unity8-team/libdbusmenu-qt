@@ -139,7 +139,7 @@ public:
             action->setEnabled(map.value("enabled").toBool());
         }
 
-        if (action->isCheckable() && map.contains("toggle-state")) {
+        if (action->isCheckable()) {
             action->setChecked(map.value("toggle-state").toInt() == 1);
         }
 
@@ -212,7 +212,7 @@ void DBusMenuImporter::slotItemUpdated(int id)
     QStringList names;
     names << "label" << "enabled";
     if (action->isCheckable()) {
-        names << "checked";
+        names << "toggle-state";
     }
 
     #ifdef BENCHMARK
