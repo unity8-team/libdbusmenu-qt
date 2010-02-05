@@ -46,7 +46,7 @@ class DBUSMENU_EXPORT DBusMenuExporter : public QObject
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
 public:
-    DBusMenuExporter(const QString &dbusService, const QString& dbusObjectPath, QMenu *rootMenu);
+    DBusMenuExporter(const QString &connectionName, const QString& dbusObjectPath, QMenu *rootMenu);
     ~DBusMenuExporter();
 
     /**

@@ -33,6 +33,7 @@ class DBusMenuTest : public QObject
 {
 Q_OBJECT
 private Q_SLOTS:
+    void testExporter();
     void testStandardItem();
 };
 

@@ -24,6 +24,7 @@
 // Qt
 #include <QDBusConnection>
 #include <QDBusInterface>
+#include <QDBusReply>
 #include <QIcon>
 #include <QMenu>
 #include <QtTest>
@@ -49,12 +50,33 @@ protected:
     virtual QIcon iconForName(const QString &) { return QIcon(); }
 };
 
+void DBusMenuTest::testExporter()
+{
+    QMenu inputMenu;
+    inputMenu.addAction("Test");
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    QStringList propertyNames = QStringList() << "type" << "enabled" << "label";
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+    DBusMenuItem item = list.first();
+    QCOMPARE(item.properties.value("type").toString(), QString("standard"));
+    QCOMPARE(item.properties.value("label").toString(), QString("Test"));
+    QCOMPARE(item.properties.value("enabled").toBool(), true);
+}
+
 void DBusMenuTest::testStandardItem()
 {
     QMenu inputMenu;
     inputMenu.addAction("Test");
-    QDBusConnection connection = QDBusConnection::connectToBus(QDBusConnection::SessionBus, TEST_SERVICE);
-    DBusMenuExporter exporter(TEST_SERVICE, TEST_OBJECT_PATH, &inputMenu);
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     TestDBusMenuImporter importer(&iface);
