@@ -331,4 +331,30 @@ void DBusMenuExporterTest::testRadioItems()
     QCOMPARE(updatedIds, expectedIds);
 }
 
+void DBusMenuExporterTest::testClickDeletedAction()
+{
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+
+    // Get id
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+    int id = list.takeFirst().id;
+
+    // Delete a1, it should not cause a crash when trying to trigger it
+    delete a1;
+
+    // Send a click to deleted a1
+    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
+    uint timestamp = QDateTime::currentDateTime().toTime_t();
+    iface.call("Event", id, "clicked", empty, timestamp);
+    QTest::qWait(500);
+}
+
 #include "dbusmenuexportertest.moc"

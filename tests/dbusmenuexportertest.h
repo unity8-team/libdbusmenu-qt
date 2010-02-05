@@ -60,6 +60,7 @@ private Q_SLOTS:
     void testSubMenu();
     void testDynamicSubMenu();
     void testRadioItems();
+    void testClickDeletedAction();
 
     void init();
     void cleanup();
