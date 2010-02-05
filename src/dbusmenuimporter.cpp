@@ -79,7 +79,7 @@ public:
         #endif
         static QStringList names;
         if (names.isEmpty()) {
-            names << "type" << "label" << "checked" << "sensitive" << "icon";
+            names << "type" << "label" << "toggle-type" << "toggle-state" << "enabled" << "icon-name" << "children-display";
         }
         QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, names);
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
@@ -108,7 +108,7 @@ public:
             action->setSeparator(true);
         }
 
-        if (type == "menu") {
+        if (map.value("children-display").toString() == "submenu") {
             // FIXME: Leak?
             QMenu *menu = q->createMenu(0);
             QObject::connect(menu, SIGNAL(aboutToShow()),
@@ -116,10 +116,13 @@ public:
             action->setMenu(menu);
         }
 
-        action->setCheckable(type == "radio" || type == "checkbox");
-        if (type == "radio") {
-            QActionGroup *group = new QActionGroup(action);
-            group->addAction(action);
+        QString toggleType = map.value("toggle-type").toString();
+        if (!toggleType.isEmpty()) {
+            action->setCheckable(true);
+            if (toggleType == "radio") {
+                QActionGroup *group = new QActionGroup(action);
+                group->addAction(action);
+            }
         }
         updateAction(action, map);
 
@@ -136,16 +139,16 @@ public:
             action->setText(text);
         }
 
-        if (map.contains("sensitive")) {
-            action->setEnabled(map.value("sensitive").toBool());
+        if (map.contains("enabled")) {
+            action->setEnabled(map.value("enabled").toBool());
         }
 
-        if (action->isCheckable() && map.contains("checked")) {
-            action->setChecked(map.value("checked").toBool());
+        if (action->isCheckable() && map.contains("toggle-state")) {
+            action->setChecked(map.value("toggle-state").toInt() == 1);
         }
 
-        if (map.contains("icon")) {
-            updateActionIcon(action, map.value("icon").toString());
+        if (map.contains("icon-name")) {
+            updateActionIcon(action, map.value("icon-name").toString());
         }
     }
 
@@ -216,7 +219,7 @@ void DBusMenuImporter::slotItemUpdated(uint id)
     }
 
     QStringList names;
-    names << "label" << "sensitive";
+    names << "label" << "enabled";
     if (action->isCheckable()) {
         names << "checked";
     }

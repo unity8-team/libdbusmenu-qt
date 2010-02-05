@@ -43,23 +43,6 @@ static QString defaultIconNameForActionFunction(const QAction *)
     return QString();
 }
 
-
-static QAction *internalActionForTitleAction(const QAction *action_)
-{
-    const QWidgetAction *action = qobject_cast<const QWidgetAction *>(action_);
-    DMRETURN_VALUE_IF_FAIL(action, 0);
-    QToolButton *button = qobject_cast<QToolButton *>(action->defaultWidget());
-    DMRETURN_VALUE_IF_FAIL(button, 0);
-    return button->defaultAction();
-}
-
-static QString labelForTitleAction(const QAction *action_)
-{
-    QAction *action = internalActionForTitleAction(action_);
-    DMRETURN_VALUE_IF_FAIL(action, QString());
-    return action->text();
-}
-
 class DBusMenuExporterPrivate
 {
 public:
@@ -97,37 +80,77 @@ public:
     QVariant propertyForAction(QAction *action, const QString &name) const
     {
         Q_ASSERT(action);
-        // Hack: Support for KDE menu titles in a Qt-only library...
-        bool isTitle = action->objectName() == KMENU_TITLE;
+        QVariant value;
+        if (action->objectName() == KMENU_TITLE) {
+            // Hack: Support for KDE menu titles in a Qt-only library...
+            value = propertyForKMenuTitleAction(action, name);
+        } else if (action->isSeparator()) {
+            value = propertyForSeparatorAction(action, name);
+        } else {
+            value = propertyForGenericAction(action, name);
+        }
+        // DBus does not like invalid variants
+        return value.isValid() ? value : QVariant(QString());
+    }
+
+    QVariant propertyForKMenuTitleAction(QAction *action_, const QString &name) const
+    {
+        // Properties which do not require the title action
+        if (name == "type") {
+            return "text";
+        } else if (name == "enabled") {
+            return false;
+        }
+        const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
+        DMRETURN_VALUE_IF_FAIL(widgetAction, QVariant());
+        QToolButton *button = qobject_cast<QToolButton *>(widgetAction->defaultWidget());
+        DMRETURN_VALUE_IF_FAIL(button, QVariant());
+        QAction *action = button->defaultAction();
+        DMRETURN_VALUE_IF_FAIL(action, QVariant());
+
         if (name == "label") {
-            QString text;
-            if (isTitle) {
-                text = labelForTitleAction(action);
-            } else {
-                text = action->text();
-            }
-            return swapMnemonicChar(text, '&', '_');
-        } else if (name == "sensitive") {
-            return isTitle ? false : action->isEnabled();
+            return swapMnemonicChar(action->text(), '&', '_');
+        } else if (name == "icon-name") {
+            return QVariant(m_iconNameForActionFunction(action));
+        }
+        return QVariant();
+    }
+
+    QVariant propertyForSeparatorAction(QAction *action, const QString &name) const
+    {
+        if (name == "type") {
+            return "separator";
+        }
+        return QVariant();
+    }
+
+    QVariant propertyForGenericAction(QAction *action, const QString &name) const
+    {
+        if (name == "label") {
+            return swapMnemonicChar(action->text(), '&', '_');
+        } else if (name == "enabled") {
+            return action->isEnabled();
         } else if (name == "type") {
+            return "standard";
+        } else if (name == "children-display") {
             if (action->menu()) {
-                return "menu";
-            } else if (action->isSeparator()) {
-                return "separator";
-            } else if (action->isCheckable()) {
-                return action->actionGroup() ? "radio" : "checkbox";
+                return "submenu";
             } else {
-                return "action";
+                return QVariant();
             }
-        } else if (name == "checked") {
-            return action->isChecked();
-        } else if (name == "icon") {
-            QAction *iconAction = isTitle ? internalActionForTitleAction(action) : action;
-            return QVariant(m_iconNameForActionFunction(iconAction));
+        } else if (name == "toggle-type") {
+            if (action->isCheckable()) {
+                return action->actionGroup() ? "radio" : "checkmark";
+            } else {
+                return QVariant();
+            }
+        } else if (name == "toggle-state") {
+            return action->isChecked() ? 1 : 0;
+        } else if (name == "icon-name") {
+            return QVariant(m_iconNameForActionFunction(action));
         } else if (name == "icon-data") {
         }
-        DMDEBUG << "Unhandled property" << name;
-        return QVariant(QString()); // DBus does not like invalid variants
+        return QVariant();
     }
 
     QMenu *menuForId(uint id) const
