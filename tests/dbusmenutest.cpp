@@ -103,6 +103,7 @@ void DBusMenuTest::testExporter()
     DBusMenuItemList list = reply.value();
     QCOMPARE(list.count(), 1);
     DBusMenuItem item = list.first();
+    QVERIFY(item.id != 0);
     QVERIFY(!item.properties.contains("type"));
     QCOMPARE(item.properties.value("label").toString(), label);
     if (enabled) {
@@ -202,6 +203,35 @@ void DBusMenuTest::testClickedEvent()
     QTest::qWait(500);
 
     QCOMPARE(spy.count(), 1);
+}
+
+void DBusMenuTest::testSubMenu()
+{
+    QMenu inputMenu;
+    QMenu *subMenu = inputMenu.addMenu("menu");
+    QAction *a1 = subMenu->addAction("a1");
+    QAction *a2 = subMenu->addAction("a2");
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+    int id = list.first().id;
+
+    reply = iface.call("GetChildren", id, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    DBusMenuItem item = list.takeFirst();
+    QVERIFY(item.id != 0);
+    QCOMPARE(item.properties.value("label").toString(), a1->text());
+
+    item = list.takeFirst();
+    QCOMPARE(item.properties.value("label").toString(), a2->text());
 }
 
 void DBusMenuTest::testStandardItem()
