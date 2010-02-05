@@ -1,6 +1,7 @@
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
     dbusmenuexporter.cpp
+    dbusmenuimporter.cpp
     dbusmenuitem.cpp
     )
 
