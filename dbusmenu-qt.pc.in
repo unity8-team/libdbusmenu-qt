@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@CMAKE_INSTALL_PREFIX@/lib
+includedir=@CMAKE_INSTALL_PREFIX@/include/dbusmenu-qt
+
+Name: libdbusmenu-qt
+Description: Qt implementation of dbusmenu spec
+Version: @dbusmenu_qt_VERSION@
+Libs: -L${libdir} -ldbusmenu-qt
+Cflags: -I${includedir}

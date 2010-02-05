@@ -14,5 +14,11 @@ include_directories(
     ${QT_QTGUI_INCLUDE_DIR}
     )
 
+configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)
+
+install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
+    DESTINATION lib${LIB_SUFFIX}/pkgconfig
+    )
+
 add_subdirectory(src)
 #add_subdirectory(tests)
