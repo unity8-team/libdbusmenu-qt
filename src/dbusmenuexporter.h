@@ -66,7 +66,7 @@ public Q_SLOTS:
     Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, uint timestamp);
     QDBusVariant GetProperty(int id, const QString &property);
     QVariantMap GetProperties(int id, const QStringList &names);
-    int GetLayout(int parentId, QString &layout);
+    uint GetLayout(int parentId, QString &layout);
     DBusMenuItemList GetGroupProperties(const QVariantList &ids, const QStringList &propertyNames);
 
 Q_SIGNALS:

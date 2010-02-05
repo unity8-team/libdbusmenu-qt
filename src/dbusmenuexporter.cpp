@@ -283,7 +283,7 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
     return list;
 }
 
-int DBusMenuExporter::GetLayout(int parentId, QString &layout)
+uint DBusMenuExporter::GetLayout(int parentId, QString &layout)
 {
     QMenu *menu = d->menuForId(parentId);
     if (!menu) {
