@@ -35,4 +35,14 @@
 // Log a variable name and value
 #define DMVAR(var) DMDEBUG << #var ":" << var
 
+#define DMRETURN_IF_FAIL(cond) if (!(cond)) { \
+    DMWARNING << "Condition failed: " #cond; \
+    return; \
+}
+
+#define DMRETURN_VALUE_IF_FAIL(cond, value) if (!(cond)) { \
+    DMWARNING << "Condition failed: " #cond; \
+    return (value); \
+}
+
 #endif /* DEBUG_P_H */
