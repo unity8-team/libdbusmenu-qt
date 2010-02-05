@@ -207,10 +207,9 @@ void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction fu
     d->m_iconNameForActionFunction = function;
 }
 
-void DBusMenuExporter::emitChildrenUpdated(uint id)
+void DBusMenuExporter::emitLayoutUpdated(uint id)
 {
-    ChildrenUpdated(id);
-    LayoutUpdate(d->m_revision, id);
+    LayoutUpdated(d->m_revision, id);
 }
 
 void DBusMenuExporter::emitItemUpdated(uint id)
@@ -241,7 +240,7 @@ void DBusMenuExporter::addAction(QAction *action, uint parentId)
         d->addMenu(action->menu(), id);
     }
     ++d->m_revision;
-    emitChildrenUpdated(parentId);
+    emitLayoutUpdated(parentId);
 }
 
 void DBusMenuExporter::removeAction(QAction *action, uint parentId)
@@ -249,7 +248,7 @@ void DBusMenuExporter::removeAction(QAction *action, uint parentId)
     uint id = d->m_idForAction.take(action);
     d->m_actionForId.remove(id);
     ++d->m_revision;
-    emitChildrenUpdated(parentId);
+    emitLayoutUpdated(parentId);
 }
 
 uint DBusMenuExporter::idForAction(QAction *action) const

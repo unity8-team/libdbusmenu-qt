@@ -55,7 +55,7 @@ public:
      */
     void setIconNameForActionFunction(IconNameForActionFunction);
 
-    void emitChildrenUpdated(uint);
+    void emitLayoutUpdated(uint);
     void emitItemUpdated(uint);
 
     uint idForAction(QAction *) const;
@@ -70,10 +70,9 @@ public Q_SLOTS:
     uint GetLayout(uint parentId, QString &layout);
 
 Q_SIGNALS:
-    void ChildrenUpdated(uint);
     void ItemUpdated(uint);
     void ItemPropertyUpdated(uint, QString, QVariant);
-    void LayoutUpdate(uint revision, uint parentId);
+    void LayoutUpdated(uint revision, uint parentId);
 
 private Q_SLOTS:
     void doEmitItemUpdated();
