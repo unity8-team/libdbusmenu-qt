@@ -28,177 +28,278 @@ You should have received a copy of both the GNU Lesser General Public
 License version 3 and version 2.1 along with this program.  If not, see 
 <http://www.gnu.org/licenses/>
 -->
-<node name="/MenuBar" xmlns:dox="http://www.ayatana.org/dbus/dox.dtd">
-    <interface name="org.ayatana.dbusmenu">
-<dox:d><![CDATA[
-The goal of this DBus interface is to be able to pass menu items through DBus.
+<node name="/" xmlns:dox="http://www.ayatana.org/dbus/dox.dtd">
+	<interface name="org.ayatana.dbusmenu">
+		<dox:d><![CDATA[
+		The goal of this DBus interface is to be able to pass menu items
+		through DBus.
 
-Items are represented with a unique numeric id and a dictionary of properties.
+		Items are represented with a unique numeric id and a dictionary of
+		properties.
 
-Available properties are:
+		Available properties are:
 
-- @c type (string): Type of the item (see below)
-- @c label (string): Text of the item
-- @c icon-data (binary): Raw data of the icon (TODO: define format)
-- @c icon (string): Icon name of the item, following icon spec
-- @c sensitive (boolean): Whether the item can be activated or not
-- @c checked (boolean): Whether a checkbox or radio item is checked
-- @c shortcut (string): The keyboard shortcut
+		<table>
+		<tr>
+			<th>Name</th>
+			<th>Type</th>
+			<th>Description</th>
+			<th>Default Value</th>
+		</tr>
+		<tr>
+			<td>type</td>
+			<td>String</td>
+			<td>Can be one of:
+			- "standard": an item which can be clicked to trigger an action or
+			  show another menu
+			- "separator": a separator
 
-Vendor specific properties can be added by prefixing them with "x-<vendor>-"
+			Vendor specific types can be added by prefixing them with
+			"x-<vendor>-".
+			</td>
+			<td>"standard"</td>
+		</tr>
+		<tr>
+			<td>label</td>
+			<td>string</td>
+			<td>Text of the item, except that:
+			-# two consecutive underscore characters "__" are displayed as a
+			single underscore,
+			-# any remaining underscore characters are not displayed at all,
+			-# the first of those remaining underscore characters (unless it is
+			the last character in the string) indicates that the following
+			character is the access key.
+			</td>
+			<td>""</td>
+		</tr>
+		<tr>
+			<td>enabled</td>
+			<td>boolean</td>
+			<td>Whether the item can be activated or not.</td>
+			<td>true</td>
+		</tr>
+		<tr>
+			<td>icon-name</td>
+			<td>string</td>
+			<td>Icon name of the item, following the freedesktop.org icon spec.</td>
+			<td>""</td>
+		</tr>
+		<tr>
+			<td>icon-data</td>
+			<td>binary</td>
+			<td>PNG data of the icon.</td>
+			<td>Empty</td>
+		</tr>
+		<tr>
+			<td>toggle-type</td>
+			<td>string</td>
+			<td>
+			If the item can be toggled, this property should be set to:
+			- "checkmark": Item is an independent togglable item
+			- "radio": Item is part of a group where only one item can be
+			  toggled at a time
+			- "": Item cannot be toggled
+			</td>
+			<td>""</td>
+		</tr>
+		<tr>
+			<td>toggle-state</td>
+			<td>int</td>
+			<td>
+			Describe the current state of a "togglable" item. Can be one of:
+			- 0 = off
+			- 1 = on
+			- anything else = indeterminate
 
-@c type property is an enum which can take the following values:
+			Note:
+			The implementation does not itself handle ensuring that only one
+			item in a radio group is set to "on", or that a group does not have
+			"on" and "indeterminate" items simultaneously; maintaining this
+			policy is up to the toolkit wrappers.
+			</td>
+			<td>0</td>
+		</tr>
+		<tr>
+			<td>children-display</td>
+			<td>string</td>
+			<td>
+			If the menu item has children this property should be set to
+			"submenu".
+			</td>
+			<td>""</td>
+		</tr>
+		</table>
 
-- @c action: An item which can be clicked to trigger an action
-- @c checkbox: An item which can be checked or unchecked
-- @c radio: An item which can be checked or unchecked as part of a group
-- @c separator: A separator
-- @c menu: An item which contains more items
+		Vendor specific properties can be added by prefixing them with
+		"x-<vendor>-".
+		]]></dox:d>
 
-Vendor specific types can be added by prefixing them with "x-<vendor>-"
-]]></dox:d>
-<!-- Methods -->
-        <method name="GetLayout">
-            <arg type="u" name="parentId" direction="in" />
-            <arg type="u" name="revision" direction="out" />
-            <arg type="s" name="layout" direction="out">
-                <dox:d><![CDATA[
-                An xml representation of the menu layout. It looks like this:
+<!-- Properties -->
+		<property name="version" type="u" access="read">
+			<dox:d>
+			Provides the version of the DBusmenu API that this API is
+			implementing.
+			</dox:d>
+		</property>
 
-                <menu id="0">
-                    <menu id="1">
-                        <menu id="2"/>
-                        <menu id="3"/>
-                        <menu id="4"/>
-                    </menu>
-                </menu>
-                ]]></dox:d>
-            </arg>
-        </method>
+<!-- Functions -->
 
-        <method name="GetChildren">
-<dox:d>
-Returns the list of items which are children of @a parentId.
-</dox:d>
-            <arg type="u" name="parentId" direction="in" >
-                <dox:d>the parent id for the list. If it is 0, returns the root item list</dox:d>
-            </arg>
-            <arg type="as" name="propertyNames" direction="in" >
-                <dox:d>the list of item properties we are interested in</dox:d>
-            </arg>
-            <arg type="a(ua{sv})" name="children" direction="out" >
-                <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="DBusMenuItemList"/>
-                <dox:d>the items we asked for, represented as an array of
-                struct(id, property dict)</dox:d>
-            </arg>
-        </method>
+		<method name="GetLayout">
+			<dox:d><![CDATA[
+			Provides an XML representation of the menu hierarchy
 
-        <method name="GetProperty">
-<dox:d>
-Returns the value of an item property.
-</dox:d>
-            <arg type="u" name="id" direction="in" >
-                <dox:d>the id of the item.</dox:d>
-            </arg>
-            <arg type="s" name="name" direction="in" >
-                <dox:d>the name of the property.</dox:d>
-            </arg>
-            <arg type="v" name="value" direction="out" >
-                <dox:d>the value of the property.</dox:d>
-            </arg>
-        </method>
+			XML syntax:
 
-        <method name="GetProperties">
-<dox:d>
-Returns multiple properties in one call. This is more efficient than
-GetProperty.
+			@verbatim
+<menu id="1" revision="2"> # Root container
+	<menu id="2" revision="2"> # First level menu, for example "File"
+		<menu id="3" revision="2"/> ~ Second level menu, for example "Open"
+		<menu id="4" revision="3"/>
+		...
+	</menu>
+	<menu id="5" revision="2"> # Another first level menu, say "Edit"
+		...
+	</menu>
+	...
+</menu>
+			@endverbatim
+			]]></dox:d>
+			<arg type="i" name="parentId" direction="in">
+				<dox:d>The ID of the parent node for the layout.  For
+				grabbing the layout from the root node use zero.</dox:d>
+			</arg>
+			<arg type="u" name="revision" direction="out">
+				<dox:d>The revision number of the layout.  For matching
+				with layoutUpdated signals.</dox:d>
+			</arg>
+			<arg type="s" name="layout" direction="out">
+				<dox:d>The layout as an XML string of IDs.</dox:d>
+			</arg>
+		</method>
 
-</dox:d>
-            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
-            <arg type="u" name="id" direction="in" >
-                <dox:d>the item whose properties we want to retrieve.</dox:d>
-            </arg>
-            <arg type="as" name="names" direction="in" >
-                <dox:d>name of the properties we want.</dox:d>
-            </arg>
-            <arg type="a{sv}" name="values" direction="out" >
-                <dox:d>the values of the requested properties.</dox:d>
-            </arg>
-        </method>
+		<method name="GetGroupProperties">
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantList"/>
+			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="DBusMenuItemList"/>
+			<dox:d>
+			Returns the list of items which are children of @a parentId.
+			</dox:d>
+			<arg type="ai" name="ids" direction="in" >
+				<dox:d>
+					A list of ids that we should be finding the properties
+					on.  If the list is empty, all menu items should be sent.
+				</dox:d>
+			</arg>
+			<arg type="as" name="propertyNames" direction="in" >
+				<dox:d>
+					The list of item properties we are
+					interested in.  If there are no entries in the list all of
+					the properties will be sent.
+				</dox:d>
+			</arg>
+			<arg type="a(ia{sv})" name="properties" direction="out" >
+				<dox:d>
+					An array of property values.
+					An item in this area is represented as a struct following
+					this format:
+					@li id unsigned the item id
+					@li properties map(string => variant) the requested item properties
+				</dox:d>
+			</arg>
+		</method>
 
-        <method name="Event">
-<dox:d><![CDATA[
-This is called by the applet to notify the application an event happened on a
-menu item.
+		<method name="GetChildren">
+			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="DBusMenuItemList"/>
+			<arg type="i" name="id" direction="in" />
+			<arg type="as" name="propertyNames" direction="in" />
+			<arg type="a(ia{sv})" name="properties" direction="out" />
+		</method>
 
-@a type can be one:
+		<method name="GetProperty">
+			<arg type="i" name="id" direction="in" />
+			<arg type="s" name="name" direction="in" />
+			<arg type="v" name="value" direction="out" />
+		</method>
 
-- "clicked"
-- "hovered"
+		<method name="GetProperties">
+			<dox:d>
+			Returns multiple properties in one call. This is more efficient than
+			GetProperty.
 
-Vendor specific events can be added by prefixing them with "x-<vendor>-"
+			</dox:d>
+			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+			<arg type="i" name="id" direction="in" >
+				<dox:d>The item whose properties we want to retrieve.</dox:d>
+			</arg>
+			<arg type="as" name="propertyNames" direction="in" >
+				<dox:d>List of string name of the properties we want.  If the list contains no entries, all properties are sent.</dox:d>
+			</arg>
+			<arg type="a{sv}" name="properties" direction="out" />
+		</method>
 
-Applications can use the "hovered" event to fill menus on the fly, emitting the
-LayoutUpdated() signal when the new menu is ready.
-]]></dox:d>
-            <arg type="u" name="id" direction="in" >
-                <dox:d>the id of the item which received the event</dox:d>
-            </arg>
-            <arg type="s" name="type" direction="in" >
-                <dox:d>the type of event</dox:d>
-            </arg>
-            <arg type="v" name="data" direction="in" >
-                <dox:d>event-specific data</dox:d>
-            </arg>
-            <arg type="u" name="timestamp" direction="in" >
-                <dox:d>time at which the event got triggered</dox:d>
-            </arg>
-        </method>
+		<method name="Event">
+			<dox:d><![CDATA[
+			This is called by the applet to notify the application an event happened on a
+			menu item.
+
+			@a type can be one of the following:
+
+			@li "clicked"
+			@li "hovered"
+
+			Vendor specific events can be added by prefixing them with "x-<vendor>-"
+			]]></dox:d>
+			<arg type="i" name="id" direction="in" >
+				<dox:d>the id of the item which received the event</dox:d>
+			</arg>
+			<arg type="s" name="eventId" direction="in" >
+				<dox:d>the type of event</dox:d>
+			</arg>
+			<arg type="v" name="data" direction="in" >
+				<dox:d>event-specific data</dox:d>
+			</arg>
+			<arg type="u" name="timestamp" direction="in" >
+				<dox:d>The time that the event occured if available or the time the message was sent if not</dox:d>
+			</arg>
+		</method>
 
 <!-- Signals -->
-        <signal name="ItemPropertyUpdated">
-<dox:d>
-Triggered by the application to notify the applet that the property @a property
-from item @a id has changed to @a value.
-</dox:d>
-            <arg type="u" name="id" direction="out" >
-                <dox:d>the id of the item</dox:d>
-            </arg>
-            <arg type="s" name="name" direction="out" >
-                <dox:d>the name of the property which got updated</dox:d>
-            </arg>
-            <arg type="v" name="value" direction="out" >
-                <dox:d>the value of the property which got updated</dox:d>
-            </arg>
-        </signal>
+		<signal name="ItemPropertyUpdated">
+			<dox:d>
+			Triggered by the application to notify the applet that the property @a property
+			from item @a id has changed to @a value.
+			</dox:d>
+			<arg type="i" name="id" direction="out" />
+			<arg type="s" name="prop" direction="out" />
+			<arg type="v" name="value" direction="out" />
+		</signal>
 
-        <signal name="ItemUpdated">
-<dox:d>
-Triggered by the application to notify the applet all properties of item
-@a id should be considered outdated
-</dox:d>
-            <arg type="u" name="id" direction="out" >
-                <dox:d>the id of the item</dox:d>
-            </arg>
-        </signal>
+		<signal name="ItemUpdated">
+			<dox:d>
+				Triggered by the application to notify the applet that all properties of item
+			</dox:d>
+			<arg type="i" name="id" direction="out" >
+				<dox:d>id which should be considered outdated</dox:d>
+			</arg>
+		</signal>
 
-        <signal name="LayoutUpdated">
-<dox:d>
-Triggered by the application to notify display of a layout update, up to
-@a revision.
-</dox:d>
-            <arg type="i" name="revision" direction="out">
-                <dox:d>The revision of the layout that we're currently on</dox:d>
-            </arg>
-            <arg type="u" name="parent" direction="out">
-                <dox:d>
-                If the layout update is only of a subtree, this is the parent item for the
-                entries that have changed.  It is zero if the whole layout should be considered
-                invalid.
-                </dox:d>
-            </arg>
-        </signal>
+		<signal name="LayoutUpdated">
+			<dox:d>
+			Triggered by the application to notify display of a layout update, up to
+			revision
+			</dox:d>
+			<arg type="u" name="revision" direction="out" >
+				<dox:d>The revision of the layout that we're currently on</dox:d>
+			</arg>
+			<arg type="i" name="parent" direction="out" >
+				<dox:d>
+				If the layout update is only of a subtree, this is the
+				parent item for the entries that have changed.  It is zero if
+				the whole layout should be considered invalid.
+				</dox:d>
+			</arg>
+		</signal>
+
 <!-- End of interesting stuff -->
 
-    </interface>
+	</interface>
 </node>

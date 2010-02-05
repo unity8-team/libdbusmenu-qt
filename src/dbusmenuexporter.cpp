@@ -51,15 +51,15 @@ public:
     IconNameForActionFunction m_iconNameForActionFunction;
 
     QMenu *m_rootMenu;
-    QMap<uint, QAction *> m_actionForId;
-    QMap<QAction *, uint> m_idForAction;
-    uint m_nextId;
-    uint m_revision;
+    QMap<int, QAction *> m_actionForId;
+    QMap<QAction *, int> m_idForAction;
+    int m_nextId;
+    int m_revision;
 
-    QSet<uint> m_itemUpdatedIds;
+    QSet<int> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
 
-    void addMenu(QMenu *menu, uint parentId)
+    void addMenu(QMenu *menu, int parentId)
     {
         new DBusMenu(menu, q, parentId);
         Q_FOREACH(QAction *action, menu->actions()) {
@@ -153,7 +153,7 @@ public:
         return QVariant();
     }
 
-    QMenu *menuForId(uint id) const
+    QMenu *menuForId(int id) const
     {
         if (id == 0) {
             return m_rootMenu;
@@ -230,12 +230,12 @@ void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction fu
     d->m_iconNameForActionFunction = function;
 }
 
-void DBusMenuExporter::emitLayoutUpdated(uint id)
+void DBusMenuExporter::emitLayoutUpdated(int id)
 {
     LayoutUpdated(d->m_revision, id);
 }
 
-void DBusMenuExporter::emitItemUpdated(uint id)
+void DBusMenuExporter::emitItemUpdated(int id)
 {
     if (d->m_itemUpdatedIds.contains(id)) {
         DMDEBUG << id << "already in";
@@ -248,15 +248,15 @@ void DBusMenuExporter::emitItemUpdated(uint id)
 
 void DBusMenuExporter::doEmitItemUpdated()
 {
-    Q_FOREACH(uint id, d->m_itemUpdatedIds) {
+    Q_FOREACH(int id, d->m_itemUpdatedIds) {
         ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
 }
 
-void DBusMenuExporter::addAction(QAction *action, uint parentId)
+void DBusMenuExporter::addAction(QAction *action, int parentId)
 {
-    uint id = d->m_nextId++;
+    int id = d->m_nextId++;
     d->m_actionForId.insert(id, action);
     d->m_idForAction.insert(action, id);
     if (action->menu()) {
@@ -266,15 +266,15 @@ void DBusMenuExporter::addAction(QAction *action, uint parentId)
     emitLayoutUpdated(parentId);
 }
 
-void DBusMenuExporter::removeAction(QAction *action, uint parentId)
+void DBusMenuExporter::removeAction(QAction *action, int parentId)
 {
-    uint id = d->m_idForAction.take(action);
+    int id = d->m_idForAction.take(action);
     d->m_actionForId.remove(id);
     ++d->m_revision;
     emitLayoutUpdated(parentId);
 }
 
-uint DBusMenuExporter::idForAction(QAction *action) const
+int DBusMenuExporter::idForAction(QAction *action) const
 {
     if (!action) {
         return 0;
@@ -282,7 +282,7 @@ uint DBusMenuExporter::idForAction(QAction *action) const
     return d->m_idForAction.value(action, 0);
 }
 
-DBusMenuItemList DBusMenuExporter::GetChildren(uint parentId, const QStringList &names)
+DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &names)
 {
     DBusMenuItemList list;
 
@@ -300,7 +300,7 @@ DBusMenuItemList DBusMenuExporter::GetChildren(uint parentId, const QStringList 
     return list;
 }
 
-uint DBusMenuExporter::GetLayout(uint parentId, QString &layout)
+int DBusMenuExporter::GetLayout(int parentId, QString &layout)
 {
     QMenu *menu = d->menuForId(parentId);
     if (!menu) {
@@ -317,7 +317,7 @@ uint DBusMenuExporter::GetLayout(uint parentId, QString &layout)
     return d->m_revision;
 }
 
-void DBusMenuExporter::Event(uint id, const QString &eventType, const QDBusVariant &/*data*/, uint /*timestamp*/)
+void DBusMenuExporter::Event(int id, const QString &eventType, const QDBusVariant &/*data*/, int /*timestamp*/)
 {
     if (eventType == "clicked") {
         QAction *action = d->m_actionForId.value(id);
@@ -333,7 +333,7 @@ void DBusMenuExporter::Event(uint id, const QString &eventType, const QDBusVaria
     }
 }
 
-QDBusVariant DBusMenuExporter::GetProperty(uint id, const QString &name)
+QDBusVariant DBusMenuExporter::GetProperty(int id, const QString &name)
 {
     QAction *action = d->m_actionForId.value(id);
     if (!action) {
@@ -343,7 +343,7 @@ QDBusVariant DBusMenuExporter::GetProperty(uint id, const QString &name)
     return QDBusVariant(d->propertyForAction(action, name));
 }
 
-QVariantMap DBusMenuExporter::GetProperties(uint id, const QStringList &names)
+QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
 {
     QAction *action = d->m_actionForId.value(id);
     if (!action) {
@@ -351,6 +351,18 @@ QVariantMap DBusMenuExporter::GetProperties(uint id, const QStringList &names)
         return QVariantMap();
     }
     return d->propertiesForAction(action, names);
+}
+
+DBusMenuItemList DBusMenuExporter::GetGroupProperties(const QVariantList &ids, const QStringList &names)
+{
+    DBusMenuItemList list;
+    Q_FOREACH(const QVariant &id, ids) {
+        DBusMenuItem item;
+        item.id = id.toInt();
+        item.properties = GetProperties(item.id, names);
+        list << item;
+    }
+    return list;
 }
 
 #include "dbusmenuexporter.moc"

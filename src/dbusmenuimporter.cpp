@@ -42,7 +42,7 @@
 static QTime sChrono;
 #endif
 
-typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(uint, QDBusPendingCallWatcher*);
+typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWatcher*);
 
 static const int MAX_WAIT_TIMEOUT = 50;
 
@@ -56,7 +56,7 @@ struct Task
     , m_method(0)
     {}
 
-    uint m_id;
+    int m_id;
     DBusMenuImporterMethod m_method;
 };
 
@@ -68,10 +68,10 @@ public:
     QDBusAbstractInterface *m_interface;
     QMenu *m_menu;
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
-    QMap<uint, QAction *> m_actionForId;
+    QMap<int, QAction *> m_actionForId;
     QSignalMapper m_mapper;
 
-    QDBusPendingCallWatcher *refresh(uint id)
+    QDBusPendingCallWatcher *refresh(int id)
     {
         #ifdef BENCHMARK
         DMDEBUG << "Starting refresh chrono for id" << id;
@@ -98,7 +98,7 @@ public:
      * Init all the immutable action properties here
      * TODO: Document immutable properties?
      */
-    QAction *createAction(uint id, const QVariantMap &map)
+    QAction *createAction(int id, const QVariantMap &map)
     {
         QAction *action = new QAction(0);
         action->setProperty(DBUSMENU_PROPERTY_ID, id);
@@ -179,7 +179,7 @@ DBusMenuImporter::DBusMenuImporter(QDBusAbstractInterface *interface, QObject *p
     d->m_menu = 0;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
-    connect(d->m_interface, SIGNAL(ItemUpdated(uint)), SLOT(slotItemUpdated(uint)));
+    connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
 
     d->refresh(0);
 }
@@ -205,7 +205,7 @@ void DBusMenuImporter::dispatch(QDBusPendingCallWatcher *watcher)
     (this->*task.m_method)(task.m_id, watcher);
 }
 
-void DBusMenuImporter::slotItemUpdated(uint id)
+void DBusMenuImporter::slotItemUpdated(int id)
 {
     QAction *action = d->m_actionForId.value(id);
     if (!action) {
@@ -234,7 +234,7 @@ void DBusMenuImporter::slotItemUpdated(uint id)
     d->m_taskForWatcher.insert(watcher, task);
 }
 
-void DBusMenuImporter::GetPropertiesCallback(uint id, QDBusPendingCallWatcher *watcher)
+void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *watcher)
 {
     #ifdef BENCHMARK
     DMDEBUG << "- Parsing updated properties for id" << id << sChrono.elapsed() << "ms";
@@ -258,7 +258,7 @@ void DBusMenuImporter::GetPropertiesCallback(uint id, QDBusPendingCallWatcher *w
     #endif
 }
 
-void DBusMenuImporter::GetChildrenCallback(uint parentId, QDBusPendingCallWatcher *watcher)
+void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher *watcher)
 {
     bool wasWaitingForMenu = false;
     QDBusReply<DBusMenuItemList> reply = *watcher;
@@ -317,8 +317,8 @@ void DBusMenuImporter::sendClickedEvent(int id)
 {
     DMDEBUG << id;
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-    uint timestamp = QDateTime::currentDateTime().toTime_t();
-    d->m_interface->asyncCall("Event", uint(id), QString("clicked"), empty, timestamp);
+    int timestamp = QDateTime::currentDateTime().toTime_t();
+    d->m_interface->asyncCall("Event", int(id), QString("clicked"), empty, timestamp);
 }
 
 void DBusMenuImporter::slotSubMenuAboutToShow()
@@ -329,7 +329,7 @@ void DBusMenuImporter::slotSubMenuAboutToShow()
     QAction *action = menu->menuAction();
     Q_ASSERT(action);
 
-    uint id = action->property(DBUSMENU_PROPERTY_ID).toUInt();
+    int id = action->property(DBUSMENU_PROPERTY_ID).toInt();
 
     QDBusPendingCallWatcher *watcher = d->refresh(id);
 

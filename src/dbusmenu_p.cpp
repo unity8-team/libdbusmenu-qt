@@ -28,7 +28,7 @@
 
 #include "dbusmenuexporter.h"
 
-DBusMenu::DBusMenu(QMenu *menu, DBusMenuExporter *exporter, uint parentId)
+DBusMenu::DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId)
 : QObject(menu)
 , m_exporter(exporter)
 , m_parentId(parentId)
@@ -77,7 +77,7 @@ void DBusMenu::addAction(QAction *action)
 void DBusMenu::changeAction(QAction *action)
 {
     DMDEBUG << "Changed" << action->text();
-    uint id = m_exporter->idForAction(action);
+    int id = m_exporter->idForAction(action);
     m_exporter->emitItemUpdated(id);
 }
 

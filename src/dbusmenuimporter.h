@@ -63,15 +63,15 @@ protected:
 private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
-    void slotItemUpdated(uint id);
+    void slotItemUpdated(int id);
     void slotSubMenuAboutToShow();
 
 private:
     DBusMenuImporterPrivate *const d;
     friend class DBusMenuImporterPrivate;
 
-    void GetChildrenCallback(uint id, QDBusPendingCallWatcher *);
-    void GetPropertiesCallback(uint id, QDBusPendingCallWatcher *);
+    void GetChildrenCallback(int id, QDBusPendingCallWatcher *);
+    void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);
 };
 
 #endif /* DBUSMENUIMPORTER_H */

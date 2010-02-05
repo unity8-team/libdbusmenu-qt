@@ -35,7 +35,7 @@ class QDBusArgument;
  */
 struct DBUSMENU_EXPORT DBusMenuItem
 {
-    uint id;
+    int id;
     QVariantMap properties;
 };
 

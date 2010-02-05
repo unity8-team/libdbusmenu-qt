@@ -55,24 +55,25 @@ public:
      */
     void setIconNameForActionFunction(IconNameForActionFunction);
 
-    void emitLayoutUpdated(uint);
-    void emitItemUpdated(uint);
+    void emitLayoutUpdated(int);
+    void emitItemUpdated(int);
 
-    uint idForAction(QAction *) const;
-    void addAction(QAction* action, uint parentId);
-    void removeAction(QAction* action, uint parentId);
+    int idForAction(QAction *) const;
+    void addAction(QAction* action, int parentId);
+    void removeAction(QAction* action, int parentId);
 
 public Q_SLOTS:
-    DBusMenuItemList GetChildren(uint parentId, const QStringList &propertyNames);
-    Q_NOREPLY void Event(uint id, const QString &eventId, const QDBusVariant &data, uint timestamp);
-    QDBusVariant GetProperty(uint id, const QString &property);
-    QVariantMap GetProperties(uint id, const QStringList &names);
-    uint GetLayout(uint parentId, QString &layout);
+    DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);
+    Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, int timestamp);
+    QDBusVariant GetProperty(int id, const QString &property);
+    QVariantMap GetProperties(int id, const QStringList &names);
+    int GetLayout(int parentId, QString &layout);
+    DBusMenuItemList GetGroupProperties(const QVariantList &ids, const QStringList &propertyNames);
 
 Q_SIGNALS:
-    void ItemUpdated(uint);
-    void ItemPropertyUpdated(uint, QString, QVariant);
-    void LayoutUpdated(uint revision, uint parentId);
+    void ItemUpdated(int);
+    void ItemPropertyUpdated(int, QString, QVariant);
+    void LayoutUpdated(int revision, int parentId);
 
 private Q_SLOTS:
     void doEmitItemUpdated();

@@ -38,7 +38,7 @@ class DBusMenu : public QObject
 {
     Q_OBJECT
 public:
-    DBusMenu(QMenu *menu, DBusMenuExporter *exporter, uint parentId);
+    DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId);
     ~DBusMenu();
 
 protected:
@@ -50,7 +50,7 @@ private:
     void removeAction(QAction *action);
 
     DBusMenuExporter *m_exporter;
-    uint m_parentId;
+    int m_parentId;
 };
 
 #endif /* DBUSMENU_H */
