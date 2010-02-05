@@ -196,7 +196,7 @@ public:
 };
 
 
-DBusMenuExporter::DBusMenuExporter(const QString &service, QMenu *rootMenu)
+DBusMenuExporter::DBusMenuExporter(const QString &service, const QString &objectPath, QMenu *rootMenu)
 : QObject(rootMenu)
 , d(new DBusMenuExporterPrivate)
 {
@@ -211,7 +211,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &service, QMenu *rootMenu)
     qDBusRegisterMetaType<DBusMenuItemList>();
     new DbusmenuAdaptor(this);
     QDBusConnection connection(service);
-    connection.registerObject("/MenuBar", this, QDBusConnection::ExportAllContents);
+    connection.registerObject(objectPath, this, QDBusConnection::ExportAllContents);
     d->addMenu(rootMenu, 0);
 
     d->m_itemUpdatedTimer->setInterval(0);
