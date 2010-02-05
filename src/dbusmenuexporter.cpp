@@ -63,9 +63,9 @@ public:
     int idForAction(QAction *action) const
     {
         if (!action) {
-            return 0;
+            return -1;
         }
-        return m_idForAction.value(action, 0);
+        return m_idForAction.value(action, -2);
     }
 
     void addMenu(QMenu *menu, int parentId)
