@@ -151,6 +151,25 @@ void DBusMenuTest::testGetAllProperties()
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), standardProperties);
 }
 
+void DBusMenuTest::testGetNonExistentProperty()
+{
+    const char* NON_EXISTENT_KEY = "i-do-not-exist";
+
+    QMenu inputMenu;
+    inputMenu.addAction("a1");
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList() << NON_EXISTENT_KEY);
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+
+    DBusMenuItem item = list.takeFirst();
+    QVERIFY(item.properties.contains(NON_EXISTENT_KEY));
+}
+
 void DBusMenuTest::testStandardItem()
 {
     QMenu inputMenu;

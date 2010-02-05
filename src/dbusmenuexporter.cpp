@@ -388,9 +388,10 @@ QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
     if (names.isEmpty()) {
         return all;
     } else {
+        QVariant invalid = QString("INVALID");
         QVariantMap map;
         Q_FOREACH(const QString &name, names) {
-            map.insert(name, all.value(name));
+            map.insert(name, all.value(name, invalid));
         }
         return map;
     }
