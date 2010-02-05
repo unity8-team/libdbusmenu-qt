@@ -244,9 +244,11 @@ void DBusMenuTest::testSubMenu()
 void DBusMenuTest::testDynamicSubMenu()
 {
     QMenu inputMenu;
-    QMenu *subMenu = inputMenu.addMenu("menu");
-    MenuFiller filler(subMenu);
     DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    QAction *action = inputMenu.addAction("menu");
+    QMenu *subMenu = new QMenu;
+    action->setMenu(subMenu);
+    MenuFiller filler(subMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
 
