@@ -21,6 +21,7 @@
 #include "dbusmenuimporter.h"
 
 // Qt
+#include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusMetaType>
@@ -28,6 +29,7 @@
 #include <QDBusVariant>
 #include <QMenu>
 #include <QSignalMapper>
+#include <QTime>
 
 // Local
 #include "dbusmenuitem.h"
@@ -41,6 +43,8 @@ static QTime sChrono;
 #endif
 
 typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(uint, QDBusPendingCallWatcher*);
+
+static const int MAX_WAIT_TIMEOUT = 50;
 
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
 static const char *DBUSMENU_PROPERTY_ICON = "_dbusmenu_icon";
@@ -67,7 +71,7 @@ public:
     QMap<uint, QAction *> m_actionForId;
     QSignalMapper m_mapper;
 
-    void refresh(uint id)
+    QDBusPendingCallWatcher *refresh(uint id)
     {
         #ifdef BENCHMARK
         DMDEBUG << "Starting refresh chrono for id" << id;
@@ -86,6 +90,8 @@ public:
         task.m_id = id;
         task.m_method = &DBusMenuImporter::GetChildrenCallback;
         m_taskForWatcher.insert(watcher, task);
+
+        return watcher;
     }
 
     /**
@@ -327,7 +333,25 @@ void DBusMenuImporter::slotSubMenuAboutToShow()
 
     uint id = action->property(DBUSMENU_PROPERTY_ID).toUInt();
 
-    d->refresh(id);
+    QDBusPendingCallWatcher *watcher = d->refresh(id);
+
+    QTime time;
+    time.start();
+    while (!watcher->isFinished() && time.elapsed() < MAX_WAIT_TIMEOUT) {
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }
+
+    // Tricky: watcher has indicated it is finished, but slots connected to its
+    // finished() signal have not been called yet. Calling waitForFinished()
+    // ensures they get called.
+    if (watcher->isFinished()) {
+        watcher->waitForFinished();
+    } else {
+        DMWARNING << "Application did not answer to GetChildren() before timeout";
+    }
+    #ifdef BENCHMARK
+    DMVAR(time.elapsed());
+    #endif
 }
 
 #include "dbusmenuimporter.moc"
