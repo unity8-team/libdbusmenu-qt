@@ -24,13 +24,13 @@
 // Qt
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
+#include <QtDBus/QDBusAbstractAdaptor>
 
-#include "dbusmenuitem_p.h"
+#include <dbusmenuitem_p.h>
 
 class QAction;
 class QMenu;
-
-class DBusMenu;
+class QDBusVariant;
 
 typedef QString (* IconNameForActionFunction)(const QAction *);
 

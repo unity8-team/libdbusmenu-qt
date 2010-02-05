@@ -21,9 +21,14 @@
 #ifndef DBUSMENUITEM_H
 #define DBUSMENUITEM_H
 
-#include <QList>
-#include <QDBusArgument>
+#include <QtCore/QList>
+#include <QtCore/QVariant>
 
+class QDBusArgument;
+
+/**
+ * Internal struct used to communicate on DBus
+ */
 struct DBusMenuItem
 {
     uint id;

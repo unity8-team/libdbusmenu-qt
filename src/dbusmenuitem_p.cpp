@@ -20,6 +20,9 @@
 */
 #include "dbusmenuitem_p.h"
 
+// Qt
+#include <QDBusArgument>
+
 QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItem &item)
 {
     argument.beginStructure();
