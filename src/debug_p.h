@@ -23,7 +23,8 @@
 
 #include <QDebug>
 
-// Simple macro to get kDebug() like support
+// Simple macros to get KDebug like support
 #define DMDEBUG qDebug() << __FUNCTION__
+#define DMWARNING qWarning() << __FUNCTION__
 
 #endif /* DEBUG_P_H */
