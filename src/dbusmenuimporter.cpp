@@ -77,11 +77,7 @@ public:
         DMDEBUG << "Starting refresh chrono for id" << id;
         sChrono.start();
         #endif
-        static QStringList names;
-        if (names.isEmpty()) {
-            names << "type" << "label" << "toggle-type" << "toggle-state" << "enabled" << "icon-name" << "children-display";
-        }
-        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, names);
+        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, QStringList());
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
         QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             q, SLOT(dispatch(QDBusPendingCallWatcher*)));
