@@ -75,7 +75,7 @@ Q_SIGNALS:
     void LayoutUpdated(int revision, int parentId);
 
 private Q_SLOTS:
-    void doEmitItemUpdated();
+    void doUpdateActions();
 
 private:
     DBusMenuExporterPrivate * const d;

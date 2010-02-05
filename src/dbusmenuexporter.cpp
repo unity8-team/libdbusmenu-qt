@@ -201,7 +201,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &connectionName, const QString 
 
     d->m_itemUpdatedTimer->setInterval(0);
     d->m_itemUpdatedTimer->setSingleShot(true);
-    connect(d->m_itemUpdatedTimer, SIGNAL(timeout()), SLOT(doEmitItemUpdated()));
+    connect(d->m_itemUpdatedTimer, SIGNAL(timeout()), SLOT(doUpdateActions()));
 }
 
 DBusMenuExporter::~DBusMenuExporter()
@@ -232,7 +232,7 @@ void DBusMenuExporter::updateAction(QAction *action)
     d->m_itemUpdatedTimer->start();
 }
 
-void DBusMenuExporter::doEmitItemUpdated()
+void DBusMenuExporter::doUpdateActions()
 {
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
         QAction *action = d->m_actionForId.value(id);
