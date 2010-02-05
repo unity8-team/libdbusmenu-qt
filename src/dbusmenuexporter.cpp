@@ -79,115 +79,63 @@ public:
     QVariantMap propertiesForAction(QAction *action) const
     {
         Q_ASSERT(action);
-        QVariantMap map;
-        QStringList names;
 
-        QVariant value = propertyForAction(action, "type");
-        map.insert("type", value);
-        QString type = value.toString();
-        if (type == "standard") {
-            names = QStringList()
-                << "enabled"
-                << "label"
-                << "icon-name"
-                << "icon-data"
-                << "toggle-type"
-                << "toggle-state"
-                << "children-display"
-                ;
-        } else if (type == "separator") {
-            return map;
-        } else if (type == "text") {
-            names = QStringList()
-                << "label"
-                << "enabled"
-                << "icon-name"
-                << "icon-data"
-                ;
+        if (action->objectName() == KMENU_TITLE) {
+            // Hack: Support for KDE menu titles in a Qt-only library...
+            return propertiesForKMenuTitleAction(action);
+        } else if (action->isSeparator()) {
+            return propertiesForSeparatorAction(action);
         } else {
-            DMWARNING << "Unknown type" << type;
-            return map;
+            return propertiesForStandardAction(action);
         }
-        Q_FOREACH(const QString &name, names) {
-            map.insert(name, propertyForAction(action, name));
-        }
+    }
+
+    QVariantMap propertiesForKMenuTitleAction(QAction *action_) const
+    {
+        QVariantMap map;
+        map.insert("type", "text");
+        map.insert("enabled", false);
+
+        const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
+        DMRETURN_VALUE_IF_FAIL(widgetAction, map);
+        QToolButton *button = qobject_cast<QToolButton *>(widgetAction->defaultWidget());
+        DMRETURN_VALUE_IF_FAIL(button, map);
+        QAction *action = button->defaultAction();
+        DMRETURN_VALUE_IF_FAIL(action, map);
+
+        map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
+        map.insert("icon-name", m_iconNameForActionFunction(action));
         return map;
     }
 
-    QVariant propertyForAction(QAction *action, const QString &name) const
+    QVariantMap propertiesForSeparatorAction(QAction *action) const
     {
-        Q_ASSERT(action);
-        QVariant value;
-        if (action->objectName() == KMENU_TITLE) {
-            // Hack: Support for KDE menu titles in a Qt-only library...
-            value = propertyForKMenuTitleAction(action, name);
-        } else if (action->isSeparator()) {
-            value = propertyForSeparatorAction(action, name);
+        QVariantMap map;
+        map.insert("type", "separator");
+        return map;
+    }
+
+    QVariantMap propertiesForStandardAction(QAction *action) const
+    {
+        QVariantMap map;
+        map.insert("type", "standard");
+        map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
+        map.insert("enabled", action->isEnabled());
+        map.insert("children-display", action->menu() ? "submenu" : "");
+        QString toggleType;
+        int toggleState;
+        if (action->isCheckable()) {
+            toggleType = action->actionGroup() ? "radio" : "checkmark";
+            toggleState = action->isChecked() ? 1 : 0;
         } else {
-            value = propertyForGenericAction(action, name);
+            toggleType = "";
+            toggleState = 0;
         }
-        // DBus does not like invalid variants
-        return value.isValid() ? value : QVariant(QString());
-    }
-
-    QVariant propertyForKMenuTitleAction(QAction *action_, const QString &name) const
-    {
-        // Properties which do not require the title action
-        if (name == "type") {
-            return "text";
-        } else if (name == "enabled") {
-            return false;
-        }
-        const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
-        DMRETURN_VALUE_IF_FAIL(widgetAction, QVariant());
-        QToolButton *button = qobject_cast<QToolButton *>(widgetAction->defaultWidget());
-        DMRETURN_VALUE_IF_FAIL(button, QVariant());
-        QAction *action = button->defaultAction();
-        DMRETURN_VALUE_IF_FAIL(action, QVariant());
-
-        if (name == "label") {
-            return swapMnemonicChar(action->text(), '&', '_');
-        } else if (name == "icon-name") {
-            return QVariant(m_iconNameForActionFunction(action));
-        }
-        return QVariant();
-    }
-
-    QVariant propertyForSeparatorAction(QAction *action, const QString &name) const
-    {
-        if (name == "type") {
-            return "separator";
-        }
-        return QVariant();
-    }
-
-    QVariant propertyForGenericAction(QAction *action, const QString &name) const
-    {
-        if (name == "label") {
-            return swapMnemonicChar(action->text(), '&', '_');
-        } else if (name == "enabled") {
-            return action->isEnabled();
-        } else if (name == "type") {
-            return "standard";
-        } else if (name == "children-display") {
-            if (action->menu()) {
-                return "submenu";
-            } else {
-                return QVariant();
-            }
-        } else if (name == "toggle-type") {
-            if (action->isCheckable()) {
-                return action->actionGroup() ? "radio" : "checkmark";
-            } else {
-                return QVariant();
-            }
-        } else if (name == "toggle-state") {
-            return action->isChecked() ? 1 : 0;
-        } else if (name == "icon-name") {
-            return QVariant(m_iconNameForActionFunction(action));
-        } else if (name == "icon-data") {
-        }
-        return QVariant();
+        map.insert("toggle-type", toggleType);
+        map.insert("toggle-state", toggleState);
+        map.insert("icon-name", m_iconNameForActionFunction(action));
+        map.insert("icon-data", QByteArray());
+        return map;
     }
 
     QMenu *menuForId(int id) const
