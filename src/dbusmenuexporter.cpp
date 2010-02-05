@@ -25,6 +25,8 @@
 #include <QMenu>
 #include <QSet>
 #include <QTimer>
+#include <QToolButton>
+#include <QWidgetAction>
 #include <QXmlStreamWriter>
 
 // Local
@@ -34,12 +36,29 @@
 #include "debug_p.h"
 #include "utils_p.h"
 
+static const char *KMENU_TITLE = "kmenu_title";
+
 static QString defaultIconNameForActionFunction(const QAction *)
 {
     return QString();
 }
 
 
+static QAction *internalActionForTitleAction(const QAction *action_)
+{
+    const QWidgetAction *action = qobject_cast<const QWidgetAction *>(action_);
+    DMRETURN_VALUE_IF_FAIL(action, 0);
+    QToolButton *button = qobject_cast<QToolButton *>(action->defaultWidget());
+    DMRETURN_VALUE_IF_FAIL(button, 0);
+    return button->defaultAction();
+}
+
+static QString labelForTitleAction(const QAction *action_)
+{
+    QAction *action = internalActionForTitleAction(action_);
+    DMRETURN_VALUE_IF_FAIL(action, QString());
+    return action->text();
+}
 
 class DBusMenuExporterPrivate
 {
@@ -78,10 +97,18 @@ public:
     QVariant propertyForAction(QAction *action, const QString &name) const
     {
         Q_ASSERT(action);
+        // Hack: Support for KDE menu titles in a Qt-only library...
+        bool isTitle = action->objectName() == KMENU_TITLE;
         if (name == "label") {
-            return swapMnemonicChar(action->text(), '&', '_');
+            QString text;
+            if (isTitle) {
+                text = labelForTitleAction(action);
+            } else {
+                text = action->text();
+            }
+            return swapMnemonicChar(text, '&', '_');
         } else if (name == "sensitive") {
-            return action->isEnabled();
+            return isTitle ? false : action->isEnabled();
         } else if (name == "type") {
             if (action->menu()) {
                 return "menu";
@@ -95,7 +122,8 @@ public:
         } else if (name == "checked") {
             return action->isChecked();
         } else if (name == "icon") {
-            return QVariant(m_iconNameForActionFunction(action));
+            QAction *iconAction = isTitle ? internalActionForTitleAction(action) : action;
+            return QVariant(m_iconNameForActionFunction(iconAction));
         } else if (name == "icon-data") {
         }
         DMDEBUG << "Unhandled property" << name;
