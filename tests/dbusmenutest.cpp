@@ -108,6 +108,48 @@ void DBusMenuTest::testExporter()
     QCOMPARE(item.properties.value("icon-name").toString() , iconName);
 }
 
+void DBusMenuTest::testGetAllProperties()
+{
+    const QSet<QString> expectedStandardProperties = QSet<QString>()
+        << "type"
+        << "enabled"
+        << "label"
+        << "icon-name"
+        << "icon-data"
+        << "toggle-type"
+        << "toggle-state"
+        << "children-display"
+        ;
+
+    const QSet<QString> expectedSeparatorProperties = QSet<QString>()
+        << "type";
+
+    QMenu inputMenu;
+    inputMenu.addAction("a1");
+    inputMenu.addSeparator();
+    inputMenu.addAction("a2");
+
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 3);
+
+    DBusMenuItem item = list.takeFirst();
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedStandardProperties);
+
+    item = list.takeFirst();
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedSeparatorProperties);
+
+    item = list.takeFirst();
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedStandardProperties);
+}
+
 void DBusMenuTest::testStandardItem()
 {
     QMenu inputMenu;

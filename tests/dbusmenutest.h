@@ -36,6 +36,7 @@ private Q_SLOTS:
     void testExporter();
     void testExporter_data();
     void testStandardItem();
+    void testGetAllProperties();
 
     void init();
     void cleanup();

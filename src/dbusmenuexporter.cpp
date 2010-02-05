@@ -67,10 +67,39 @@ public:
         }
     }
 
-    QVariantMap propertiesForAction(QAction *action, const QStringList &names) const
+    QVariantMap propertiesForAction(QAction *action, const QStringList &names_) const
     {
         Q_ASSERT(action);
+        QStringList names = names_;
         QVariantMap map;
+
+        if (names.isEmpty()) {
+            QVariant value = propertyForAction(action, "type");
+            map.insert("type", value);
+            QString type = value.toString();
+            if (type == "standard") {
+                names = QStringList()
+                    << "enabled"
+                    << "label"
+                    << "icon-name"
+                    << "icon-data"
+                    << "toggle-type"
+                    << "toggle-state"
+                    << "children-display"
+                    ;
+            } else if (type == "separator") {
+                return map;
+            } else if (type == "text") {
+                names = QStringList()
+                    << "label"
+                    << "icon-name"
+                    << "icon-data"
+                    ;
+            } else {
+                DMWARNING << "Unknown type" << type;
+                return map;
+            }
+        }
         Q_FOREACH(const QString &name, names) {
             map.insert(name, propertyForAction(action, name));
         }
