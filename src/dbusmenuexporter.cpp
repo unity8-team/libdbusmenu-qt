@@ -76,7 +76,7 @@ public:
 
     QVariantMap propertiesForAction(QAction *action) const
     {
-        Q_ASSERT(action);
+        DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
 
         if (action->objectName() == KMENU_TITLE) {
             // Hack: Support for KDE menu titles in a Qt-only library...
@@ -229,6 +229,10 @@ void DBusMenuExporter::doUpdateActions()
 {
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
         QAction *action = d->m_actionForId.value(id);
+        if (!action) {
+            // Action does not exist anymore
+            continue;
+        }
         d->m_actionProperties[action] = d->propertiesForAction(action);
         QMenu *menu = action->menu();
         if (menu && !menu->findChild<DBusMenu *>()) {
