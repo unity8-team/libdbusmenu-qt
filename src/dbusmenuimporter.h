@@ -28,6 +28,10 @@ class QDBusPendingCallWatcher;
 class QMenu;
 
 class DBusMenuImporterPrivate;
+/**
+ * A DBusMenuImporter instance can recreate a menu serialized over DBus by
+ * DBusMenuExporter
+ */
 class DBusMenuImporter : public QObject
 {
     Q_OBJECT
