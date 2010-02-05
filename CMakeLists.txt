@@ -30,3 +30,4 @@ install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
 
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(tools)
