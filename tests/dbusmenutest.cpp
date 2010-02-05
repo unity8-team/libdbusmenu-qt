@@ -170,6 +170,29 @@ void DBusMenuTest::testGetNonExistentProperty()
     QVERIFY(item.properties.contains(NON_EXISTENT_KEY));
 }
 
+void DBusMenuTest::testClickedEvent()
+{
+    QMenu inputMenu;
+    QAction *action = inputMenu.addAction("a1");
+    QSignalSpy spy(action, SIGNAL(triggered()));
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+    int id = list.first().id;
+
+    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
+    uint timestamp = QDateTime::currentDateTime().toTime_t();
+    iface.call("Event", id, "clicked", empty, timestamp);
+    QTest::qWait(500);
+
+    QCOMPARE(spy.count(), 1);
+}
+
 void DBusMenuTest::testStandardItem()
 {
     QMenu inputMenu;

@@ -38,6 +38,7 @@ private Q_SLOTS:
     void testStandardItem();
     void testGetAllProperties();
     void testGetNonExistentProperty();
+    void testClickedEvent();
 
     void init();
     void cleanup();

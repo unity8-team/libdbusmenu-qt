@@ -313,8 +313,8 @@ void DBusMenuImporter::sendClickedEvent(int id)
 {
     DMDEBUG << id;
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-    int timestamp = QDateTime::currentDateTime().toTime_t();
-    d->m_interface->asyncCall("Event", int(id), QString("clicked"), empty, timestamp);
+    uint timestamp = QDateTime::currentDateTime().toTime_t();
+    d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
 }
 
 void DBusMenuImporter::slotSubMenuAboutToShow()
