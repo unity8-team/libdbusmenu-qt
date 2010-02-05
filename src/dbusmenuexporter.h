@@ -46,7 +46,7 @@ class DBUSMENU_EXPORT DBusMenuExporter : public QObject
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
 public:
-    DBusMenuExporter(const QString &connectionName, const QString& dbusObjectPath, QMenu *rootMenu);
+    DBusMenuExporter(const QString &connectionName, const QString &dbusObjectPath, QMenu *rootMenu);
     ~DBusMenuExporter();
 
     /**
@@ -57,9 +57,9 @@ public:
 
     void emitLayoutUpdated(int);
 
-    void addAction(QAction* action, int parentId);
+    void addAction(QAction *action, int parentId);
     void updateAction(QAction *action);
-    void removeAction(QAction* action, int parentId);
+    void removeAction(QAction *action, int parentId);
 
 public Q_SLOTS:
     DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);
@@ -78,7 +78,7 @@ private Q_SLOTS:
     void doUpdateActions();
 
 private:
-    DBusMenuExporterPrivate * const d;
+    DBusMenuExporterPrivate *const d;
 };
 
 #endif /* DBUSMENUEXPORTER_H */
