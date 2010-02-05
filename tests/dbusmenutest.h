@@ -34,7 +34,11 @@ class DBusMenuTest : public QObject
 Q_OBJECT
 private Q_SLOTS:
     void testExporter();
+    void testExporter_data();
     void testStandardItem();
+
+    void init();
+    void cleanup();
 };
 
 #endif /* DBUSMENUTEST_H */

@@ -50,25 +50,62 @@ protected:
     virtual QIcon iconForName(const QString &) { return QIcon(); }
 };
 
+void DBusMenuTest::init()
+{
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+}
+
+void DBusMenuTest::cleanup()
+{
+    QVERIFY(QDBusConnection::sessionBus().unregisterService(TEST_SERVICE));
+}
+
+static QString iconForAction(const QAction *action)
+{
+    return action->property("icon-name").toString();
+}
+
+void DBusMenuTest::testExporter_data()
+{
+    QTest::addColumn<QString>("label");
+    QTest::addColumn<QString>("iconName");
+    QTest::addColumn<bool>("enabled");
+
+    QTest::newRow("label only")           << "label" << QString() << true;
+    QTest::newRow("disabled, label only") << "label" << QString() << false;
+    QTest::newRow("icon name")            << "label" << "icon"    << true;
+}
+
 void DBusMenuTest::testExporter()
 {
+    QFETCH(QString, label);
+    QFETCH(QString, iconName);
+    QFETCH(bool, enabled);
+
     QMenu inputMenu;
-    inputMenu.addAction("Test");
-    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    QAction *action = inputMenu.addAction(label);
+    if (!iconName.isEmpty()) {
+        action->setProperty("icon-name", iconName);
+    }
+    action->setEnabled(enabled);
+
     DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    exporter.setIconNameForActionFunction(iconForAction);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
-    QStringList propertyNames = QStringList() << "type" << "enabled" << "label";
+    QStringList propertyNames = QStringList() << "type" << "enabled" << "label" << "icon-name";
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
     QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
     DBusMenuItemList list = reply.value();
     QCOMPARE(list.count(), 1);
     DBusMenuItem item = list.first();
-    QCOMPARE(item.properties.value("type").toString(), QString("standard"));
-    QCOMPARE(item.properties.value("label").toString(), QString("Test"));
-    QCOMPARE(item.properties.value("enabled").toBool(), true);
+    QCOMPARE(item.properties.value("type").toString()      , QString("standard"));
+    QCOMPARE(item.properties.value("label").toString()     , label);
+    QCOMPARE(item.properties.value("enabled").toBool()     , enabled);
+    QCOMPARE(item.properties.value("icon-name").toString() , iconName);
 }
 
 void DBusMenuTest::testStandardItem()
