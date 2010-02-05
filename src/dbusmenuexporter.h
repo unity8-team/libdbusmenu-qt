@@ -21,8 +21,7 @@
 #ifndef DBUSMENUEXPORTER_H
 #define DBUSMENUEXPORTER_H
 
-#include <QMap>
-#include <QSet>
+// Qt
 #include <QObject>
 #include <QVariant>
 
@@ -30,11 +29,13 @@
 
 class QAction;
 class QMenu;
-class QTimer;
 
 class DBusMenu;
 
 typedef QString (* IconNameForActionFunction)(const QAction *);
+
+class DBusMenuExporterPrivate;
+
 /**
  * Internal class exporting DBus menu changes to DBus
  */
@@ -44,6 +45,7 @@ class DBusMenuExporter : public QObject
     Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
 public:
     DBusMenuExporter(const QString &dbusService, QMenu *rootMenu);
+    ~DBusMenuExporter();
 
     /**
      * Make it possible for the application to provide a function to extract an
@@ -73,20 +75,7 @@ private Q_SLOTS:
     void doEmitItemUpdated();
 
 private:
-    void addMenu(QMenu* action, uint parentId);
-    QVariantMap propertiesForAction(QAction *, const QStringList &names) const;
-    QVariant propertyForAction(QAction *, const QString &name) const;
-    QMenu *menuForId(uint) const;
-
-    IconNameForActionFunction m_iconNameForActionFunction;
-
-    QMenu *m_rootMenu;
-    QMap<uint, QAction *> m_actionForId;
-    QMap<QAction *, uint> m_idForAction;
-    uint m_nextId;
-
-    QSet<uint> m_itemUpdatedIds;
-    QTimer *m_itemUpdatedTimer;
+    DBusMenuExporterPrivate * const d;
 };
 
 #endif /* DBUSMENUEXPORTER_H */
