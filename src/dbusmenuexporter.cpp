@@ -136,14 +136,6 @@ public:
             return action->isChecked();
         } else if (name == "icon") {
             return QVariant(m_iconNameForActionFunction(action));
-            /*
-            KIcon icon(action->icon());
-            if (icon.isNull()) {
-                return QVariant(QString());
-            } else {
-                return icon.iconName();
-            }
-            */
         } else if (name == "icon-data") {
         }
         DMDEBUG << "Unhandled property" << name;
