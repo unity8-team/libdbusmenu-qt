@@ -149,9 +149,7 @@ public:
 
         if (type == "menu") {
             // FIXME: Leak?
-            QMenu *menu = new QMenu(0);
-            // FIXME
-            //Plasma::setStyle(menu);
+            QMenu *menu = q->createMenu(0);
             QObject::connect(menu, SIGNAL(aboutToShow()),
                 q, SLOT(slotSubMenuAboutToShow()));
             action->setMenu(menu);
@@ -205,8 +203,7 @@ public:
             return;
         }
 
-        // FIXME!
-        //action->setIcon(SmallIcon(iconName));
+        action->setIcon(q->iconForName(iconName));
     }
 };
 
@@ -319,9 +316,7 @@ void DBusMenuImporter::GetChildrenCallback(uint parentId, QDBusPendingCallWatche
     QMenu *menu = 0;
     if (parentId == 0) {
         if (!d->m_menu) {
-            d->m_menu = new QMenu(0);
-            // FIXME
-            //Plasma::setStyle(d->m_menu);
+            d->m_menu = createMenu(0);
             wasWaitingForMenu = true;
         }
         menu = d->m_menu;

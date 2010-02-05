@@ -25,6 +25,7 @@
 
 class QDBusAbstractInterface;
 class QDBusPendingCallWatcher;
+class QIcon;
 class QMenu;
 
 class DBusMenuImporterPrivate;
@@ -43,6 +44,17 @@ public:
 
 Q_SIGNALS:
     void menuIsReady();
+
+protected:
+    /**
+     * Must create a menu, may be customized to fit host appearance
+     */
+    virtual QMenu *createMenu(QWidget *parent) = 0;
+
+    /**
+     * Must convert a name into an icon
+     */
+    virtual QIcon iconForName(const QString &) = 0;
 
 private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
