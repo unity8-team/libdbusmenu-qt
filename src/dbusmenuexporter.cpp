@@ -100,6 +100,7 @@ public:
         } else if (type == "text") {
             names = QStringList()
                 << "label"
+                << "enabled"
                 << "icon-name"
                 << "icon-data"
                 ;
