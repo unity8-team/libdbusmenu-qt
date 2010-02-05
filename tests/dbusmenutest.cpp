@@ -103,34 +103,45 @@ void DBusMenuTest::testExporter()
     DBusMenuItemList list = reply.value();
     QCOMPARE(list.count(), 1);
     DBusMenuItem item = list.first();
-    QCOMPARE(item.properties.value("type").toString()      , QString("standard"));
-    QCOMPARE(item.properties.value("label").toString()     , label);
-    QCOMPARE(item.properties.value("enabled").toBool()     , enabled);
-    QCOMPARE(item.properties.value("icon-name").toString() , iconName);
+    QVERIFY(!item.properties.contains("type"));
+    QCOMPARE(item.properties.value("label").toString(), label);
+    if (enabled) {
+        QVERIFY(!item.properties.contains("enabled"));
+    } else {
+        QCOMPARE(item.properties.value("enabled").toBool(), false);
+    }
+    if (iconName.isEmpty()) {
+        QVERIFY(!item.properties.contains("icon-name"));
+    } else {
+        QCOMPARE(item.properties.value("icon-name").toString(), iconName);
+    }
 }
 
 void DBusMenuTest::testGetAllProperties()
 {
-    const QSet<QString> standardProperties = QSet<QString>()
-        << "type"
-        << "enabled"
+    const QSet<QString> a1Properties = QSet<QString>()
         << "label"
+        ;
+
+    const QSet<QString> a2Properties = QSet<QString>()
+        << "label"
+        << "enabled"
         << "icon-name"
-        << "icon-data"
-        << "toggle-type"
-        << "toggle-state"
-        << "children-display"
         ;
 
     const QSet<QString> separatorProperties = QSet<QString>()
         << "type";
 
     QMenu inputMenu;
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    exporter.setIconNameForActionFunction(iconForAction);
+
     inputMenu.addAction("a1");
     inputMenu.addSeparator();
-    inputMenu.addAction("a2");
-
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    QAction *a2 = new QAction("a2", &inputMenu);
+    a2->setEnabled(false);
+    a2->setProperty("icon-name", "foo");
+    inputMenu.addAction(a2);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
@@ -142,13 +153,13 @@ void DBusMenuTest::testGetAllProperties()
     QCOMPARE(list.count(), 3);
 
     DBusMenuItem item = list.takeFirst();
-    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), standardProperties);
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a1Properties);
 
     item = list.takeFirst();
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), separatorProperties);
 
     item = list.takeFirst();
-    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), standardProperties);
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a2Properties);
 }
 
 void DBusMenuTest::testGetNonExistentProperty()
@@ -167,7 +178,7 @@ void DBusMenuTest::testGetNonExistentProperty()
     QCOMPARE(list.count(), 1);
 
     DBusMenuItem item = list.takeFirst();
-    QVERIFY(item.properties.contains(NON_EXISTENT_KEY));
+    QVERIFY(!item.properties.contains(NON_EXISTENT_KEY));
 }
 
 void DBusMenuTest::testClickedEvent()

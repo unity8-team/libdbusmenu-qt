@@ -104,7 +104,10 @@ public:
         DMRETURN_VALUE_IF_FAIL(action, map);
 
         map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-        map.insert("icon-name", m_iconNameForActionFunction(action));
+        QString iconName = m_iconNameForActionFunction(action);
+        if (!iconName.isEmpty()) {
+            map.insert("icon-name", iconName);
+        }
         return map;
     }
 
@@ -118,23 +121,21 @@ public:
     QVariantMap propertiesForStandardAction(QAction *action) const
     {
         QVariantMap map;
-        map.insert("type", "standard");
         map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-        map.insert("enabled", action->isEnabled());
-        map.insert("children-display", action->menu() ? "submenu" : "");
-        QString toggleType;
-        int toggleState;
-        if (action->isCheckable()) {
-            toggleType = action->actionGroup() ? "radio" : "checkmark";
-            toggleState = action->isChecked() ? 1 : 0;
-        } else {
-            toggleType = "";
-            toggleState = 0;
+        if (!action->isEnabled()) {
+            map.insert("enabled", false);
         }
-        map.insert("toggle-type", toggleType);
-        map.insert("toggle-state", toggleState);
-        map.insert("icon-name", m_iconNameForActionFunction(action));
-        map.insert("icon-data", QByteArray());
+        if (action->menu()) {
+            map.insert("children-display", "submenu");
+        }
+        if (action->isCheckable()) {
+            map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
+            map.insert("toggle-state", action->isChecked() ? 1 : 0);
+        }
+        QString iconName = m_iconNameForActionFunction(action);
+        if (!iconName.isEmpty()) {
+            map.insert("icon-name", iconName);
+        }
         return map;
     }
 
@@ -337,10 +338,12 @@ QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
     if (names.isEmpty()) {
         return all;
     } else {
-        QVariant invalid = QString("INVALID");
         QVariantMap map;
         Q_FOREACH(const QString &name, names) {
-            map.insert(name, all.value(name, invalid));
+            QVariant value = all.value(name);
+            if (value.isValid()) {
+                map.insert(name, value);
+            }
         }
         return map;
     }
