@@ -70,19 +70,16 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
 
 void DBusMenu::addAction(QAction *action)
 {
-    DMDEBUG << "Added" << action << action->text();
     m_exporter->addAction(action, m_parentId);
 }
 
 void DBusMenu::updateAction(QAction *action)
 {
-    DMDEBUG << "Changed" << action->text();
     m_exporter->updateAction(action);
 }
 
 void DBusMenu::removeAction(QAction *action)
 {
-    DMDEBUG << "Removed" << action->text();
     m_exporter->removeAction(action, m_parentId);
 }
 

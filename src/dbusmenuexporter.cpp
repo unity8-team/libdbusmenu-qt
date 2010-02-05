@@ -62,9 +62,7 @@ public:
 
     int idForAction(QAction *action) const
     {
-        if (!action) {
-            return -1;
-        }
+        DMRETURN_VALUE_IF_FAIL(action, -1);
         return m_idForAction.value(action, -2);
     }
 
@@ -145,15 +143,9 @@ public:
             return m_rootMenu;
         }
         QAction *action = m_actionForId.value(id);
-        if (!action) {
-            DMDEBUG << "No action for id" << id;
-            return 0;
-        }
+        DMRETURN_VALUE_IF_FAIL(action, 0);
         QMenu *menu = action->menu();
-        if (!menu) {
-            DMDEBUG << "No children for action" << action->text() << id;
-            return 0;
-        }
+        DMRETURN_VALUE_IF_FAIL(menu, 0);
         return menu;
     }
 
@@ -163,8 +155,8 @@ public:
         writer->writeStartElement("menu");
         writer->writeAttribute("id", QString::number(id));
         Q_FOREACH(QAction *action, menu->actions()) {
-            int actionId = m_idForAction.value(action, 0);
-            if (actionId == 0) {
+            int actionId = m_idForAction.value(action, -1);
+            if (actionId == -1) {
                 DMWARNING << "No id for action";
                 continue;
             }
@@ -225,10 +217,8 @@ void DBusMenuExporter::updateAction(QAction *action)
 {
     int id = d->idForAction(action);
     if (d->m_itemUpdatedIds.contains(id)) {
-        DMDEBUG << id << "already in";
         return;
     }
-    DMDEBUG << id;
     d->m_itemUpdatedIds << id;
     d->m_itemUpdatedTimer->start();
 }
@@ -293,10 +283,7 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
 uint DBusMenuExporter::GetLayout(int parentId, QString &layout)
 {
     QMenu *menu = d->menuForId(parentId);
-    if (!menu) {
-        DMWARNING << "No menu for id" << parentId;
-        return 0;
-    }
+    DMRETURN_VALUE_IF_FAIL(menu, 0);
 
     QXmlStreamWriter writer(&layout);
     writer.setAutoFormatting(true);
@@ -326,20 +313,14 @@ void DBusMenuExporter::Event(int id, const QString &eventType, const QDBusVarian
 QDBusVariant DBusMenuExporter::GetProperty(int id, const QString &name)
 {
     QAction *action = d->m_actionForId.value(id);
-    if (!action) {
-        DMDEBUG << "No action for id" << id;
-        return QDBusVariant();
-    }
+    DMRETURN_VALUE_IF_FAIL(action, QDBusVariant());
     return QDBusVariant(d->m_actionProperties.value(action).value(name));
 }
 
 QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
 {
     QAction *action = d->m_actionForId.value(id);
-    if (!action) {
-        DMDEBUG << "No action for id" << id;
-        return QVariantMap();
-    }
+    DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
     QVariantMap all = d->m_actionProperties.value(action);
     if (names.isEmpty()) {
         return all;
