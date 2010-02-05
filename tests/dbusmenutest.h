@@ -29,6 +29,25 @@
 
 // Local
 
+class QMenu;
+
+class MenuFiller : public QObject
+{
+    Q_OBJECT
+public:
+    MenuFiller(QMenu *menu)
+    : m_menu(menu)
+    {
+        connect(m_menu, SIGNAL(aboutToShow()), SLOT(fillMenu()));
+    }
+
+public Q_SLOTS:
+    void fillMenu();
+
+private:
+    QMenu *m_menu;
+};
+
 class DBusMenuTest : public QObject
 {
 Q_OBJECT
@@ -40,6 +59,7 @@ private Q_SLOTS:
     void testGetNonExistentProperty();
     void testClickedEvent();
     void testSubMenu();
+    void testDynamicSubMenu();
 
     void init();
     void cleanup();

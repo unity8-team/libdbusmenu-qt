@@ -32,11 +32,18 @@
 // DBusMenuQt
 #include <dbusmenuexporter.h>
 #include <dbusmenuimporter.h>
+#include <debug_p.h>
 
 QTEST_MAIN(DBusMenuTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
+
+void MenuFiller::fillMenu()
+{
+    m_menu->addAction("a1");
+    m_menu->addAction("a2");
+}
 
 class TestDBusMenuImporter : public DBusMenuImporter
 {
@@ -232,6 +239,40 @@ void DBusMenuTest::testSubMenu()
 
     item = list.takeFirst();
     QCOMPARE(item.properties.value("label").toString(), a2->text());
+}
+
+void DBusMenuTest::testDynamicSubMenu()
+{
+    QMenu inputMenu;
+    QMenu *subMenu = inputMenu.addMenu("menu");
+    MenuFiller filler(subMenu);
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+
+    // Get id of submenu
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 1);
+    int id = list.first().id;
+
+    // Get submenu items
+    // (Calling GetChildren cause aboutToShow to be emitted)
+    QCOMPARE(subMenu->actions().count(), 0);
+    reply = iface.call("GetChildren", id, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+    QVERIFY(subMenu->actions().count() > 0);
+    QCOMPARE(list.count(), subMenu->actions().count());
+
+    for (int pos=0; pos< list.count(); ++pos) {
+        DBusMenuItem item = list.at(pos);
+        QVERIFY(item.id != 0);
+        QAction *action = subMenu->actions().at(pos);
+        QVERIFY(action);
+        QCOMPARE(item.properties.value("label").toString(), action->text());
+    }
 }
 
 void DBusMenuTest::testStandardItem()
