@@ -295,7 +295,7 @@ uint DBusMenuExporter::GetLayout(uint parentId, QString &layout)
     return d->m_revision;
 }
 
-void DBusMenuExporter::Event(uint id, const QString &eventType, const QDBusVariant &/*data*/)
+void DBusMenuExporter::Event(uint id, const QString &eventType, const QDBusVariant &/*data*/, uint /*timestamp*/)
 {
     if (eventType == "clicked") {
         QAction *action = d->m_actionForId.value(id);

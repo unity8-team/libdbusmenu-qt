@@ -150,6 +150,9 @@ ChildrenUpdated() signal when the new menu is ready.
             <arg type="v" name="data" direction="in" >
                 <dox:d>event-specific data</dox:d>
             </arg>
+            <arg type="u" name="timestamp" direction="in" >
+                <dox:d>time at which the event got triggered</dox:d>
+            </arg>
         </method>
 
 <!-- Signals -->
