@@ -290,6 +290,8 @@ uint DBusMenuExporter::GetLayout(int parentId, QString &layout)
     QMenu *menu = d->menuForId(parentId);
     DMRETURN_VALUE_IF_FAIL(menu, 0);
 
+    QMetaObject::invokeMethod(menu, "aboutToShow");
+
     QXmlStreamWriter writer(&layout);
     writer.setAutoFormatting(true);
     writer.writeStartDocument();
