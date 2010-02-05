@@ -28,7 +28,7 @@
 
 // Local
 #include "dbusmenu_p.h"
-#include "dbusmenuitem_p.h"
+#include "dbusmenuitem.h"
 #include "dbusmenuadaptor.h"
 #include "debug_p.h"
 

@@ -26,7 +26,7 @@
 #include <QtCore/QVariant>
 #include <QtDBus/QDBusAbstractAdaptor>
 
-#include <dbusmenuitem_p.h>
+#include <dbusmenuitem.h>
 
 class QAction;
 class QMenu;

@@ -1,7 +1,7 @@
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
     dbusmenuexporter.cpp
-    dbusmenuitem_p.cpp
+    dbusmenuitem.cpp
     )
 
 include_directories(
