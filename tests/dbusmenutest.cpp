@@ -83,14 +83,15 @@ void DBusMenuTest::testExporter()
     QFETCH(bool, enabled);
 
     QMenu inputMenu;
-    QAction *action = inputMenu.addAction(label);
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    exporter.setIconNameForActionFunction(iconForAction);
+
+    QAction *action = new QAction(label, &inputMenu);
     if (!iconName.isEmpty()) {
         action->setProperty("icon-name", iconName);
     }
     action->setEnabled(enabled);
-
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
-    exporter.setIconNameForActionFunction(iconForAction);
+    inputMenu.addAction(action);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
@@ -110,7 +111,7 @@ void DBusMenuTest::testExporter()
 
 void DBusMenuTest::testGetAllProperties()
 {
-    const QSet<QString> expectedStandardProperties = QSet<QString>()
+    const QSet<QString> standardProperties = QSet<QString>()
         << "type"
         << "enabled"
         << "label"
@@ -121,7 +122,7 @@ void DBusMenuTest::testGetAllProperties()
         << "children-display"
         ;
 
-    const QSet<QString> expectedSeparatorProperties = QSet<QString>()
+    const QSet<QString> separatorProperties = QSet<QString>()
         << "type";
 
     QMenu inputMenu;
@@ -141,13 +142,13 @@ void DBusMenuTest::testGetAllProperties()
     QCOMPARE(list.count(), 3);
 
     DBusMenuItem item = list.takeFirst();
-    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedStandardProperties);
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), standardProperties);
 
     item = list.takeFirst();
-    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedSeparatorProperties);
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), separatorProperties);
 
     item = list.takeFirst();
-    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), expectedStandardProperties);
+    QCOMPARE(QSet<QString>::fromList(item.properties.keys()), standardProperties);
 }
 
 void DBusMenuTest::testStandardItem()

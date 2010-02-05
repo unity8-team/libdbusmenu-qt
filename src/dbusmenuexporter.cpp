@@ -51,6 +51,7 @@ public:
     IconNameForActionFunction m_iconNameForActionFunction;
 
     QMenu *m_rootMenu;
+    QHash<QAction *, QVariantMap> m_actionProperties;
     QMap<int, QAction *> m_actionForId;
     QMap<QAction *, int> m_idForAction;
     int m_nextId;
@@ -75,38 +76,36 @@ public:
         }
     }
 
-    QVariantMap propertiesForAction(QAction *action, const QStringList &names_) const
+    QVariantMap propertiesForAction(QAction *action) const
     {
         Q_ASSERT(action);
-        QStringList names = names_;
         QVariantMap map;
+        QStringList names;
 
-        if (names.isEmpty()) {
-            QVariant value = propertyForAction(action, "type");
-            map.insert("type", value);
-            QString type = value.toString();
-            if (type == "standard") {
-                names = QStringList()
-                    << "enabled"
-                    << "label"
-                    << "icon-name"
-                    << "icon-data"
-                    << "toggle-type"
-                    << "toggle-state"
-                    << "children-display"
-                    ;
-            } else if (type == "separator") {
-                return map;
-            } else if (type == "text") {
-                names = QStringList()
-                    << "label"
-                    << "icon-name"
-                    << "icon-data"
-                    ;
-            } else {
-                DMWARNING << "Unknown type" << type;
-                return map;
-            }
+        QVariant value = propertyForAction(action, "type");
+        map.insert("type", value);
+        QString type = value.toString();
+        if (type == "standard") {
+            names = QStringList()
+                << "enabled"
+                << "label"
+                << "icon-name"
+                << "icon-data"
+                << "toggle-type"
+                << "toggle-state"
+                << "children-display"
+                ;
+        } else if (type == "separator") {
+            return map;
+        } else if (type == "text") {
+            names = QStringList()
+                << "label"
+                << "icon-name"
+                << "icon-data"
+                ;
+        } else {
+            DMWARNING << "Unknown type" << type;
+            return map;
         }
         Q_FOREACH(const QString &name, names) {
             map.insert(name, propertyForAction(action, name));
@@ -287,6 +286,8 @@ void DBusMenuExporter::updateAction(QAction *action)
 void DBusMenuExporter::doEmitItemUpdated()
 {
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
+        QAction *action = d->m_actionForId.value(id);
+        d->m_actionProperties[action] = d->propertiesForAction(action);
         ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
@@ -294,9 +295,11 @@ void DBusMenuExporter::doEmitItemUpdated()
 
 void DBusMenuExporter::addAction(QAction *action, int parentId)
 {
+    QVariantMap map = d->propertiesForAction(action);
     int id = d->m_nextId++;
     d->m_actionForId.insert(id, action);
     d->m_idForAction.insert(action, id);
+    d->m_actionProperties.insert(action, map);
     if (action->menu()) {
         d->addMenu(action->menu(), id);
     }
@@ -306,6 +309,7 @@ void DBusMenuExporter::addAction(QAction *action, int parentId)
 
 void DBusMenuExporter::removeAction(QAction *action, int parentId)
 {
+    d->m_actionProperties.remove(action);
     int id = d->m_idForAction.take(action);
     d->m_actionForId.remove(id);
     ++d->m_revision;
@@ -324,7 +328,7 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
     Q_FOREACH(QAction *action, menu->actions()) {
         DBusMenuItem item;
         item.id = d->idForAction(action);
-        item.properties = d->propertiesForAction(action, names);
+        item.properties = GetProperties(item.id, names);
         list << item;
     }
     return list;
@@ -370,7 +374,7 @@ QDBusVariant DBusMenuExporter::GetProperty(int id, const QString &name)
         DMDEBUG << "No action for id" << id;
         return QDBusVariant();
     }
-    return QDBusVariant(d->propertyForAction(action, name));
+    return QDBusVariant(d->m_actionProperties.value(action).value(name));
 }
 
 QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
@@ -380,7 +384,16 @@ QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
         DMDEBUG << "No action for id" << id;
         return QVariantMap();
     }
-    return d->propertiesForAction(action, names);
+    QVariantMap all = d->m_actionProperties.value(action);
+    if (names.isEmpty()) {
+        return all;
+    } else {
+        QVariantMap map;
+        Q_FOREACH(const QString &name, names) {
+            map.insert(name, all.value(name));
+        }
+        return map;
+    }
 }
 
 DBusMenuItemList DBusMenuExporter::GetGroupProperties(const QVariantList &ids, const QStringList &names)
