@@ -57,6 +57,24 @@ Vendor specific properties can be added by prefixing them with "x-<vendor>-"
 
 Vendor specific types can be added by prefixing them with "x-<vendor>-"
 ]]></dox:d>
+<!-- Methods -->
+        <method name="GetLayout">
+            <arg type="u" name="parentId" direction="in" />
+            <arg type="u" name="revision" direction="out" />
+            <arg type="s" name="layout" direction="out">
+                <dox:d><![CDATA[
+                An xml representation of the menu layout. It looks like this:
+
+                <menu id="0">
+                    <menu id="1">
+                        <menu id="2"/>
+                        <menu id="3"/>
+                        <menu id="4"/>
+                    </menu>
+                </menu>
+                ]]></dox:d>
+            </arg>
+        </method>
 
         <method name="GetChildren">
 <dox:d>
@@ -171,6 +189,22 @@ for item @a id.
             </arg>
         </signal>
 
+        <signal name="LayoutUpdate">
+<dox:d>
+Triggered by the application to notify display of a layout update, up to
+@a revision.
+</dox:d>
+            <arg type="i" name="revision" direction="out">
+                <dox:d>The revision of the layout that we're currently on</dox:d>
+            </arg>
+            <arg type="u" name="parent" direction="out">
+                <dox:d>
+                If the layout update is only of a subtree, this is the parent item for the
+                entries that have changed.  It is zero if the whole layout should be considered
+                invalid.
+                </dox:d>
+            </arg>
+        </signal>
 <!-- End of interesting stuff -->
 
     </interface>

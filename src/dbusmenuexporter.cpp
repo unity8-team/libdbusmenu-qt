@@ -25,6 +25,7 @@
 #include <QMenu>
 #include <QSet>
 #include <QTimer>
+#include <QXmlStreamWriter>
 
 // Local
 #include "dbusmenu_p.h"
@@ -51,6 +52,7 @@ public:
     QMap<uint, QAction *> m_actionForId;
     QMap<QAction *, uint> m_idForAction;
     uint m_nextId;
+    uint m_revision;
 
     QSet<uint> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
@@ -117,6 +119,29 @@ public:
         }
         return menu;
     }
+
+    void writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
+    {
+        Q_ASSERT(menu);
+        writer->writeStartElement("menu");
+        writer->writeAttribute("id", QString::number(id));
+        Q_FOREACH(QAction *action, menu->actions()) {
+            int actionId = m_idForAction.value(action, 0);
+            if (actionId == 0) {
+                DMWARNING << "No id for action";
+                continue;
+            }
+            QMenu *actionMenu = action->menu();
+            if (actionMenu) {
+                writeXmlForMenu(writer, actionMenu, actionId);
+            } else {
+                writer->writeEmptyElement("menu");
+                writer->writeAttribute("id", QString::number(actionId));
+            }
+        }
+        writer->writeEndElement();
+    }
+
 };
 
 
@@ -127,6 +152,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &service, QMenu *rootMenu)
     d->q = this;
     d->m_rootMenu = rootMenu;
     d->m_nextId = 1;
+    d->m_revision = 1;
     d->m_itemUpdatedTimer = new QTimer(this);
     d->m_iconNameForActionFunction = defaultIconNameForActionFunction;
 
@@ -156,6 +182,7 @@ void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction fu
 void DBusMenuExporter::emitChildrenUpdated(uint id)
 {
     ChildrenUpdated(id);
+    LayoutUpdate(d->m_revision, id);
 }
 
 void DBusMenuExporter::emitItemUpdated(uint id)
@@ -185,6 +212,7 @@ void DBusMenuExporter::addAction(QAction *action, uint parentId)
     if (action->menu()) {
         d->addMenu(action->menu(), id);
     }
+    ++d->m_revision;
     emitChildrenUpdated(parentId);
 }
 
@@ -192,6 +220,7 @@ void DBusMenuExporter::removeAction(QAction *action, uint parentId)
 {
     uint id = d->m_idForAction.take(action);
     d->m_actionForId.remove(id);
+    ++d->m_revision;
     emitChildrenUpdated(parentId);
 }
 
@@ -219,6 +248,23 @@ DBusMenuItemList DBusMenuExporter::GetChildren(uint parentId, const QStringList 
         list << item;
     }
     return list;
+}
+
+uint DBusMenuExporter::GetLayout(uint parentId, QString &layout)
+{
+    QMenu *menu = d->menuForId(parentId);
+    if (!menu) {
+        DMWARNING << "No menu for id" << parentId;
+        return 0;
+    }
+
+    QXmlStreamWriter writer(&layout);
+    writer.setAutoFormatting(true);
+    writer.writeStartDocument();
+    d->writeXmlForMenu(&writer, menu, parentId);
+    writer.writeEndDocument();
+
+    return d->m_revision;
 }
 
 void DBusMenuExporter::Event(uint id, const QString &eventType, const QDBusVariant &/*data*/)

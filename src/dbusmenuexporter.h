@@ -67,11 +67,13 @@ public Q_SLOTS:
     Q_NOREPLY void Event(uint id, const QString &eventId, const QDBusVariant &data);
     QDBusVariant GetProperty(uint id, const QString &property);
     QVariantMap GetProperties(uint id, const QStringList &names);
+    uint GetLayout(uint parentId, QString &layout);
 
 Q_SIGNALS:
     void ChildrenUpdated(uint);
     void ItemUpdated(uint);
     void ItemPropertyUpdated(uint, QString, QVariant);
+    void LayoutUpdate(uint revision, uint parentId);
 
 private Q_SLOTS:
     void doEmitItemUpdated();
