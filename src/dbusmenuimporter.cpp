@@ -163,11 +163,6 @@ public:
             action->setIcon(QIcon());
             return;
         }
-        if (iconName == "data") {
-            // TODO: Implement fetching from icon-data
-            return;
-        }
-
         action->setIcon(q->iconForName(iconName));
     }
 };
