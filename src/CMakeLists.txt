@@ -32,7 +32,7 @@ install(TARGETS dbusmenu-qt
     LIBRARY DESTINATION lib${LIB_SUFFIX})
 
 install(DIRECTORY .
-    DESTINATION include/libdbusmenu-qt
+    DESTINATION include/dbusmenu-qt
     FILES_MATCHING PATTERN "*.h"
     PATTERN "*_p.h" EXCLUDE
     )
