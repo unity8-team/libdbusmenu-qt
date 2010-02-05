@@ -91,7 +91,6 @@ public:
     QVariantMap propertiesForKMenuTitleAction(QAction *action_) const
     {
         QVariantMap map;
-        map.insert("type", "text");
         map.insert("enabled", false);
 
         const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
