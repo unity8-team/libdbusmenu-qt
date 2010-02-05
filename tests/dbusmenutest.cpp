@@ -313,6 +313,7 @@ void DBusMenuTest::testRadioItems()
     int a2Id = item.id;
 
     // Click a2
+    QSignalSpy spy(&exporter, SIGNAL(ItemUpdated(int)));
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     iface.call("Event", a2Id, "clicked", empty, timestamp);
@@ -329,6 +330,17 @@ void DBusMenuTest::testRadioItems()
 
     item = list.takeFirst();
     QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
+
+    // Did we get notified?
+    QCOMPARE(spy.count(), 2);
+    QSet<int> updatedIds;
+    updatedIds << spy.takeFirst().at(0).toInt();
+    updatedIds << spy.takeFirst().at(0).toInt();
+
+    QSet<int> expectedIds;
+    expectedIds << a1Id << a2Id;
+
+    QCOMPARE(updatedIds, expectedIds);
 }
 
 void DBusMenuTest::testStandardItem()
