@@ -30,16 +30,16 @@ set(test_LIBRARIES
 
 enable_testing()
 
-# dbusmenutest
-set(dbusmenutest_SRCS
-    dbusmenutest.cpp
+# dbusmenuexportertest
+set(dbusmenuexportertest_SRCS
+    dbusmenuexportertest.cpp
     )
 
-qt4_automoc(${dbusmenutest_SRCS})
+qt4_automoc(${dbusmenuexportertest_SRCS})
 
-add_test_executable(dbusmenutest ${dbusmenutest_SRCS})
+add_test_executable(dbusmenuexportertest ${dbusmenuexportertest_SRCS})
 
-target_link_libraries(dbusmenutest
+target_link_libraries(dbusmenuexportertest
     ${test_LIBRARIES}
     )
 

@@ -18,8 +18,8 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUTEST_H
-#define DBUSMENUTEST_H
+#ifndef DBUSMENUEXPORTERTEST_H
+#define DBUSMENUEXPORTERTEST_H
 
 #define QT_GUI_LIB
 #include <QtGui>
@@ -48,7 +48,7 @@ private:
     QMenu *m_menu;
 };
 
-class DBusMenuTest : public QObject
+class DBusMenuExporterTest : public QObject
 {
 Q_OBJECT
 private Q_SLOTS:
@@ -65,4 +65,4 @@ private Q_SLOTS:
     void cleanup();
 };
 
-#endif /* DBUSMENUTEST_H */
+#endif /* DBUSMENUEXPORTERTEST_H */

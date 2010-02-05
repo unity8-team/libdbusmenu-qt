@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 // Self
-#include "dbusmenutest.h"
+#include "dbusmenuexportertest.h"
 
 // Qt
 #include <QDBusConnection>
@@ -34,7 +34,7 @@
 #include <dbusmenuimporter.h>
 #include <debug_p.h>
 
-QTEST_MAIN(DBusMenuTest)
+QTEST_MAIN(DBusMenuExporterTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
@@ -45,12 +45,12 @@ void MenuFiller::fillMenu()
     m_menu->addAction("a2");
 }
 
-void DBusMenuTest::init()
+void DBusMenuExporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
 }
 
-void DBusMenuTest::cleanup()
+void DBusMenuExporterTest::cleanup()
 {
     QVERIFY(QDBusConnection::sessionBus().unregisterService(TEST_SERVICE));
 }
@@ -60,7 +60,7 @@ static QString iconForAction(const QAction *action)
     return action->property("icon-name").toString();
 }
 
-void DBusMenuTest::testGetSomeProperties_data()
+void DBusMenuExporterTest::testGetSomeProperties_data()
 {
     QTest::addColumn<QString>("label");
     QTest::addColumn<QString>("iconName");
@@ -71,7 +71,7 @@ void DBusMenuTest::testGetSomeProperties_data()
     QTest::newRow("icon name")            << "label" << "icon"    << true;
 }
 
-void DBusMenuTest::testGetSomeProperties()
+void DBusMenuExporterTest::testGetSomeProperties()
 {
     QFETCH(QString, label);
     QFETCH(QString, iconName);
@@ -113,7 +113,7 @@ void DBusMenuTest::testGetSomeProperties()
     }
 }
 
-void DBusMenuTest::testGetAllProperties()
+void DBusMenuExporterTest::testGetAllProperties()
 {
     const QSet<QString> a1Properties = QSet<QString>()
         << "label"
@@ -158,7 +158,7 @@ void DBusMenuTest::testGetAllProperties()
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a2Properties);
 }
 
-void DBusMenuTest::testGetNonExistentProperty()
+void DBusMenuExporterTest::testGetNonExistentProperty()
 {
     const char* NON_EXISTENT_KEY = "i-do-not-exist";
 
@@ -177,7 +177,7 @@ void DBusMenuTest::testGetNonExistentProperty()
     QVERIFY(!item.properties.contains(NON_EXISTENT_KEY));
 }
 
-void DBusMenuTest::testClickedEvent()
+void DBusMenuExporterTest::testClickedEvent()
 {
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("a1");
@@ -200,7 +200,7 @@ void DBusMenuTest::testClickedEvent()
     QCOMPARE(spy.count(), 1);
 }
 
-void DBusMenuTest::testSubMenu()
+void DBusMenuExporterTest::testSubMenu()
 {
     QMenu inputMenu;
     QMenu *subMenu = inputMenu.addMenu("menu");
@@ -229,7 +229,7 @@ void DBusMenuTest::testSubMenu()
     QCOMPARE(item.properties.value("label").toString(), a2->text());
 }
 
-void DBusMenuTest::testDynamicSubMenu()
+void DBusMenuExporterTest::testDynamicSubMenu()
 {
     QMenu inputMenu;
     DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
@@ -265,7 +265,7 @@ void DBusMenuTest::testDynamicSubMenu()
     }
 }
 
-void DBusMenuTest::testRadioItems()
+void DBusMenuExporterTest::testRadioItems()
 {
     DBusMenuItem item;
     DBusMenuItemList list;
@@ -331,4 +331,4 @@ void DBusMenuTest::testRadioItems()
     QCOMPARE(updatedIds, expectedIds);
 }
 
-#include "dbusmenutest.moc"
+#include "dbusmenuexportertest.moc"
