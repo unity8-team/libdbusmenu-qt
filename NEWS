@@ -1,5 +1,7 @@
-# 0.2.0
+# 0.2.0 - 2010.02.03
 - Make it possible to define the object-path used by DBusMenuExporter
+- Unit tests
+- Follow new DBusMenu spec
 
 # 0.1.0 - 2010.01.05
 - First release
