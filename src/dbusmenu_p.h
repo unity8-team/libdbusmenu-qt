@@ -46,7 +46,7 @@ protected:
 
 private:
     void addAction(QAction *action);
-    void changeAction(QAction *action);
+    void updateAction(QAction *action);
     void removeAction(QAction *action);
 
     DBusMenuExporter *m_exporter;

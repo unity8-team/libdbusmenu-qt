@@ -56,10 +56,9 @@ public:
     void setIconNameForActionFunction(IconNameForActionFunction);
 
     void emitLayoutUpdated(int);
-    void emitItemUpdated(int);
 
-    int idForAction(QAction *) const;
     void addAction(QAction* action, int parentId);
+    void updateAction(QAction *action);
     void removeAction(QAction* action, int parentId);
 
 public Q_SLOTS:

@@ -59,6 +59,14 @@ public:
     QSet<int> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
 
+    int idForAction(QAction *action) const
+    {
+        if (!action) {
+            return 0;
+        }
+        return m_idForAction.value(action, 0);
+    }
+
     void addMenu(QMenu *menu, int parentId)
     {
         new DBusMenu(menu, q, parentId);
@@ -264,8 +272,9 @@ void DBusMenuExporter::emitLayoutUpdated(int id)
     LayoutUpdated(d->m_revision, id);
 }
 
-void DBusMenuExporter::emitItemUpdated(int id)
+void DBusMenuExporter::updateAction(QAction *action)
 {
+    int id = d->idForAction(action);
     if (d->m_itemUpdatedIds.contains(id)) {
         DMDEBUG << id << "already in";
         return;
@@ -303,14 +312,6 @@ void DBusMenuExporter::removeAction(QAction *action, int parentId)
     emitLayoutUpdated(parentId);
 }
 
-int DBusMenuExporter::idForAction(QAction *action) const
-{
-    if (!action) {
-        return 0;
-    }
-    return d->m_idForAction.value(action, 0);
-}
-
 DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &names)
 {
     DBusMenuItemList list;
@@ -322,7 +323,7 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
     QMetaObject::invokeMethod(menu, "aboutToShow");
     Q_FOREACH(QAction *action, menu->actions()) {
         DBusMenuItem item;
-        item.id = idForAction(action);
+        item.id = d->idForAction(action);
         item.properties = d->propertiesForAction(action, names);
         list << item;
     }

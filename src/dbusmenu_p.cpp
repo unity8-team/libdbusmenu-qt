@@ -57,7 +57,7 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
         addAction(actionEvent->action());
         break;
     case QEvent::ActionChanged:
-        changeAction(actionEvent->action());
+        updateAction(actionEvent->action());
         break;
     case QEvent::ActionRemoved:
         removeAction(actionEvent->action());
@@ -74,11 +74,10 @@ void DBusMenu::addAction(QAction *action)
     m_exporter->addAction(action, m_parentId);
 }
 
-void DBusMenu::changeAction(QAction *action)
+void DBusMenu::updateAction(QAction *action)
 {
     DMDEBUG << "Changed" << action->text();
-    int id = m_exporter->idForAction(action);
-    m_exporter->emitItemUpdated(id);
+    m_exporter->updateAction(action);
 }
 
 void DBusMenu::removeAction(QAction *action)
