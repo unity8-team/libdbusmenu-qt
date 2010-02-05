@@ -220,7 +220,6 @@ void DBusMenuImporter::slotItemUpdated(uint id)
     if (action->isCheckable()) {
         names << "checked";
     }
-    DMDEBUG << action->text() << names;
 
     #ifdef BENCHMARK
     DMDEBUG << "- Starting item update chrono for id" << id;
