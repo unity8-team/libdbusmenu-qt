@@ -21,10 +21,10 @@ include_directories(
     )
 
 set(test_LIBRARIES
-    ${QT_QTGUI_LIBRARIES}
-    ${QT_QTCORE_LIBRARIES}
-    ${QT_QTDBUS_LIBRARIES}
-    ${QT_QTTEST_LIBRARIES}
+    ${QT_QTGUI_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QT_QTDBUS_LIBRARY}
+    ${QT_QTTEST_LIBRARY}
     dbusmenu-qt
     )
 
