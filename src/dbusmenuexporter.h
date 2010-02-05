@@ -26,6 +26,8 @@
 #include <QtCore/QVariant>
 #include <QtDBus/QDBusAbstractAdaptor>
 
+// Local
+#include <dbusmenu_export.h>
 #include <dbusmenuitem.h>
 
 class QAction;
@@ -39,7 +41,7 @@ class DBusMenuExporterPrivate;
 /**
  * Internal class exporting DBus menu changes to DBus
  */
-class DBusMenuExporter : public QObject
+class DBUSMENU_EXPORT DBusMenuExporter : public QObject
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")

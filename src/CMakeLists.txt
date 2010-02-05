@@ -1,3 +1,9 @@
+include (CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-fvisibility=hidden __DBUSMENU_HAVE_GCC_VISIBILITY)
+if (__DBUSMENU_HAVE_GCC_VISIBILITY AND NOT WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+endif (__DBUSMENU_HAVE_GCC_VISIBILITY AND NOT WIN32)
+
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
     dbusmenuexporter.cpp

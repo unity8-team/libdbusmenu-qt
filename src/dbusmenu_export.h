@@ -1,5 +1,5 @@
 /* This file is part of the KDE libraries
-   Copyright 2009 Canonical
+   Copyright 2010 Canonical
    Author: Aurelien Gateau <aurelien.gateau@canonical.com>
 
    This library is free software; you can redistribute it and/or
@@ -18,34 +18,16 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUITEM_H
-#define DBUSMENUITEM_H
+#ifndef DBUSMENU_EXPORT_H
+#define DBUSMENU_EXPORT_H
 
 // Qt
-#include <QtCore/QList>
-#include <QtCore/QVariant>
+#include <QtCore/QtGlobal>
 
-// Local
-#include <dbusmenu_export.h>
+#ifdef dbusmenu_qt_EXPORTS
+#define DBUSMENU_EXPORT Q_DECL_EXPORT
+#else
+#define DBUSMENU_EXPORT Q_DECL_IMPORT
+#endif
 
-class QDBusArgument;
-
-/**
- * Internal struct used to communicate on DBus
- */
-struct DBUSMENU_EXPORT DBusMenuItem
-{
-    uint id;
-    QVariantMap properties;
-};
-
-Q_DECLARE_METATYPE(DBusMenuItem)
-
-DBUSMENU_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItem &item);
-DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItem &item);
-
-typedef QList<DBusMenuItem> DBusMenuItemList;
-
-Q_DECLARE_METATYPE(DBusMenuItemList)
-
-#endif /* DBUSMENUITEM_H */
+#endif /* DBUSMENU_EXPORT_H */

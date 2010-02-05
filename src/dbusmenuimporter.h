@@ -21,7 +21,11 @@
 #ifndef DBUSMENUIMPORTER_H
 #define DBUSMENUIMPORTER_H
 
+// Qt
 #include <QtCore/QObject>
+
+// Local
+#include <dbusmenu_export.h>
 
 class QDBusAbstractInterface;
 class QDBusPendingCallWatcher;
@@ -33,7 +37,7 @@ class DBusMenuImporterPrivate;
  * A DBusMenuImporter instance can recreate a menu serialized over DBus by
  * DBusMenuExporter
  */
-class DBusMenuImporter : public QObject
+class DBUSMENU_EXPORT DBusMenuImporter : public QObject
 {
     Q_OBJECT
 public:
