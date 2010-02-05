@@ -1,5 +1,5 @@
 /* This file is part of the KDE libraries
-   Copyright 2009 Canonical
+   Copyright 2010 Canonical
    Author: Aurelien Gateau <aurelien.gateau@canonical.com>
 
    This library is free software; you can redistribute it and/or
@@ -18,8 +18,8 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUTEST_H
-#define DBUSMENUTEST_H
+#ifndef DBUSMENUIMPORTERTEST_H
+#define DBUSMENUIMPORTERTEST_H
 
 #define QT_GUI_LIB
 #include <QtGui>
@@ -29,40 +29,14 @@
 
 // Local
 
-class QMenu;
-
-class MenuFiller : public QObject
-{
-    Q_OBJECT
-public:
-    MenuFiller(QMenu *menu)
-    : m_menu(menu)
-    {
-        connect(m_menu, SIGNAL(aboutToShow()), SLOT(fillMenu()));
-    }
-
-public Q_SLOTS:
-    void fillMenu();
-
-private:
-    QMenu *m_menu;
-};
-
-class DBusMenuTest : public QObject
+class DBusMenuImporterTest : public QObject
 {
 Q_OBJECT
 private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
+    void testStandardItem();
 
     void init();
     void cleanup();
 };
 
-#endif /* DBUSMENUTEST_H */
+#endif /* DBUSMENUIMPORTERTEST_H */

@@ -45,18 +45,6 @@ void MenuFiller::fillMenu()
     m_menu->addAction("a2");
 }
 
-class TestDBusMenuImporter : public DBusMenuImporter
-{
-public:
-    TestDBusMenuImporter(QDBusAbstractInterface *iface)
-    : DBusMenuImporter(iface)
-    {}
-
-protected:
-    virtual QMenu *createMenu(QWidget *parent) { return new QMenu(parent); }
-    virtual QIcon iconForName(const QString &) { return QIcon(); }
-};
-
 void DBusMenuTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
@@ -72,7 +60,7 @@ static QString iconForAction(const QAction *action)
     return action->property("icon-name").toString();
 }
 
-void DBusMenuTest::testExporter_data()
+void DBusMenuTest::testGetSomeProperties_data()
 {
     QTest::addColumn<QString>("label");
     QTest::addColumn<QString>("iconName");
@@ -83,7 +71,7 @@ void DBusMenuTest::testExporter_data()
     QTest::newRow("icon name")            << "label" << "icon"    << true;
 }
 
-void DBusMenuTest::testExporter()
+void DBusMenuTest::testGetSomeProperties()
 {
     QFETCH(QString, label);
     QFETCH(QString, iconName);
@@ -341,24 +329,6 @@ void DBusMenuTest::testRadioItems()
     expectedIds << a1Id << a2Id;
 
     QCOMPARE(updatedIds, expectedIds);
-}
-
-void DBusMenuTest::testStandardItem()
-{
-    QMenu inputMenu;
-    inputMenu.addAction("Test");
-    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
-
-    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    TestDBusMenuImporter importer(&iface);
-    QEventLoop loop;
-    connect(&importer, SIGNAL(menuIsReady()), &loop, SLOT(quit()));
-    loop.exec();
-
-    QMenu *outputMenu = importer.menu();
-    QCOMPARE(outputMenu->actions().count(), 1);
-    QCOMPARE(outputMenu->actions().first()->text(), QString("Test"));
 }
 
 #include "dbusmenutest.moc"
