@@ -24,7 +24,7 @@
 #include <QActionEvent>
 #include <QMenu>
 
-#include <kdebug.h>
+#include "debug_p.h"
 
 #include "dbusmenuexporter.h"
 
@@ -70,21 +70,21 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
 
 void DBusMenu::addAction(QAction *action)
 {
-    kDebug() << "Added" << action << action->text();
+    DMDEBUG << "Added" << action << action->text();
     m_exporter->addAction(action, m_parentId);
 }
 
 void DBusMenu::changeAction(QAction *action)
 {
-    kDebug() << "Changed" << action->text();
+    DMDEBUG << "Changed" << action->text();
     uint id = m_exporter->idForAction(action);
     m_exporter->emitItemUpdated(id);
 }
 
 void DBusMenu::removeAction(QAction *action)
 {
-    kDebug() << "Removed" << action->text();
+    DMDEBUG << "Removed" << action->text();
     m_exporter->removeAction(action, m_parentId);
 }
 
-#include "dbusmenu.moc"
+#include "dbusmenu_p.moc"
