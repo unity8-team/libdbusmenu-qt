@@ -3,6 +3,7 @@ set(dbusmenu_qt_SRCS
     dbusmenuexporter.cpp
     dbusmenuimporter.cpp
     dbusmenuitem.cpp
+    utils.cpp
     )
 
 include_directories(

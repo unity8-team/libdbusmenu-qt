@@ -32,6 +32,7 @@
 // Local
 #include "dbusmenuitem.h"
 #include "debug_p.h"
+#include "utils_p.h"
 
 //#define BENCHMARK
 #ifdef BENCHMARK
@@ -43,52 +44,6 @@ typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(uint, QDBusPendingCallW
 
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
 static const char *DBUSMENU_PROPERTY_ICON = "_dbusmenu_icon";
-
-/*
- * Swap mnemonic char: Qt uses '&', while dbusmenu uses '_'
- */
-template <char src, char dst>
-static QString swapMnemonicChar(const QString &in)
-{
-    DMDEBUG << in;
-    QString out;
-    bool mnemonicFound = false;
-
-    for (int pos = 0; pos < in.length(); ) {
-        QChar ch = in[pos];
-        if (ch == src) {
-            if (pos == in.length() - 1) {
-                // 'src' at the end of string, skip it
-                ++pos;
-            } else {
-                if (in[pos + 1] == src) {
-                    // A real 'src'
-                    out += src;
-                    pos += 2;
-                } else if (!mnemonicFound) {
-                    // We found the mnemonic
-                    mnemonicFound = true;
-                    out += dst;
-                    ++pos;
-                } else {
-                    // We already have a mnemonic, just skip the char
-                    ++pos;
-                }
-            }
-        } else if (ch == dst) {
-            // Escape 'dst'
-            out += dst;
-            out += dst;
-            ++pos;
-        } else {
-            out += ch;
-            ++pos;
-        }
-    }
-
-    DMDEBUG << out;
-    return out;
-}
 
 struct Task
 {
@@ -171,7 +126,8 @@ public:
     void updateAction(QAction *action, const QVariantMap &map)
     {
         if (map.contains("label")) {
-            action->setText(swapMnemonicChar<'_', '&'>(map.value("label").toString()));
+            QString text = swapMnemonicChar(map.value("label").toString(), '_', '&');
+            action->setText(text);
         }
 
         if (map.contains("sensitive")) {

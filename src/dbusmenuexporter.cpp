@@ -31,6 +31,7 @@
 #include "dbusmenuitem.h"
 #include "dbusmenuadaptor.h"
 #include "debug_p.h"
+#include "utils_p.h"
 
 static QString defaultIconNameForActionFunction(const QAction *)
 {
@@ -38,49 +39,6 @@ static QString defaultIconNameForActionFunction(const QAction *)
 }
 
 
-/*
- * Swap mnemonic char: Qt uses '&', while dbusmenu uses '_'
- */
-template <char src, char dst>
-static QString swapMnemonicChar(const QString &in)
-{
-    QString out;
-    bool mnemonicFound = false;
-
-    for (int pos = 0; pos < in.length(); ) {
-        QChar ch = in[pos];
-        if (ch == src) {
-            if (pos == in.length() - 1) {
-                // 'src' at the end of string, skip it
-                ++pos;
-            } else {
-                if (in[pos + 1] == src) {
-                    // A real 'src'
-                    out += src;
-                    pos += 2;
-                } else if (!mnemonicFound) {
-                    // We found the mnemonic
-                    mnemonicFound = true;
-                    out += dst;
-                    ++pos;
-                } else {
-                    // We already have a mnemonic, just skip the char
-                    ++pos;
-                }
-            }
-        } else if (ch == dst) {
-            // Escape 'dst'
-            out += dst;
-            out += dst;
-            ++pos;
-        } else {
-            out += ch;
-            ++pos;
-        }
-    }
-
-    return out;
-}
 
 class DBusMenuExporterPrivate
 {
@@ -119,7 +77,7 @@ public:
     {
         Q_ASSERT(action);
         if (name == "label") {
-            return swapMnemonicChar<'&', '_'>(action->text());
+            return swapMnemonicChar(action->text(), '&', '_');
         } else if (name == "sensitive") {
             return action->isEnabled();
         } else if (name == "type") {
