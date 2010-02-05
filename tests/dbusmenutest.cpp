@@ -277,6 +277,60 @@ void DBusMenuTest::testDynamicSubMenu()
     }
 }
 
+void DBusMenuTest::testRadioItems()
+{
+    DBusMenuItem item;
+    DBusMenuItemList list;
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    // Create 2 radio items, check first one
+    QAction *a1 = inputMenu.addAction("a1");
+    a1->setCheckable(true);
+    QAction *a2 = inputMenu.addAction("a1");
+    a2->setCheckable(true);
+
+    QActionGroup group(0);
+    group.addAction(a1);
+    group.addAction(a2);
+    a1->setChecked(true);
+
+    QVERIFY(!a2->isChecked());
+
+    // Get item ids
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
+    int a1Id = item.id;
+    item = list.takeFirst();
+    QVERIFY(!item.properties.contains("toggle-state"));
+    int a2Id = item.id;
+
+    // Click a2
+    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
+    uint timestamp = QDateTime::currentDateTime().toTime_t();
+    iface.call("Event", a2Id, "clicked", empty, timestamp);
+    QTest::qWait(500);
+
+    // Check a1 is not checked, but a2 is
+    reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    item = list.takeFirst();
+    QVERIFY(!item.properties.contains("toggle-state"));
+
+    item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
+}
+
 void DBusMenuTest::testStandardItem()
 {
     QMenu inputMenu;
