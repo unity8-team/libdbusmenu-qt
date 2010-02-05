@@ -1,0 +1,10 @@
+# Summary
+
+This library provides a Qt implementation of the DBusMenu protocol.
+
+The DBusMenu protocol makes it possible for applications to export and import
+their menus over DBus.
+
+# Author
+
+Canonical DX Team, Aurélien Gâteau <aurelien.gateau@canonical.com>
