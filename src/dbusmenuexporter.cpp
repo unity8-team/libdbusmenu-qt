@@ -238,6 +238,10 @@ void DBusMenuExporter::doUpdateActions()
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
         QAction *action = d->m_actionForId.value(id);
         d->m_actionProperties[action] = d->propertiesForAction(action);
+        QMenu *menu = action->menu();
+        if (menu && !menu->findChild<DBusMenu *>()) {
+            d->addMenu(menu, id);
+        }
         ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
@@ -275,6 +279,8 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
         return DBusMenuItemList();
     }
     QMetaObject::invokeMethod(menu, "aboutToShow");
+    // Process pending actions, we need them *now*
+    doUpdateActions();
     Q_FOREACH(QAction *action, menu->actions()) {
         DBusMenuItem item;
         item.id = d->idForAction(action);
