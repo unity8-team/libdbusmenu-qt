@@ -1,5 +1,3 @@
-find_package(QJSON REQUIRED)
-
 set(qtapp_SRCS
     main.cpp
     )

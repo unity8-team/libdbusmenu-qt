@@ -1,1 +1,7 @@
-add_subdirectory(testapp)
+find_package(QJSON)
+if (QJSON_FOUND)
+    message(STATUS "QJSON found, testapp will be built")
+    add_subdirectory(testapp)
+else (QJSON_FOUND)
+    message(WARNING "QJSON not found, testapp will not be built")
+endif (QJSON_FOUND)
