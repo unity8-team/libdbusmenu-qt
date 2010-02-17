@@ -1,5 +1,7 @@
 project(dbusmenu-qt)
 cmake_minimum_required(VERSION 2.6.0)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
+
 set(dbusmenu_qt_VERSION 0.2.1)
 
 set(ARCHIVE_NAME libdbusmenu-qt-${dbusmenu_qt_VERSION})
