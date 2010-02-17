@@ -1,3 +1,8 @@
+# 0.2.2 - 2010.02.17
+- Fixed crash if action is removed from menu after exporter is deleted (LP BUG 521011)
+- Introduced a Qt equivalent of the test application used by dbusmenu-bench in libdbusmenu-glib
+- Added distcheck target
+
 # 0.2.1 - 2010.02.04
 - Export KDE titles as disabled standard items
 - Added temporary workaround to get more dynamic menus to work on GNOME
