@@ -23,6 +23,7 @@
 
 #include <QEvent>
 #include <QObject>
+#include <QWeakPointer>
 
 class QAction;
 class QMenu;
@@ -49,7 +50,7 @@ private:
     void updateAction(QAction *action);
     void removeAction(QAction *action);
 
-    DBusMenuExporter *m_exporter;
+    QWeakPointer<DBusMenuExporter> m_exporter;
     int m_parentId;
 };
 

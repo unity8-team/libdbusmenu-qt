@@ -357,4 +357,17 @@ void DBusMenuExporterTest::testClickDeletedAction()
     QTest::qWait(500);
 }
 
+// Reproduce LP BUG 521011
+// https://bugs.launchpad.net/bugs/521011
+void DBusMenuExporterTest::testDeleteExporterBeforeMenu()
+{
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+    delete exporter;
+    inputMenu.removeAction(a1);
+}
+
 #include "dbusmenuexportertest.moc"

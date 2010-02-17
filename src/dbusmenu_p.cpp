@@ -70,17 +70,23 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
 
 void DBusMenu::addAction(QAction *action)
 {
-    m_exporter->addAction(action, m_parentId);
+    if (m_exporter.data()) {
+        m_exporter.data()->addAction(action, m_parentId);
+    }
 }
 
 void DBusMenu::updateAction(QAction *action)
 {
-    m_exporter->updateAction(action);
+    if (m_exporter.data()) {
+        m_exporter.data()->updateAction(action);
+    }
 }
 
 void DBusMenu::removeAction(QAction *action)
 {
-    m_exporter->removeAction(action, m_parentId);
+    if (m_exporter.data()) {
+        m_exporter.data()->removeAction(action, m_parentId);
+    }
 }
 
 #include "dbusmenu_p.moc"
