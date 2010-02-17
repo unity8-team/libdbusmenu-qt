@@ -11,6 +11,19 @@ add_custom_target(dist
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
+add_custom_target(distcheck
+    COMMAND cd ${CMAKE_BINARY_DIR}
+    && rm -rf ${ARCHIVE_NAME}
+    && tar xf ${ARCHIVE_NAME}.tar.bz2
+    && mkdir ${ARCHIVE_NAME}/build
+    && cd ${ARCHIVE_NAME}/build
+    && cmake -DCMAKE_INSTALL_PREFIX=../install ..
+    && make
+    && make install
+    && make check
+    )
+add_dependencies(distcheck dist)
+
 set(dbusmenu_qt_lib_SOVERSION 1)
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.0.1)
 
