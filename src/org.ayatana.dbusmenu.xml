@@ -262,6 +262,20 @@ License version 3 and version 2.1 along with this program.  If not, see
 			</arg>
 		</method>
 
+		<method name="AboutToShow">
+			<dox:d>This is called by the applet to notify the application it is
+			about to show the menu whose parent is @p id. The application
+			should return True if the menu needs to be refreshed, False if it
+			does not.</dox:d>
+			<arg type="i" name="id" direction="in" >
+				<dox:d>the id of the parent item of the menu</dox:d>
+			</arg>
+			<arg type="b" name="needRefresh" direction="out" >
+				<dox:d>True if the menu has just been updated and should be
+				refreshed</dox:d>
+			</arg>
+		</method>
+
 <!-- Signals -->
 		<signal name="ItemPropertyUpdated">
 			<dox:d>

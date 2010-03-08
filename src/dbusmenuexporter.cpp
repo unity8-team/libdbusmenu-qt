@@ -273,7 +273,6 @@ DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &
     if (!menu) {
         return DBusMenuItemList();
     }
-    QMetaObject::invokeMethod(menu, "aboutToShow");
     // Process pending actions, we need them *now*
     doUpdateActions();
     Q_FOREACH(QAction *action, menu->actions()) {
@@ -289,8 +288,6 @@ uint DBusMenuExporter::GetLayout(int parentId, QString &layout)
 {
     QMenu *menu = d->menuForId(parentId);
     DMRETURN_VALUE_IF_FAIL(menu, 0);
-
-    QMetaObject::invokeMethod(menu, "aboutToShow");
 
     QXmlStreamWriter writer(&layout);
     writer.setAutoFormatting(true);
@@ -353,6 +350,45 @@ DBusMenuItemList DBusMenuExporter::GetGroupProperties(const QVariantList &ids, c
         list << item;
     }
     return list;
+}
+
+class ActionEventFilter: public QObject
+{
+public:
+    ActionEventFilter()
+    : mChanged(false)
+    {}
+
+    bool mChanged;
+protected:
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+        switch (event->type()) {
+        case QEvent::ActionAdded:
+        case QEvent::ActionChanged:
+        case QEvent::ActionRemoved:
+            mChanged = true;
+            // We noticed a change, no need to filter anymore
+            object->removeEventFilter(this);
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+};
+
+bool DBusMenuExporter::AboutToShow(int id)
+{
+    QMenu *menu = d->menuForId(id);
+    DMRETURN_VALUE_IF_FAIL(menu, false);
+
+    ActionEventFilter filter;
+    menu->installEventFilter(&filter);
+    QMetaObject::invokeMethod(menu, "aboutToShow");
+    DMVAR(id);
+    DMVAR(filter.mChanged);
+    return filter.mChanged;
 }
 
 #include "dbusmenuexporter.moc"

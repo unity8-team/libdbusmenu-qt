@@ -65,6 +65,7 @@ private Q_SLOTS:
     void sendClickedEvent(int);
     void slotItemUpdated(int id);
     void slotSubMenuAboutToShow();
+    void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
 
 private:
     DBusMenuImporterPrivate *const d;

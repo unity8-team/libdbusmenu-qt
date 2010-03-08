@@ -44,7 +44,8 @@ static QTime sChrono;
 
 typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWatcher*);
 
-static const int MAX_WAIT_TIMEOUT = 50;
+static const int ABOUT_TO_SHOW_TIMEOUT = 10;
+static const int REFRESH_TIMEOUT = 100;
 
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
 static const char *DBUSMENU_PROPERTY_ICON = "_dbusmenu_icon";
@@ -318,6 +319,25 @@ void DBusMenuImporter::sendClickedEvent(int id)
     d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
 }
 
+static bool waitForWatcher(QDBusPendingCallWatcher *watcher, int maxWait)
+{
+    QTime time;
+    time.start();
+    while (!watcher->isFinished() && time.elapsed() < maxWait) {
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }
+
+    // Tricky: watcher has indicated it is finished, but its finished() signal
+    // has not been emitted yet. Calling waitForFinished() ensures it is
+    // emitted.
+    if (watcher->isFinished()) {
+        watcher->waitForFinished();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void DBusMenuImporter::slotSubMenuAboutToShow()
 {
     QMenu *menu = qobject_cast<QMenu*>(sender());
@@ -328,25 +348,42 @@ void DBusMenuImporter::slotSubMenuAboutToShow()
 
     int id = action->property(DBUSMENU_PROPERTY_ID).toInt();
 
-    QDBusPendingCallWatcher *watcher = d->refresh(id);
+    QDBusPendingCall call = d->m_interface->asyncCall("AboutToShow", id);
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
+    watcher->setProperty(DBUSMENU_PROPERTY_ID, id);
+    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+        SLOT(slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher*)));
 
-    QTime time;
-    time.start();
-    while (!watcher->isFinished() && time.elapsed() < MAX_WAIT_TIMEOUT) {
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-
-    // Tricky: watcher has indicated it is finished, but slots connected to its
-    // finished() signal have not been called yet. Calling waitForFinished()
-    // ensures they get called.
-    if (watcher->isFinished()) {
-        watcher->waitForFinished();
-    } else {
-        DMWARNING << "Application did not answer to GetChildren() before timeout";
+    if (!waitForWatcher(watcher, ABOUT_TO_SHOW_TIMEOUT)) {
+        DMWARNING << "Application did not answer to AboutToShow() before timeout";
     }
     #ifdef BENCHMARK
     DMVAR(time.elapsed());
     #endif
+}
+
+void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
+{
+    int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
+
+    QDBusPendingReply<bool> reply = *watcher;
+    if (reply.isError()) {
+        DMWARNING << "Call to AboutToShow() failed:" << reply.error().message();
+        return;
+    }
+    bool needRefresh = reply.argumentAt<0>();
+
+    QAction *action = d->m_actionForId.value(id);
+    DMRETURN_IF_FAIL(action);
+    DMRETURN_IF_FAIL(action->menu());
+
+    if (needRefresh || action->menu()->actions().isEmpty()) {
+        DMDEBUG << "Menu" << id << "must be refreshed";
+        watcher = d->refresh(id);
+        if (!waitForWatcher(watcher, REFRESH_TIMEOUT)) {
+            DMWARNING << "Application did not refresh before timeout";
+        }
+    }
 }
 
 #include "dbusmenuimporter.moc"

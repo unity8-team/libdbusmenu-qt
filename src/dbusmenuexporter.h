@@ -68,6 +68,7 @@ public Q_SLOTS:
     QVariantMap GetProperties(int id, const QStringList &names);
     uint GetLayout(int parentId, QString &layout);
     DBusMenuItemList GetGroupProperties(const QVariantList &ids, const QStringList &propertyNames);
+    bool AboutToShow(int id);
 
 Q_SIGNALS:
     void ItemUpdated(int);
