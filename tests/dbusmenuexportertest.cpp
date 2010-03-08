@@ -247,9 +247,15 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     QCOMPARE(list.count(), 1);
     int id = list.first().id;
 
-    // Get submenu items
-    // (Calling GetChildren cause aboutToShow to be emitted)
+    // Nothing for now
     QCOMPARE(subMenu->actions().count(), 0);
+
+    // Pretend we show the menu
+    QDBusReply<bool> aboutToShowReply = iface.call("AboutToShow", id);
+    QVERIFY2(aboutToShowReply.isValid(), qPrintable(reply.error().message()));
+    QVERIFY(aboutToShowReply.value());
+
+    // Get submenu items
     reply = iface.call("GetChildren", id, QStringList());
     QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
     list = reply.value();
