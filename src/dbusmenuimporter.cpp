@@ -91,6 +91,14 @@ public:
         return watcher;
     }
 
+    QMenu *createMenu(QWidget *parent)
+    {
+        QMenu *menu = q->createMenu(0);
+        QObject::connect(menu, SIGNAL(aboutToShow()),
+            q, SLOT(slotMenuAboutToShow()));
+        return menu;
+    }
+
     /**
      * Init all the immutable action properties here
      * TODO: Document immutable properties?
@@ -107,9 +115,7 @@ public:
 
         if (map.value("children-display").toString() == "submenu") {
             // FIXME: Leak?
-            QMenu *menu = q->createMenu(0);
-            QObject::connect(menu, SIGNAL(aboutToShow()),
-                q, SLOT(slotSubMenuAboutToShow()));
+            QMenu *menu = createMenu(0);
             action->setMenu(menu);
         }
 
@@ -162,6 +168,16 @@ public:
         }
         action->setIcon(q->iconForName(iconName));
     }
+
+    QMenu *menuForId(int id) const
+    {
+        if (id == 0) {
+            return m_menu;
+        }
+        QAction *action = m_actionForId.value(id);
+        DMRETURN_VALUE_IF_FAIL(action, 0);
+        return action->menu();
+    }
 };
 
 DBusMenuImporter::DBusMenuImporter(QDBusAbstractInterface *interface, QObject *parent)
@@ -190,6 +206,9 @@ DBusMenuImporter::~DBusMenuImporter()
 
 QMenu *DBusMenuImporter::menu() const
 {
+    if (!d->m_menu) {
+        d->m_menu = d->createMenu(0);
+    }
     return d->m_menu;
 }
 
@@ -258,7 +277,6 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
 
 void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher *watcher)
 {
-    bool wasWaitingForMenu = false;
     QDBusReply<DBusMenuItemList> reply = *watcher;
     if (!reply.isValid()) {
         DMWARNING << reply.error().message();
@@ -270,26 +288,8 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     #endif
     DBusMenuItemList list = reply.value();
 
-    QMenu *menu = 0;
-    if (parentId == 0) {
-        if (!d->m_menu) {
-            d->m_menu = createMenu(0);
-            wasWaitingForMenu = true;
-        }
-        menu = d->m_menu;
-    } else {
-        QAction *action = d->m_actionForId.value(parentId);
-        if (!action) {
-            DMWARNING << "No action for id" << parentId;
-            return;
-        }
-        menu = action->menu();
-        if (!menu) {
-            DMWARNING << "Action" << action->text() << "has no menu";
-            return;
-        }
-    }
-    Q_ASSERT(menu);
+    QMenu *menu = d->menuForId(parentId);
+    DMRETURN_IF_FAIL(menu);
 
     menu->clear();
 
@@ -305,10 +305,6 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     #ifdef BENCHMARK
     DMDEBUG << "- Menu filled:" << sChrono.elapsed() << "ms";
     #endif
-
-    if (wasWaitingForMenu) {
-        emit menuIsReady();
-    }
 }
 
 void DBusMenuImporter::sendClickedEvent(int id)
@@ -338,7 +334,7 @@ static bool waitForWatcher(QDBusPendingCallWatcher *watcher, int maxWait)
     }
 }
 
-void DBusMenuImporter::slotSubMenuAboutToShow()
+void DBusMenuImporter::slotMenuAboutToShow()
 {
     QMenu *menu = qobject_cast<QMenu*>(sender());
     Q_ASSERT(menu);
@@ -373,11 +369,10 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
     }
     bool needRefresh = reply.argumentAt<0>();
 
-    QAction *action = d->m_actionForId.value(id);
-    DMRETURN_IF_FAIL(action);
-    DMRETURN_IF_FAIL(action->menu());
+    QMenu *menu = d->menuForId(id);
+    DMRETURN_IF_FAIL(menu);
 
-    if (needRefresh || action->menu()->actions().isEmpty()) {
+    if (needRefresh || menu->actions().isEmpty()) {
         DMDEBUG << "Menu" << id << "must be refreshed";
         watcher = d->refresh(id);
         if (!waitForWatcher(watcher, REFRESH_TIMEOUT)) {

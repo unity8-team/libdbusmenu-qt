@@ -46,9 +46,6 @@ public:
 
     QMenu *menu() const;
 
-Q_SIGNALS:
-    void menuIsReady();
-
 protected:
     /**
      * Must create a menu, may be customized to fit host appearance
@@ -64,7 +61,7 @@ private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
     void slotItemUpdated(int id);
-    void slotSubMenuAboutToShow();
+    void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
 
 private:
