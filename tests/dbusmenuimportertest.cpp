@@ -68,11 +68,9 @@ void DBusMenuImporterTest::testStandardItem()
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
 
-    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    TestDBusMenuImporter importer(&iface);
-    QEventLoop loop;
-    connect(&importer, SIGNAL(menuIsReady()), &loop, SLOT(quit()));
-    loop.exec();
+    QDBusInterface* iface = new QDBusInterface(TEST_SERVICE, TEST_OBJECT_PATH);
+    TestDBusMenuImporter importer(iface);
+    QTest::qWait(500);
 
     QMenu *outputMenu = importer.menu();
     QCOMPARE(outputMenu->actions().count(), 1);
