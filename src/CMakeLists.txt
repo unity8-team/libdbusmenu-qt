@@ -17,6 +17,7 @@ endif (__DBUSMENU_HAVE_W_ALL)
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
     dbusmenuexporter.cpp
+    dbusmenuexporterdbus_p.cpp
     dbusmenuimporter.cpp
     dbusmenuitem.cpp
     utils.cpp
@@ -31,7 +32,7 @@ qt4_automoc(${dbusmenu_qt_SRCS})
 
 qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/org.ayatana.dbusmenu.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporter.h DBusMenuExporter
+    ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
     )
 
 add_library(dbusmenu-qt SHARED ${dbusmenu_qt_SRCS})

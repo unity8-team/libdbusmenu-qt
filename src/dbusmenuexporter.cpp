@@ -31,8 +31,9 @@
 
 // Local
 #include "dbusmenu_p.h"
+#include "dbusmenuexporterdbus_p.h"
+#include "dbusmenuexporterprivate_p.h"
 #include "dbusmenuitem.h"
-#include "dbusmenuadaptor.h"
 #include "debug_p.h"
 #include "utils_p.h"
 
@@ -43,138 +44,129 @@ static QString defaultIconNameForActionFunction(const QAction *)
     return QString();
 }
 
-class DBusMenuExporterPrivate
+
+//-------------------------------------------------
+//
+// DBusMenuExporterPrivate
+//
+//-------------------------------------------------
+int DBusMenuExporterPrivate::idForAction(QAction *action) const
 {
-public:
-    DBusMenuExporter *q;
+    DMRETURN_VALUE_IF_FAIL(action, -1);
+    return m_idForAction.value(action, -2);
+}
 
-    IconNameForActionFunction m_iconNameForActionFunction;
-
-    QMenu *m_rootMenu;
-    QHash<QAction *, QVariantMap> m_actionProperties;
-    QMap<int, QAction *> m_actionForId;
-    QMap<QAction *, int> m_idForAction;
-    int m_nextId;
-    int m_revision;
-
-    QSet<int> m_itemUpdatedIds;
-    QTimer *m_itemUpdatedTimer;
-
-    int idForAction(QAction *action) const
-    {
-        DMRETURN_VALUE_IF_FAIL(action, -1);
-        return m_idForAction.value(action, -2);
+void DBusMenuExporterPrivate::addMenu(QMenu *menu, int parentId)
+{
+    new DBusMenu(menu, q, parentId);
+    Q_FOREACH(QAction *action, menu->actions()) {
+        q->addAction(action, parentId);
     }
+}
 
-    void addMenu(QMenu *menu, int parentId)
-    {
-        new DBusMenu(menu, q, parentId);
-        Q_FOREACH(QAction *action, menu->actions()) {
-            q->addAction(action, parentId);
-        }
+QVariantMap DBusMenuExporterPrivate::propertiesForAction(QAction *action) const
+{
+    DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
+
+    if (action->objectName() == KMENU_TITLE) {
+        // Hack: Support for KDE menu titles in a Qt-only library...
+        return propertiesForKMenuTitleAction(action);
+    } else if (action->isSeparator()) {
+        return propertiesForSeparatorAction(action);
+    } else {
+        return propertiesForStandardAction(action);
     }
+}
 
-    QVariantMap propertiesForAction(QAction *action) const
-    {
-        DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
+QVariantMap DBusMenuExporterPrivate::propertiesForKMenuTitleAction(QAction *action_) const
+{
+    QVariantMap map;
+    map.insert("enabled", false);
 
-        if (action->objectName() == KMENU_TITLE) {
-            // Hack: Support for KDE menu titles in a Qt-only library...
-            return propertiesForKMenuTitleAction(action);
-        } else if (action->isSeparator()) {
-            return propertiesForSeparatorAction(action);
-        } else {
-            return propertiesForStandardAction(action);
-        }
+    const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
+    DMRETURN_VALUE_IF_FAIL(widgetAction, map);
+    QToolButton *button = qobject_cast<QToolButton *>(widgetAction->defaultWidget());
+    DMRETURN_VALUE_IF_FAIL(button, map);
+    QAction *action = button->defaultAction();
+    DMRETURN_VALUE_IF_FAIL(action, map);
+
+    map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
+    QString iconName = m_iconNameForActionFunction(action);
+    if (!iconName.isEmpty()) {
+        map.insert("icon-name", iconName);
     }
+    return map;
+}
 
-    QVariantMap propertiesForKMenuTitleAction(QAction *action_) const
-    {
-        QVariantMap map;
+QVariantMap DBusMenuExporterPrivate::propertiesForSeparatorAction(QAction *action) const
+{
+    QVariantMap map;
+    map.insert("type", "separator");
+    return map;
+}
+
+QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action) const
+{
+    QVariantMap map;
+    map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
+    if (!action->isEnabled()) {
         map.insert("enabled", false);
-
-        const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
-        DMRETURN_VALUE_IF_FAIL(widgetAction, map);
-        QToolButton *button = qobject_cast<QToolButton *>(widgetAction->defaultWidget());
-        DMRETURN_VALUE_IF_FAIL(button, map);
-        QAction *action = button->defaultAction();
-        DMRETURN_VALUE_IF_FAIL(action, map);
-
-        map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-        QString iconName = m_iconNameForActionFunction(action);
-        if (!iconName.isEmpty()) {
-            map.insert("icon-name", iconName);
-        }
-        return map;
     }
-
-    QVariantMap propertiesForSeparatorAction(QAction *action) const
-    {
-        QVariantMap map;
-        map.insert("type", "separator");
-        return map;
+    if (action->menu()) {
+        map.insert("children-display", "submenu");
     }
-
-    QVariantMap propertiesForStandardAction(QAction *action) const
-    {
-        QVariantMap map;
-        map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-        if (!action->isEnabled()) {
-            map.insert("enabled", false);
+    if (action->isCheckable()) {
+        map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
+        if (action->isChecked()) {
+            map.insert("toggle-state", 1);
         }
-        if (action->menu()) {
-            map.insert("children-display", "submenu");
-        }
-        if (action->isCheckable()) {
-            map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
-            if (action->isChecked()) {
-                map.insert("toggle-state", 1);
-            }
-        }
-        QString iconName = m_iconNameForActionFunction(action);
-        if (!iconName.isEmpty()) {
-            map.insert("icon-name", iconName);
-        }
-        return map;
     }
-
-    QMenu *menuForId(int id) const
-    {
-        if (id == 0) {
-            return m_rootMenu;
-        }
-        QAction *action = m_actionForId.value(id);
-        DMRETURN_VALUE_IF_FAIL(action, 0);
-        QMenu *menu = action->menu();
-        DMRETURN_VALUE_IF_FAIL(menu, 0);
-        return menu;
+    QString iconName = m_iconNameForActionFunction(action);
+    if (!iconName.isEmpty()) {
+        map.insert("icon-name", iconName);
     }
+    return map;
+}
 
-    void writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
-    {
-        Q_ASSERT(menu);
-        writer->writeStartElement("menu");
-        writer->writeAttribute("id", QString::number(id));
-        Q_FOREACH(QAction *action, menu->actions()) {
-            int actionId = m_idForAction.value(action, -1);
-            if (actionId == -1) {
-                DMWARNING << "No id for action";
-                continue;
-            }
-            QMenu *actionMenu = action->menu();
-            if (actionMenu) {
-                writeXmlForMenu(writer, actionMenu, actionId);
-            } else {
-                writer->writeEmptyElement("menu");
-                writer->writeAttribute("id", QString::number(actionId));
-            }
-        }
-        writer->writeEndElement();
+QMenu *DBusMenuExporterPrivate::menuForId(int id) const
+{
+    if (id == 0) {
+        return m_rootMenu;
     }
+    QAction *action = m_actionForId.value(id);
+    DMRETURN_VALUE_IF_FAIL(action, 0);
+    QMenu *menu = action->menu();
+    DMRETURN_VALUE_IF_FAIL(menu, 0);
+    return menu;
+}
 
-};
+void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
+{
+    Q_ASSERT(menu);
+    writer->writeStartElement("menu");
+    writer->writeAttribute("id", QString::number(id));
+    Q_FOREACH(QAction *action, menu->actions()) {
+        int actionId = m_idForAction.value(action, -1);
+        if (actionId == -1) {
+            DMWARNING << "No id for action";
+            continue;
+        }
+        QMenu *actionMenu = action->menu();
+        if (actionMenu) {
+            writeXmlForMenu(writer, actionMenu, actionId);
+        } else {
+            writer->writeEmptyElement("menu");
+            writer->writeAttribute("id", QString::number(actionId));
+        }
+    }
+    writer->writeEndElement();
+}
 
-
+//-------------------------------------------------
+//
+// DBusMenuExporter
+//
+//-------------------------------------------------
 DBusMenuExporter::DBusMenuExporter(const QString &connectionName, const QString &objectPath, QMenu *rootMenu)
 : QObject(rootMenu)
 , d(new DBusMenuExporterPrivate)
@@ -185,12 +177,8 @@ DBusMenuExporter::DBusMenuExporter(const QString &connectionName, const QString 
     d->m_revision = 1;
     d->m_itemUpdatedTimer = new QTimer(this);
     d->m_iconNameForActionFunction = defaultIconNameForActionFunction;
+    d->m_dbusObject = new DBusMenuExporterDBus(this, connectionName, objectPath);
 
-    qDBusRegisterMetaType<DBusMenuItem>();
-    qDBusRegisterMetaType<DBusMenuItemList>();
-    new DbusmenuAdaptor(this);
-    QDBusConnection connection = QDBusConnection::connectToBus(QDBusConnection::SessionBus, connectionName);
-    connection.registerObject(objectPath, this, QDBusConnection::ExportAllContents);
     d->addMenu(rootMenu, 0);
 
     d->m_itemUpdatedTimer->setInterval(0);
@@ -211,7 +199,7 @@ void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction fu
 
 void DBusMenuExporter::emitLayoutUpdated(int id)
 {
-    LayoutUpdated(d->m_revision, id);
+    d->m_dbusObject->LayoutUpdated(d->m_revision, id);
 }
 
 void DBusMenuExporter::updateAction(QAction *action)
@@ -237,7 +225,7 @@ void DBusMenuExporter::doUpdateActions()
         if (menu && !menu->findChild<DBusMenu *>()) {
             d->addMenu(menu, id);
         }
-        ItemUpdated(id);
+        d->m_dbusObject->ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
 }
@@ -265,130 +253,5 @@ void DBusMenuExporter::removeAction(QAction *action, int parentId)
     emitLayoutUpdated(parentId);
 }
 
-DBusMenuItemList DBusMenuExporter::GetChildren(int parentId, const QStringList &names)
-{
-    DBusMenuItemList list;
-
-    QMenu *menu = d->menuForId(parentId);
-    if (!menu) {
-        return DBusMenuItemList();
-    }
-    // Process pending actions, we need them *now*
-    doUpdateActions();
-    Q_FOREACH(QAction *action, menu->actions()) {
-        DBusMenuItem item;
-        item.id = d->idForAction(action);
-        item.properties = GetProperties(item.id, names);
-        list << item;
-    }
-    return list;
-}
-
-uint DBusMenuExporter::GetLayout(int parentId, QString &layout)
-{
-    QMenu *menu = d->menuForId(parentId);
-    DMRETURN_VALUE_IF_FAIL(menu, 0);
-
-    QXmlStreamWriter writer(&layout);
-    writer.setAutoFormatting(true);
-    writer.writeStartDocument();
-    d->writeXmlForMenu(&writer, menu, parentId);
-    writer.writeEndDocument();
-
-    return d->m_revision;
-}
-
-void DBusMenuExporter::Event(int id, const QString &eventType, const QDBusVariant &/*data*/, uint /*timestamp*/)
-{
-    if (eventType == "clicked") {
-        QAction *action = d->m_actionForId.value(id);
-        if (!action) {
-            return;
-        }
-        action->trigger();
-    } else if (eventType == "hovered") {
-        QMenu *menu = d->menuForId(id);
-        if (menu) {
-            QMetaObject::invokeMethod(menu, "aboutToShow");
-        }
-    }
-}
-
-QDBusVariant DBusMenuExporter::GetProperty(int id, const QString &name)
-{
-    QAction *action = d->m_actionForId.value(id);
-    DMRETURN_VALUE_IF_FAIL(action, QDBusVariant());
-    return QDBusVariant(d->m_actionProperties.value(action).value(name));
-}
-
-QVariantMap DBusMenuExporter::GetProperties(int id, const QStringList &names)
-{
-    QAction *action = d->m_actionForId.value(id);
-    DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
-    QVariantMap all = d->m_actionProperties.value(action);
-    if (names.isEmpty()) {
-        return all;
-    } else {
-        QVariantMap map;
-        Q_FOREACH(const QString &name, names) {
-            QVariant value = all.value(name);
-            if (value.isValid()) {
-                map.insert(name, value);
-            }
-        }
-        return map;
-    }
-}
-
-DBusMenuItemList DBusMenuExporter::GetGroupProperties(const QVariantList &ids, const QStringList &names)
-{
-    DBusMenuItemList list;
-    Q_FOREACH(const QVariant &id, ids) {
-        DBusMenuItem item;
-        item.id = id.toInt();
-        item.properties = GetProperties(item.id, names);
-        list << item;
-    }
-    return list;
-}
-
-class ActionEventFilter: public QObject
-{
-public:
-    ActionEventFilter()
-    : mChanged(false)
-    {}
-
-    bool mChanged;
-protected:
-    bool eventFilter(QObject *object, QEvent *event)
-    {
-        switch (event->type()) {
-        case QEvent::ActionAdded:
-        case QEvent::ActionChanged:
-        case QEvent::ActionRemoved:
-            mChanged = true;
-            // We noticed a change, no need to filter anymore
-            object->removeEventFilter(this);
-            break;
-        default:
-            break;
-        }
-        return false;
-    }
-};
-
-bool DBusMenuExporter::AboutToShow(int id)
-{
-    QMenu *menu = d->menuForId(id);
-    DMRETURN_VALUE_IF_FAIL(menu, false);
-
-    ActionEventFilter filter;
-    menu->installEventFilter(&filter);
-    QMetaObject::invokeMethod(menu, "aboutToShow");
-    DMVAR(id);
-    DMVAR(filter.mChanged);
-    return filter.mChanged;
-}
 
 #include "dbusmenuexporter.moc"

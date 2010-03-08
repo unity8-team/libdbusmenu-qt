@@ -23,12 +23,9 @@
 
 // Qt
 #include <QtCore/QObject>
-#include <QtCore/QVariant>
-#include <QtDBus/QDBusAbstractAdaptor>
 
 // Local
 #include <dbusmenu_export.h>
-#include <dbusmenuitem.h>
 
 class QAction;
 class QMenu;
@@ -39,12 +36,11 @@ typedef QString (* IconNameForActionFunction)(const QAction *);
 class DBusMenuExporterPrivate;
 
 /**
- * Internal class exporting DBus menu changes to DBus
+ * A DBusMenuExporter instance can serialize a menu over DBus
  */
 class DBUSMENU_EXPORT DBusMenuExporter : public QObject
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
 public:
     DBusMenuExporter(const QString &connectionName, const QString &dbusObjectPath, QMenu *rootMenu);
     ~DBusMenuExporter();
@@ -61,25 +57,13 @@ public:
     void updateAction(QAction *action);
     void removeAction(QAction *action, int parentId);
 
-public Q_SLOTS:
-    DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);
-    Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, uint timestamp);
-    QDBusVariant GetProperty(int id, const QString &property);
-    QVariantMap GetProperties(int id, const QStringList &names);
-    uint GetLayout(int parentId, QString &layout);
-    DBusMenuItemList GetGroupProperties(const QVariantList &ids, const QStringList &propertyNames);
-    bool AboutToShow(int id);
-
-Q_SIGNALS:
-    void ItemUpdated(int);
-    void ItemPropertyUpdated(int, QString, QVariant);
-    void LayoutUpdated(int revision, int parentId);
-
 private Q_SLOTS:
     void doUpdateActions();
 
 private:
     DBusMenuExporterPrivate *const d;
+
+    friend class DBusMenuExporterDBus;
 };
 
 #endif /* DBUSMENUEXPORTER_H */
