@@ -31,7 +31,6 @@
 
 // DBusMenuQt
 #include <dbusmenuexporter.h>
-#include <dbusmenuimporter.h>
 #include <dbusmenuitem.h>
 #include <debug_p.h>
 
@@ -308,7 +307,8 @@ void DBusMenuExporterTest::testRadioItems()
     int a2Id = item.id;
 
     // Click a2
-    QSignalSpy spy(&exporter, SIGNAL(ItemUpdated(int)));
+    ManualSignalSpy spy;
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemUpdated", &spy, SLOT(slotReceivedInt(int)));
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     iface.call("Event", a2Id, "clicked", empty, timestamp);

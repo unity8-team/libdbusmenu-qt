@@ -31,6 +31,18 @@
 
 class QMenu;
 
+class ManualSignalSpy : public QObject, public QList<QList<QVariant> >
+{
+    Q_OBJECT
+public Q_SLOTS:
+    void slotReceivedInt(int value)
+    {
+        QList<QVariant> row;
+        row.append(value);
+        append(row);
+    }
+};
+
 class MenuFiller : public QObject
 {
     Q_OBJECT
