@@ -171,6 +171,7 @@ DBusMenuImporter::DBusMenuImporter(QDBusAbstractInterface *interface, QObject *p
     qDBusRegisterMetaType<DBusMenuItemList>();
 
     d->q = this;
+    interface->setParent(this);
     d->m_interface = interface;
     d->m_menu = 0;
 
