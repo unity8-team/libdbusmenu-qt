@@ -172,7 +172,7 @@ public:
     QMenu *menuForId(int id) const
     {
         if (id == 0) {
-            return m_menu;
+            return q->menu();
         }
         QAction *action = m_actionForId.value(id);
         DMRETURN_VALUE_IF_FAIL(action, 0);
