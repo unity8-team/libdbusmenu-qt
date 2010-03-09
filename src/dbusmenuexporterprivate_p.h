@@ -66,6 +66,8 @@ public:
     void addAction(QAction *action, int parentId);
     void updateAction(QAction *action);
     void removeAction(QAction *action, int parentId);
+
+    void emitLayoutUpdated(int id);
 };
 
 

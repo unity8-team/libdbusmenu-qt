@@ -56,8 +56,6 @@ public:
      */
     void setIconNameForActionFunction(IconNameForActionFunction);
 
-    void emitLayoutUpdated(int);
-
 private Q_SLOTS:
     void doUpdateActions();
 

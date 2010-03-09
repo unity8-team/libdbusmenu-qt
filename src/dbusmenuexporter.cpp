@@ -183,7 +183,7 @@ void DBusMenuExporterPrivate::addAction(QAction *action, int parentId)
         addMenu(action->menu(), id);
     }
     ++m_revision;
-    q->emitLayoutUpdated(parentId);
+    emitLayoutUpdated(parentId);
 }
 
 void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
@@ -192,7 +192,12 @@ void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
     int id = m_idForAction.take(action);
     m_actionForId.remove(id);
     ++m_revision;
-    q->emitLayoutUpdated(parentId);
+    emitLayoutUpdated(parentId);
+}
+
+void DBusMenuExporterPrivate::emitLayoutUpdated(int id)
+{
+    m_dbusObject->LayoutUpdated(m_revision, id);
 }
 
 //-------------------------------------------------
@@ -233,10 +238,6 @@ void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction fu
     d->m_iconNameForActionFunction = function;
 }
 
-void DBusMenuExporter::emitLayoutUpdated(int id)
-{
-    d->m_dbusObject->LayoutUpdated(d->m_revision, id);
-}
 void DBusMenuExporter::doUpdateActions()
 {
     Q_FOREACH(int id, d->m_itemUpdatedIds) {

@@ -62,6 +62,7 @@ private:
     DBusMenuExporter *m_exporter;
 
     friend class DBusMenuExporter;
+    friend class DBusMenuExporterPrivate;
 };
 
 #endif /* DBUSMENUEXPORTERDBUS_P_H */
