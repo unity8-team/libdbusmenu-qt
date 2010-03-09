@@ -74,6 +74,7 @@ private Q_SLOTS:
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
 
 private:
+    Q_DISABLE_COPY(DBusMenuImporter)
     DBusMenuImporterPrivate *const d;
     friend class DBusMenuImporterPrivate;
 

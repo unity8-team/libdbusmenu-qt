@@ -61,6 +61,7 @@ private Q_SLOTS:
     void doUpdateActions();
 
 private:
+    Q_DISABLE_COPY(DBusMenuExporter)
     DBusMenuExporterPrivate *const d;
 
     friend class DBusMenuExporterPrivate;
