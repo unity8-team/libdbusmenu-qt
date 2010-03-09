@@ -66,7 +66,7 @@ void DBusMenuImporterTest::testStandardItem()
     QMenu inputMenu;
     inputMenu.addAction("Test");
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface* iface = new QDBusInterface(TEST_SERVICE, TEST_OBJECT_PATH);
     TestDBusMenuImporter importer(iface);

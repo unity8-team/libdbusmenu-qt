@@ -78,7 +78,7 @@ void DBusMenuExporterTest::testGetSomeProperties()
     QFETCH(bool, enabled);
 
     QMenu inputMenu;
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
     exporter.setIconNameForActionFunction(iconForAction);
 
     QAction *action = new QAction(label, &inputMenu);
@@ -129,7 +129,7 @@ void DBusMenuExporterTest::testGetAllProperties()
         << "type";
 
     QMenu inputMenu;
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
     exporter.setIconNameForActionFunction(iconForAction);
 
     inputMenu.addAction("a1");
@@ -164,7 +164,7 @@ void DBusMenuExporterTest::testGetNonExistentProperty()
 
     QMenu inputMenu;
     inputMenu.addAction("a1");
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList() << NON_EXISTENT_KEY);
@@ -182,7 +182,7 @@ void DBusMenuExporterTest::testClickedEvent()
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("a1");
     QSignalSpy spy(action, SIGNAL(triggered()));
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
@@ -206,7 +206,7 @@ void DBusMenuExporterTest::testSubMenu()
     QMenu *subMenu = inputMenu.addMenu("menu");
     QAction *a1 = subMenu->addAction("a1");
     QAction *a2 = subMenu->addAction("a2");
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
@@ -232,7 +232,7 @@ void DBusMenuExporterTest::testSubMenu()
 void DBusMenuExporterTest::testDynamicSubMenu()
 {
     QMenu inputMenu;
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
     QAction *action = inputMenu.addAction("menu");
     QMenu *subMenu = new QMenu;
     action->setMenu(subMenu);
@@ -277,7 +277,7 @@ void DBusMenuExporterTest::testRadioItems()
     DBusMenuItemList list;
     QMenu inputMenu;
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     // Create 2 radio items, check first one
     QAction *a1 = inputMenu.addAction("a1");
@@ -342,7 +342,7 @@ void DBusMenuExporterTest::testClickDeletedAction()
 {
     QMenu inputMenu;
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    DBusMenuExporter exporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QAction *a1 = inputMenu.addAction("a1");
 
@@ -370,7 +370,7 @@ void DBusMenuExporterTest::testDeleteExporterBeforeMenu()
 {
     QMenu inputMenu;
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    DBusMenuExporter *exporter = new DBusMenuExporter(QDBusConnection::sessionBus().name(), TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
 
     QAction *a1 = inputMenu.addAction("a1");
     delete exporter;

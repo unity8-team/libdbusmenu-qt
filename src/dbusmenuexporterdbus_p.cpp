@@ -28,16 +28,13 @@
 #include "dbusmenuexporterprivate_p.h"
 #include "debug_p.h"
 
-DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter, const QString &connectionName, const QString &objectPath)
+DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
 : QObject(exporter)
 , m_exporter(exporter)
 {
     qDBusRegisterMetaType<DBusMenuItem>();
     qDBusRegisterMetaType<DBusMenuItemList>();
     new DbusmenuAdaptor(this);
-
-    QDBusConnection connection = QDBusConnection::connectToBus(QDBusConnection::SessionBus, connectionName);
-    connection.registerObject(objectPath, this, QDBusConnection::ExportAllContents);
 }
 
 

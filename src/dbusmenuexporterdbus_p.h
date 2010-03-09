@@ -34,13 +34,15 @@ class DBusMenuExporter;
 
 /**
  * Internal class implementing the DBus side of DBusMenuExporter
+ * This avoid exposing the implementation of the DBusMenu spec to the outside
+ * world.
  */
 class DBusMenuExporterDBus : public QObject
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
 public:
-    DBusMenuExporterDBus(DBusMenuExporter *m_exporter, const QString &connectionName, const QString &objectPath);
+    DBusMenuExporterDBus(DBusMenuExporter *m_exporter);
 
 public Q_SLOTS:
     DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);

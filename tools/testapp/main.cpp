@@ -106,7 +106,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    DBusMenuExporter exporter(connection.name(), DBUS_PATH, &menu);
+    DBusMenuExporter exporter(DBUS_PATH, &menu);
     exporter.setIconNameForActionFunction(iconNameForAction);
     return app.exec();
 }

@@ -23,6 +23,7 @@
 
 // Qt
 #include <QtCore/QObject>
+#include <QtDBus/QDBusConnection>
 
 // Local
 #include <dbusmenu_export.h>
@@ -42,7 +43,12 @@ class DBUSMENU_EXPORT DBusMenuExporter : public QObject
 {
     Q_OBJECT
 public:
-    DBusMenuExporter(const QString &connectionName, const QString &dbusObjectPath, QMenu *rootMenu);
+    /**
+     * Creates a DBusMenuExporter exporting menu at the dbus object path
+     * dbusObjectPath, using the given dbusConnection.
+     * The instance is added as a child of menu.
+     */
+    DBusMenuExporter(const QString &dbusObjectPath, QMenu *menu, const QDBusConnection &dbusConnection = QDBusConnection::sessionBus());
     ~DBusMenuExporter();
 
     /**

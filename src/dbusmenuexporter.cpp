@@ -167,23 +167,26 @@ void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *m
 // DBusMenuExporter
 //
 //-------------------------------------------------
-DBusMenuExporter::DBusMenuExporter(const QString &connectionName, const QString &objectPath, QMenu *rootMenu)
-: QObject(rootMenu)
+DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const QDBusConnection &_connection)
+: QObject(menu)
 , d(new DBusMenuExporterPrivate)
 {
     d->q = this;
-    d->m_rootMenu = rootMenu;
+    d->m_rootMenu = menu;
     d->m_nextId = 1;
     d->m_revision = 1;
     d->m_itemUpdatedTimer = new QTimer(this);
     d->m_iconNameForActionFunction = defaultIconNameForActionFunction;
-    d->m_dbusObject = new DBusMenuExporterDBus(this, connectionName, objectPath);
+    d->m_dbusObject = new DBusMenuExporterDBus(this);
 
-    d->addMenu(rootMenu, 0);
+    d->addMenu(d->m_rootMenu, 0);
 
     d->m_itemUpdatedTimer->setInterval(0);
     d->m_itemUpdatedTimer->setSingleShot(true);
     connect(d->m_itemUpdatedTimer, SIGNAL(timeout()), SLOT(doUpdateActions()));
+
+    QDBusConnection connection(_connection);
+    connection.registerObject(objectPath, d->m_dbusObject, QDBusConnection::ExportAllContents);
 }
 
 DBusMenuExporter::~DBusMenuExporter()
