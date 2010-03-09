@@ -60,7 +60,7 @@ void DBusMenuExporterPrivate::addMenu(QMenu *menu, int parentId)
 {
     new DBusMenu(menu, q, parentId);
     Q_FOREACH(QAction *action, menu->actions()) {
-        q->addAction(action, parentId);
+        addAction(action, parentId);
     }
 }
 
@@ -162,6 +162,39 @@ void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *m
     writer->writeEndElement();
 }
 
+void DBusMenuExporterPrivate::updateAction(QAction *action)
+{
+    int id = idForAction(action);
+    if (m_itemUpdatedIds.contains(id)) {
+        return;
+    }
+    m_itemUpdatedIds << id;
+    m_itemUpdatedTimer->start();
+}
+
+void DBusMenuExporterPrivate::addAction(QAction *action, int parentId)
+{
+    QVariantMap map = propertiesForAction(action);
+    int id = m_nextId++;
+    m_actionForId.insert(id, action);
+    m_idForAction.insert(action, id);
+    m_actionProperties.insert(action, map);
+    if (action->menu()) {
+        addMenu(action->menu(), id);
+    }
+    ++m_revision;
+    q->emitLayoutUpdated(parentId);
+}
+
+void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
+{
+    m_actionProperties.remove(action);
+    int id = m_idForAction.take(action);
+    m_actionForId.remove(id);
+    ++m_revision;
+    q->emitLayoutUpdated(parentId);
+}
+
 //-------------------------------------------------
 //
 // DBusMenuExporter
@@ -204,17 +237,6 @@ void DBusMenuExporter::emitLayoutUpdated(int id)
 {
     d->m_dbusObject->LayoutUpdated(d->m_revision, id);
 }
-
-void DBusMenuExporter::updateAction(QAction *action)
-{
-    int id = d->idForAction(action);
-    if (d->m_itemUpdatedIds.contains(id)) {
-        return;
-    }
-    d->m_itemUpdatedIds << id;
-    d->m_itemUpdatedTimer->start();
-}
-
 void DBusMenuExporter::doUpdateActions()
 {
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
@@ -231,29 +253,6 @@ void DBusMenuExporter::doUpdateActions()
         d->m_dbusObject->ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
-}
-
-void DBusMenuExporter::addAction(QAction *action, int parentId)
-{
-    QVariantMap map = d->propertiesForAction(action);
-    int id = d->m_nextId++;
-    d->m_actionForId.insert(id, action);
-    d->m_idForAction.insert(action, id);
-    d->m_actionProperties.insert(action, map);
-    if (action->menu()) {
-        d->addMenu(action->menu(), id);
-    }
-    ++d->m_revision;
-    emitLayoutUpdated(parentId);
-}
-
-void DBusMenuExporter::removeAction(QAction *action, int parentId)
-{
-    d->m_actionProperties.remove(action);
-    int id = d->m_idForAction.take(action);
-    d->m_actionForId.remove(id);
-    ++d->m_revision;
-    emitLayoutUpdated(parentId);
 }
 
 

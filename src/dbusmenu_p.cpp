@@ -20,13 +20,15 @@
 */
 #include "dbusmenu_p.h"
 
+// Qt
 #include <QAction>
 #include <QActionEvent>
 #include <QMenu>
 
-#include "debug_p.h"
-
+// Local
 #include "dbusmenuexporter.h"
+#include "dbusmenuexporterprivate_p.h"
+#include "debug_p.h"
 
 DBusMenu::DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId)
 : QObject(menu)
@@ -71,21 +73,21 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
 void DBusMenu::addAction(QAction *action)
 {
     if (m_exporter.data()) {
-        m_exporter.data()->addAction(action, m_parentId);
+        m_exporter.data()->d->addAction(action, m_parentId);
     }
 }
 
 void DBusMenu::updateAction(QAction *action)
 {
     if (m_exporter.data()) {
-        m_exporter.data()->updateAction(action);
+        m_exporter.data()->d->updateAction(action);
     }
 }
 
 void DBusMenu::removeAction(QAction *action)
 {
     if (m_exporter.data()) {
-        m_exporter.data()->removeAction(action, m_parentId);
+        m_exporter.data()->d->removeAction(action, m_parentId);
     }
 }
 

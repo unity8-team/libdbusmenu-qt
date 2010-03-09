@@ -31,6 +31,7 @@
 #include "dbusmenuexporter.h"
 
 class QMenu;
+class QXmlStreamWriter;
 
 class DBusMenuExporterDBus;
 
@@ -61,6 +62,10 @@ public:
     QVariantMap propertiesForStandardAction(QAction *action) const;
     QMenu *menuForId(int id) const;
     void writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id);
+
+    void addAction(QAction *action, int parentId);
+    void updateAction(QAction *action);
+    void removeAction(QAction *action, int parentId);
 };
 
 

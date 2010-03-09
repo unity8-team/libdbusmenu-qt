@@ -30,7 +30,6 @@
 
 class QAction;
 class QMenu;
-class QDBusVariant;
 
 typedef QString (* IconNameForActionFunction)(const QAction *);
 
@@ -59,10 +58,6 @@ public:
 
     void emitLayoutUpdated(int);
 
-    void addAction(QAction *action, int parentId);
-    void updateAction(QAction *action);
-    void removeAction(QAction *action, int parentId);
-
 private Q_SLOTS:
     void doUpdateActions();
 
@@ -70,6 +65,7 @@ private:
     DBusMenuExporterPrivate *const d;
 
     friend class DBusMenuExporterDBus;
+    friend class DBusMenu;
 };
 
 #endif /* DBUSMENUEXPORTER_H */
