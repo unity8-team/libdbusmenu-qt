@@ -159,8 +159,6 @@ bool DBusMenuExporterDBus::AboutToShow(int id)
     ActionEventFilter filter;
     menu->installEventFilter(&filter);
     QMetaObject::invokeMethod(menu, "aboutToShow");
-    DMVAR(id);
-    DMVAR(filter.mChanged);
     return filter.mChanged;
 }
 
