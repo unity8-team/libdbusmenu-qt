@@ -32,7 +32,7 @@
 #include <QTime>
 
 // Local
-#include "dbusmenuitem.h"
+#include "dbusmenuitem_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
 

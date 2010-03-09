@@ -28,7 +28,7 @@
 #include <QtDBus/QDBusVariant>
 
 // Local
-#include <dbusmenuitem.h>
+#include <dbusmenuitem_p.h>
 
 class DBusMenuExporter;
 

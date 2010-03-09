@@ -33,7 +33,7 @@
 #include "dbusmenu_p.h"
 #include "dbusmenuexporterdbus_p.h"
 #include "dbusmenuexporterprivate_p.h"
-#include "dbusmenuitem.h"
+#include "dbusmenuitem_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
 

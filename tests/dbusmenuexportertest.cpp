@@ -31,7 +31,7 @@
 
 // DBusMenuQt
 #include <dbusmenuexporter.h>
-#include <dbusmenuitem.h>
+#include <dbusmenuitem_p.h>
 #include <debug_p.h>
 
 QTEST_MAIN(DBusMenuExporterTest)
