@@ -56,7 +56,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void ItemUpdated(int);
     void ItemPropertyUpdated(int, QString, QVariant);
-    void LayoutUpdated(int revision, int parentId);
+    void LayoutUpdated(uint revision, int parentId);
 
 private:
     DBusMenuExporter *m_exporter;

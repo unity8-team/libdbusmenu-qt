@@ -49,7 +49,7 @@ public:
     QMap<int, QAction *> m_actionForId;
     QMap<QAction *, int> m_idForAction;
     int m_nextId;
-    int m_revision;
+    uint m_revision;
 
     QSet<int> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
