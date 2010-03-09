@@ -1,0 +1,12 @@
+- Update NEWS
+  git log x.y.z-1..HEAD
+- Bump version number in CMakeLists.txt
+- Commit
+- Create tarball
+- Unpack tarball, build and run tests
+- If ok, create "x.y.z" tag
+  git tag -a x.y.z
+- Push
+  git push
+  git push --tags
+- Upload tarball
