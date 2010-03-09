@@ -42,8 +42,8 @@ static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 class TestDBusMenuImporter : public DBusMenuImporter
 {
 public:
-    TestDBusMenuImporter(QDBusAbstractInterface *iface)
-    : DBusMenuImporter(iface)
+    TestDBusMenuImporter(const QString &service, const QString &path)
+    : DBusMenuImporter(service, path)
     {}
 
 protected:
@@ -68,8 +68,7 @@ void DBusMenuImporterTest::testStandardItem()
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
-    QDBusInterface* iface = new QDBusInterface(TEST_SERVICE, TEST_OBJECT_PATH);
-    TestDBusMenuImporter importer(iface);
+    TestDBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
     QTest::qWait(500);
 
     QMenu *outputMenu = importer.menu();

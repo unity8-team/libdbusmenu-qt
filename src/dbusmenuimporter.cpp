@@ -44,6 +44,8 @@ static QTime sChrono;
 
 typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWatcher*);
 
+static const char *DBUSMENU_INTERFACE = "org.ayatana.dbusmenu";
+
 static const int ABOUT_TO_SHOW_TIMEOUT = 10;
 static const int REFRESH_TIMEOUT = 100;
 
@@ -180,7 +182,7 @@ public:
     }
 };
 
-DBusMenuImporter::DBusMenuImporter(QDBusAbstractInterface *interface, QObject *parent)
+DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, QObject *parent)
 : QObject(parent)
 , d(new DBusMenuImporterPrivate)
 {
@@ -188,8 +190,7 @@ DBusMenuImporter::DBusMenuImporter(QDBusAbstractInterface *interface, QObject *p
     qDBusRegisterMetaType<DBusMenuItemList>();
 
     d->q = this;
-    interface->setParent(this);
-    d->m_interface = interface;
+    d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
     d->m_menu = 0;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));

@@ -41,7 +41,7 @@ class DBUSMENU_EXPORT DBusMenuImporter : public QObject
 {
     Q_OBJECT
 public:
-    DBusMenuImporter(QDBusAbstractInterface *, QObject *parent = 0);
+    DBusMenuImporter(const QString &service, const QString &path, QObject *parent = 0);
     ~DBusMenuImporter();
 
     QMenu *menu() const;
