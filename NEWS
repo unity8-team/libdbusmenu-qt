@@ -1,16 +1,24 @@
+# 0.3.0 - 2010.03.09
+- Moved the DBus side of DBusMenuExporter to a separate class, hiding it from
+  the outside world.
+- Cleaned the API of DBusMenuExporter and DBusMenuImporter.
+- Implemented AboutToShow method from the DBusMenu spec.
+
 # 0.2.2 - 2010.02.17
-- Fixed crash if action is removed from menu after exporter is deleted (LP BUG 521011)
-- Introduced a Qt equivalent of the test application used by dbusmenu-bench in libdbusmenu-glib
-- Added distcheck target
+- Fixed crash if action is removed from menu after exporter is deleted
+  (LP BUG 521011).
+- Introduced a Qt equivalent of the test application used by dbusmenu-bench in
+  libdbusmenu-glib.
+- Added distcheck target.
 
 # 0.2.1 - 2010.02.04
-- Export KDE titles as disabled standard items
-- Added temporary workaround to get more dynamic menus to work on GNOME
+- Export KDE titles as disabled standard items.
+- Added temporary workaround to get more dynamic menus to work on GNOME.
 
 # 0.2.0 - 2010.02.03
-- Make it possible to define the object-path used by DBusMenuExporter
-- Unit tests
-- Follow new DBusMenu spec
+- Make it possible to define the object-path used by DBusMenuExporter.
+- Unit tests.
+- Follow new DBusMenu spec.
 
 # 0.1.0 - 2010.01.05
-- First release
+- First release.
