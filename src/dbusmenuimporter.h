@@ -41,9 +41,16 @@ class DBUSMENU_EXPORT DBusMenuImporter : public QObject
 {
     Q_OBJECT
 public:
+    /**
+     * Creates a DBusMenuImporter listening over DBus on service, path
+     */
     DBusMenuImporter(const QString &service, const QString &path, QObject *parent = 0);
+
     ~DBusMenuImporter();
 
+    /**
+     * The menu created from listening to the DBusMenuExporter over DBus
+     */
     QMenu *menu() const;
 
 protected:

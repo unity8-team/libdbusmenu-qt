@@ -43,9 +43,10 @@ public:
     /**
      * Creates a DBusMenuExporter exporting menu at the dbus object path
      * dbusObjectPath, using the given dbusConnection.
-     * The instance is added as a child of menu.
+     * The instance adds itself to the menu children.
      */
     DBusMenuExporter(const QString &dbusObjectPath, QMenu *menu, const QDBusConnection &dbusConnection = QDBusConnection::sessionBus());
+
     ~DBusMenuExporter();
 
 protected:

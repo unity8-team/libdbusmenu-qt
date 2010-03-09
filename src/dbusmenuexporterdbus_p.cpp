@@ -125,6 +125,10 @@ DBusMenuItemList DBusMenuExporterDBus::GetGroupProperties(const QVariantList &id
     return list;
 }
 
+/**
+ * An helper class for ::AboutToShow, which sets mChanged to true if a menu
+ * changes after its aboutToShow() signal has been emitted.
+ */
 class ActionEventFilter: public QObject
 {
 public:
