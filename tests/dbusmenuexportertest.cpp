@@ -308,7 +308,7 @@ void DBusMenuExporterTest::testRadioItems()
 
     // Click a2
     ManualSignalSpy spy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemUpdated", &spy, SLOT(slotReceivedInt(int)));
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemUpdated", &spy, SLOT(receiveCall(int)));
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     iface.call("Event", a2Id, "clicked", empty, timestamp);

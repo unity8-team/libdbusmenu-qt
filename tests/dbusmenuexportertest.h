@@ -31,15 +31,18 @@
 
 class QMenu;
 
-class ManualSignalSpy : public QObject, public QList<QList<QVariant> >
+class ManualSignalSpy : public QObject, public QList<QVariantList>
 {
     Q_OBJECT
 public Q_SLOTS:
-    void slotReceivedInt(int value)
+    void receiveCall(int value)
     {
-        QList<QVariant> row;
-        row.append(value);
-        append(row);
+        append(QVariantList() << value);
+    }
+
+    void receiveCall(uint v1, int v2)
+    {
+        append(QVariantList() << v1 << v2);
     }
 };
 
