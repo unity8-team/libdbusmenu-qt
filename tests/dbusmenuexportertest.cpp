@@ -251,9 +251,15 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     QCOMPARE(subMenu->actions().count(), 0);
 
     // Pretend we show the menu
+    ManualSignalSpy layoutUpdatedSpy;
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "LayoutUpdated", "ui", &layoutUpdatedSpy, SLOT(receiveCall(uint, int)));
+
     QDBusReply<bool> aboutToShowReply = iface.call("AboutToShow", id);
     QVERIFY2(aboutToShowReply.isValid(), qPrintable(reply.error().message()));
     QVERIFY(aboutToShowReply.value());
+    QTest::qWait(500);
+    QVERIFY(layoutUpdatedSpy.count() >= 1);
+    QCOMPARE(layoutUpdatedSpy.takeFirst().at(1).toInt(), id);
 
     // Get submenu items
     reply = iface.call("GetChildren", id, QStringList());
