@@ -48,14 +48,16 @@ public:
 
 protected:
     /**
-     * Must create a menu, may be customized to fit host appearance
+     * Must create a menu, may be customized to fit host appearance.
+     * Default implementation creates a simple QMenu.
      */
-    virtual QMenu *createMenu(QWidget *parent) = 0;
+    virtual QMenu *createMenu(QWidget *parent);
 
     /**
-     * Must convert a name into an icon
+     * Must convert a name into an icon.
+     * Default implementation returns a null icon.
      */
-    virtual QIcon iconForName(const QString &) = 0;
+    virtual QIcon iconForName(const QString &);
 
 private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);

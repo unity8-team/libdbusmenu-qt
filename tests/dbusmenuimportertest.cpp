@@ -39,18 +39,6 @@ QTEST_MAIN(DBusMenuImporterTest)
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
-class TestDBusMenuImporter : public DBusMenuImporter
-{
-public:
-    TestDBusMenuImporter(const QString &service, const QString &path)
-    : DBusMenuImporter(service, path)
-    {}
-
-protected:
-    virtual QMenu *createMenu(QWidget *parent) { return new QMenu(parent); }
-    virtual QIcon iconForName(const QString &) { return QIcon(); }
-};
-
 void DBusMenuImporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
@@ -68,7 +56,7 @@ void DBusMenuImporterTest::testStandardItem()
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
-    TestDBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
     QTest::qWait(500);
 
     QMenu *outputMenu = importer.menu();

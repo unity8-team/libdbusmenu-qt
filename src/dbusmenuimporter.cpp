@@ -382,4 +382,14 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
     }
 }
 
+QMenu *DBusMenuImporter::createMenu(QWidget *parent)
+{
+    return new QMenu(parent);
+}
+
+QIcon DBusMenuImporter::iconForName(const QString &/*name*/)
+{
+    return QIcon();
+}
+
 #include "dbusmenuimporter.moc"
