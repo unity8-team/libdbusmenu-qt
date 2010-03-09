@@ -39,6 +39,25 @@ QTEST_MAIN(DBusMenuExporterTest)
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
+/**
+ * An implementation of DBusMenuExporter which uses a property from the action
+ * to get the icon name
+ */
+class TestDBusMenuExporter : public DBusMenuExporter
+{
+public:
+    TestDBusMenuExporter(const QString& path, QMenu *menu)
+    : DBusMenuExporter(path, menu)
+    {}
+
+protected:
+    QString iconNameForAction(QAction *action)
+    {
+        return action->property("icon-name").toString();
+    }
+};
+
+
 void MenuFiller::fillMenu()
 {
     m_menu->addAction("a1");
@@ -53,11 +72,6 @@ void DBusMenuExporterTest::init()
 void DBusMenuExporterTest::cleanup()
 {
     QVERIFY(QDBusConnection::sessionBus().unregisterService(TEST_SERVICE));
-}
-
-static QString iconForAction(const QAction *action)
-{
-    return action->property("icon-name").toString();
 }
 
 void DBusMenuExporterTest::testGetSomeProperties_data()
@@ -78,8 +92,7 @@ void DBusMenuExporterTest::testGetSomeProperties()
     QFETCH(bool, enabled);
 
     QMenu inputMenu;
-    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
-    exporter.setIconNameForActionFunction(iconForAction);
+    TestDBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QAction *action = new QAction(label, &inputMenu);
     if (!iconName.isEmpty()) {
@@ -129,8 +142,7 @@ void DBusMenuExporterTest::testGetAllProperties()
         << "type";
 
     QMenu inputMenu;
-    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
-    exporter.setIconNameForActionFunction(iconForAction);
+    TestDBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     inputMenu.addAction("a1");
     inputMenu.addSeparator();

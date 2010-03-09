@@ -39,12 +39,6 @@
 
 static const char *KMENU_TITLE = "kmenu_title";
 
-static QString defaultIconNameForActionFunction(const QAction *)
-{
-    return QString();
-}
-
-
 //-------------------------------------------------
 //
 // DBusMenuExporterPrivate
@@ -91,7 +85,7 @@ QVariantMap DBusMenuExporterPrivate::propertiesForKMenuTitleAction(QAction *acti
     DMRETURN_VALUE_IF_FAIL(action, map);
 
     map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-    QString iconName = m_iconNameForActionFunction(action);
+    QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
         map.insert("icon-name", iconName);
     }
@@ -121,7 +115,7 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
             map.insert("toggle-state", 1);
         }
     }
-    QString iconName = m_iconNameForActionFunction(action);
+    QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
         map.insert("icon-name", iconName);
     }
@@ -214,7 +208,6 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
     d->m_nextId = 1;
     d->m_revision = 1;
     d->m_itemUpdatedTimer = new QTimer(this);
-    d->m_iconNameForActionFunction = defaultIconNameForActionFunction;
     d->m_dbusObject = new DBusMenuExporterDBus(this);
 
     d->addMenu(d->m_rootMenu, 0);
@@ -230,12 +223,6 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
 DBusMenuExporter::~DBusMenuExporter()
 {
     delete d;
-}
-
-void DBusMenuExporter::setIconNameForActionFunction(IconNameForActionFunction function)
-{
-    Q_ASSERT(function);
-    d->m_iconNameForActionFunction = function;
 }
 
 void DBusMenuExporter::doUpdateActions()
@@ -256,5 +243,9 @@ void DBusMenuExporter::doUpdateActions()
     d->m_itemUpdatedIds.clear();
 }
 
+QString DBusMenuExporter::iconNameForAction(QAction * /*action*/)
+{
+    return QString();
+}
 
 #include "dbusmenuexporter.moc"

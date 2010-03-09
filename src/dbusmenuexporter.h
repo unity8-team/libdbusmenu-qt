@@ -31,8 +31,6 @@
 class QAction;
 class QMenu;
 
-typedef QString (* IconNameForActionFunction)(const QAction *);
-
 class DBusMenuExporterPrivate;
 
 /**
@@ -50,11 +48,13 @@ public:
     DBusMenuExporter(const QString &dbusObjectPath, QMenu *menu, const QDBusConnection &dbusConnection = QDBusConnection::sessionBus());
     ~DBusMenuExporter();
 
+protected:
     /**
-     * Make it possible for the application to provide a function to extract an
-     * icon name from an action
+     * Must extract the icon name for action. This is the name which will
+     * be used to present the icon over DBus.
+     * Default implementation returns a null QString.
      */
-    void setIconNameForActionFunction(IconNameForActionFunction);
+    virtual QString iconNameForAction(QAction *action);
 
 private Q_SLOTS:
     void doUpdateActions();
@@ -62,6 +62,7 @@ private Q_SLOTS:
 private:
     DBusMenuExporterPrivate *const d;
 
+    friend class DBusMenuExporterPrivate;
     friend class DBusMenuExporterDBus;
     friend class DBusMenu;
 };

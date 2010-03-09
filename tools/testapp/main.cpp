@@ -32,12 +32,6 @@ static const char *DBUS_SERVICE = "org.dbusmenu.test";
 static const char *DBUS_PATH    = "/MenuBar";
 static const char *USAGE        = "dbusmenubench-qtapp <path/to/menu.json>";
 
-QString iconNameForAction(const QAction * /*action*/)
-{
-    return "foo";
-}
-
-
 void createMenuItem(QMenu *menu, const QVariant &item)
 {
     QVariantMap map = item.toMap();
@@ -107,6 +101,5 @@ int main(int argc, char **argv)
     }
 
     DBusMenuExporter exporter(DBUS_PATH, &menu);
-    exporter.setIconNameForActionFunction(iconNameForAction);
     return app.exec();
 }

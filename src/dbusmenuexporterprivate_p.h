@@ -42,8 +42,6 @@ public:
 
     DBusMenuExporterDBus *m_dbusObject;
 
-    IconNameForActionFunction m_iconNameForActionFunction;
-
     QMenu *m_rootMenu;
     QHash<QAction *, QVariantMap> m_actionProperties;
     QMap<int, QAction *> m_actionForId;
