@@ -321,7 +321,7 @@ void DBusMenuExporterTest::testRadioItems()
     QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
     int a1Id = item.id;
     item = list.takeFirst();
-    QVERIFY(!item.properties.contains("toggle-state"));
+    QCOMPARE(item.properties.value("toggle-state").toInt(), 0);
     int a2Id = item.id;
 
     // Click a2
@@ -339,7 +339,7 @@ void DBusMenuExporterTest::testRadioItems()
     QCOMPARE(list.count(), 2);
 
     item = list.takeFirst();
-    QVERIFY(!item.properties.contains("toggle-state"));
+    QCOMPARE(item.properties.value("toggle-state").toInt(), 0);
 
     item = list.takeFirst();
     QCOMPARE(item.properties.value("toggle-state").toInt(), 1);

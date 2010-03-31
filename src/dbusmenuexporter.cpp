@@ -111,9 +111,7 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
     }
     if (action->isCheckable()) {
         map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
-        if (action->isChecked()) {
-            map.insert("toggle-state", 1);
-        }
+        map.insert("toggle-state", action->isChecked() ? 1 : 0);
     }
     QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
