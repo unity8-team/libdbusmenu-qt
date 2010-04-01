@@ -1,3 +1,8 @@
+# 0.3.1 - 2010.04.01
+- Updated to the latest protocol change: 0 is no longer the default value of
+  the "toggle-state" property.
+- Make it build without QJson again.
+
 # 0.3.0 - 2010.03.09
 - Moved the DBus side of DBusMenuExporter to a separate class, hiding it from
   the outside world.
