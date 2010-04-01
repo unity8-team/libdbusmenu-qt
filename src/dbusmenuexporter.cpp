@@ -89,6 +89,9 @@ QVariantMap DBusMenuExporterPrivate::propertiesForKMenuTitleAction(QAction *acti
     if (!iconName.isEmpty()) {
         map.insert("icon-name", iconName);
     }
+    if (!action->isVisible()) {
+        map.insert("visible", false);
+    }
     return map;
 }
 
@@ -96,6 +99,9 @@ QVariantMap DBusMenuExporterPrivate::propertiesForSeparatorAction(QAction *actio
 {
     QVariantMap map;
     map.insert("type", "separator");
+    if (!action->isVisible()) {
+        map.insert("visible", false);
+    }
     return map;
 }
 
@@ -105,6 +111,9 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
     map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
     if (!action->isEnabled()) {
         map.insert("enabled", false);
+    }
+    if (!action->isVisible()) {
+        map.insert("visible", false);
     }
     if (action->menu()) {
         map.insert("children-display", "submenu");

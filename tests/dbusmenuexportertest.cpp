@@ -136,6 +136,7 @@ void DBusMenuExporterTest::testGetAllProperties()
         << "label"
         << "enabled"
         << "icon-name"
+        << "visible"
         ;
 
     const QSet<QString> separatorProperties = QSet<QString>()
@@ -149,6 +150,7 @@ void DBusMenuExporterTest::testGetAllProperties()
     QAction *a2 = new QAction("a2", &inputMenu);
     a2->setEnabled(false);
     a2->setProperty("icon-name", "foo");
+    a2->setVisible(false);
     inputMenu.addAction(a2);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
