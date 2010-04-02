@@ -29,6 +29,7 @@
 
 class QDBusAbstractInterface;
 class QDBusPendingCallWatcher;
+class QDBusVariant;
 class QIcon;
 class QMenu;
 
@@ -72,6 +73,7 @@ private Q_SLOTS:
     void slotItemUpdated(int id);
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
+    void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
 
 private:
     Q_DISABLE_COPY(DBusMenuImporter)

@@ -229,6 +229,13 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
     connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
 
+    // For some reason, this connect() fails:
+    //connect(d->m_interface, SIGNAL(ItemPropertyUpdated(int, const QString &, const QDBusVariant &)),
+    //    SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
+    // This one works:
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemPropertyUpdated", "isv", this,
+        SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
+
     d->refresh(0);
 }
 
@@ -288,6 +295,29 @@ void DBusMenuImporter::slotItemUpdated(int id)
     task.m_id = id;
     task.m_method = &DBusMenuImporter::GetPropertiesCallback;
     d->m_taskForWatcher.insert(watcher, task);
+}
+
+void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &_value)
+{
+    QVariant value = _value.variant();
+    QAction *action = d->m_actionForId.value(id);
+    if (!action) {
+        DMWARNING << "No action for id" << id;
+        return;
+    }
+    if (key == "label") {
+        d->updateActionLabel(action, value);
+    } else if (key == "enabled") {
+        d->updateActionEnabled(action, value);
+    } else if (key == "toggle-state") {
+        d->updateActionChecked(action, value);
+    } else if (key == "icon-name") {
+        d->updateActionIcon(action, value);
+    } else if (key == "visible") {
+        d->updateActionVisible(action, value);
+    } else {
+        DMWARNING << "Unhandled property update" << key;
+    }
 }
 
 void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *watcher)
