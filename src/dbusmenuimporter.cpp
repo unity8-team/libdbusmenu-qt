@@ -46,8 +46,8 @@ typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWa
 
 static const char *DBUSMENU_INTERFACE = "org.ayatana.dbusmenu";
 
-static const int ABOUT_TO_SHOW_TIMEOUT = 10;
-static const int REFRESH_TIMEOUT = 100;
+static const int ABOUT_TO_SHOW_TIMEOUT = 300;
+static const int REFRESH_TIMEOUT = 400;
 
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
 static const char *DBUSMENU_PROPERTY_ICON = "_dbusmenu_icon";
