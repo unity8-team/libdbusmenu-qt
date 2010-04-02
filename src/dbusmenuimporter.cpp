@@ -95,7 +95,7 @@ public:
 
     QMenu *createMenu(QWidget *parent)
     {
-        QMenu *menu = q->createMenu(0);
+        QMenu *menu = q->createMenu(parent);
         QObject::connect(menu, SIGNAL(aboutToShow()),
             q, SLOT(slotMenuAboutToShow()));
         return menu;
