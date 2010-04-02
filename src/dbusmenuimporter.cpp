@@ -104,24 +104,29 @@ public:
     /**
      * Init all the immutable action properties here
      * TODO: Document immutable properties?
+     *
+     * Note: we remove properties we handle from the map (using QMap::take()
+     * instead of QMap::value()) to avoid warnings about these properties in
+     * updateAction()
      */
-    QAction *createAction(int id, const QVariantMap &map)
+    QAction *createAction(int id, const QVariantMap &_map)
     {
+        QVariantMap map = _map;
         QAction *action = new QAction(0);
         action->setProperty(DBUSMENU_PROPERTY_ID, id);
 
-        QString type = map.value("type").toString();
+        QString type = map.take("type").toString();
         if (type == "separator") {
             action->setSeparator(true);
         }
 
-        if (map.value("children-display").toString() == "submenu") {
+        if (map.take("children-display").toString() == "submenu") {
             // FIXME: Leak?
             QMenu *menu = createMenu(0);
             action->setMenu(menu);
         }
 
-        QString toggleType = map.value("toggle-type").toString();
+        QString toggleType = map.take("toggle-type").toString();
         if (!toggleType.isEmpty()) {
             action->setCheckable(true);
             if (toggleType == "radio") {
