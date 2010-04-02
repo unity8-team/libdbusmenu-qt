@@ -407,6 +407,11 @@ void DBusMenuImporter::slotMenuAboutToShow()
 
     int id = action->property(DBUSMENU_PROPERTY_ID).toInt();
 
+    #ifdef BENCHMARK
+    QTime time;
+    time.start();
+    #endif
+
     QDBusPendingCall call = d->m_interface->asyncCall("AboutToShow", id);
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
     watcher->setProperty(DBUSMENU_PROPERTY_ID, id);
@@ -416,6 +421,7 @@ void DBusMenuImporter::slotMenuAboutToShow()
     if (!waitForWatcher(watcher, ABOUT_TO_SHOW_TIMEOUT)) {
         DMWARNING << "Application did not answer to AboutToShow() before timeout";
     }
+
     #ifdef BENCHMARK
     DMVAR(time.elapsed());
     #endif
