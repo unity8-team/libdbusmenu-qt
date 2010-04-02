@@ -1,3 +1,10 @@
+# 0.3.2 - 2010.04.02
+- Fix some weird positioning of menus and submenus.
+- Handle ItemPropertyUpdated() signal.
+- Correctly handle properties which are not part of the returned property map
+  because they are set to their default value.
+- Export "visible" property of action.
+
 # 0.3.1 - 2010.04.01
 - Updated to the latest protocol change: 0 is no longer the default value of
   the "toggle-state" property.
