@@ -364,6 +364,10 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
         connect(action, SIGNAL(triggered()),
             &d->m_mapper, SLOT(map()));
         d->m_mapper.setMapping(action, dbusMenuItem.id);
+
+        if (action->menu()) {
+            d->refresh(dbusMenuItem.id);
+        }
     }
     #ifdef BENCHMARK
     DMDEBUG << "- Menu filled:" << sChrono.elapsed() << "ms";
