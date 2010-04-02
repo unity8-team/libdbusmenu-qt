@@ -129,36 +129,64 @@ public:
                 group->addAction(action);
             }
         }
-        updateAction(action, map);
+        updateAction(action, map, map.keys());
 
         return action;
     }
 
     /**
-     * Update mutable properties of an action
+     * Update mutable properties of an action. A property may be listed in
+     * requestedProperties but not in map, this means we should use the default value
+     * for this property.
+     *
+     * @param action the action to update
+     * @param map holds the property values
+     * @param requestedProperties which properties has been requested
      */
-    void updateAction(QAction *action, const QVariantMap &map)
+    void updateAction(QAction *action, const QVariantMap &map, const QStringList &requestedProperties)
     {
-        if (map.contains("label")) {
-            QString text = swapMnemonicChar(map.value("label").toString(), '_', '&');
-            action->setText(text);
+        if (requestedProperties.contains("label")) {
+            updateActionLabel(action, map.value("label"));
         }
 
-        if (map.contains("enabled")) {
-            action->setEnabled(map.value("enabled").toBool());
+        if (requestedProperties.contains("enabled")) {
+            updateActionEnabled(action, map.value("enabled"));
         }
 
-        if (action->isCheckable()) {
-            action->setChecked(map.value("toggle-state").toInt() == 1);
+        if (requestedProperties.contains("toggle-state")) {
+            updateActionChecked(action, map.value("toggle-state"));
         }
 
-        if (map.contains("icon-name")) {
-            updateActionIcon(action, map.value("icon-name").toString());
+        if (requestedProperties.contains("icon-name")) {
+            updateActionIcon(action, map.value("icon-name"));
+        }
+
+        if (requestedProperties.contains("visible")) {
+            updateActionVisible(action, map.value("visible"));
         }
     }
 
-    void updateActionIcon(QAction *action, const QString &iconName)
+    void updateActionLabel(QAction *action, const QVariant &value)
     {
+        QString text = swapMnemonicChar(value.toString(), '_', '&');
+        action->setText(text);
+    }
+
+    void updateActionEnabled(QAction *action, const QVariant &value)
+    {
+        action->setEnabled(value.isValid() ? value.toBool(): true);
+    }
+
+    void updateActionChecked(QAction *action, const QVariant &value)
+    {
+        if (action->isCheckable() && value.isValid()) {
+            action->setChecked(value.toInt() == 1);
+        }
+    }
+
+    void updateActionIcon(QAction *action, const QVariant &value)
+    {
+        QString iconName = value.toString();
         QString previous = action->property(DBUSMENU_PROPERTY_ICON).toString();
         if (previous == iconName) {
             return;
@@ -169,6 +197,11 @@ public:
             return;
         }
         action->setIcon(q->iconForName(iconName));
+    }
+
+    void updateActionVisible(QAction *action, const QVariant &value)
+    {
+        action->setVisible(value.isValid() ? value.toBool() : true);
     }
 
     QMenu *menuForId(int id) const
@@ -232,7 +265,7 @@ void DBusMenuImporter::slotItemUpdated(int id)
     }
 
     QStringList names;
-    names << "label" << "enabled";
+    names << "label" << "enabled" << "visible";
     if (action->isCheckable()) {
         names << "toggle-state";
     }
@@ -243,6 +276,11 @@ void DBusMenuImporter::slotItemUpdated(int id)
 
     QDBusPendingCall call = d->m_interface->asyncCall("GetProperties", id, names);
     QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(call, this);
+
+    // Keep a trace of which properties we requested because if we request the
+    // value for a property but receive nothing it must be interpreted as "use
+    // the default value" rather than "ignore this property"
+    watcher->setProperty("requestedProperties", names);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
         SLOT(dispatch(QDBusPendingCallWatcher*)));
 
@@ -257,6 +295,7 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
     #ifdef BENCHMARK
     DMDEBUG << "- Parsing updated properties for id" << id << sChrono.elapsed() << "ms";
     #endif
+    QStringList requestedProperties = watcher->property("requestedProperties").toStringList();
     QDBusReply<QVariantMap> reply = *watcher;
     if (!reply.isValid()) {
         DMWARNING << reply.error().message();
@@ -270,7 +309,7 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
         DMWARNING << "No action for id" << id;
         return;
     }
-    d->updateAction(action, properties);
+    d->updateAction(action, properties, requestedProperties);
     #ifdef BENCHMARK
     DMDEBUG << "- Item updated" << id << sChrono.elapsed() << "ms";
     #endif

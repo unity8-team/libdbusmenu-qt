@@ -52,7 +52,8 @@ void DBusMenuImporterTest::cleanup()
 void DBusMenuImporterTest::testStandardItem()
 {
     QMenu inputMenu;
-    inputMenu.addAction("Test");
+    QAction *action = inputMenu.addAction("Test");
+    action->setVisible(false);
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
@@ -61,7 +62,15 @@ void DBusMenuImporterTest::testStandardItem()
 
     QMenu *outputMenu = importer.menu();
     QCOMPARE(outputMenu->actions().count(), 1);
-    QCOMPARE(outputMenu->actions().first()->text(), QString("Test"));
+    QAction *outputAction = outputMenu->actions().first();
+    QVERIFY(!outputAction->isVisible());
+    QCOMPARE(outputAction->text(), QString("Test"));
+
+    // Make the action visible, outputAction should become visible as well
+    action->setVisible(true);
+    QTest::qWait(500);
+
+    QVERIFY(outputAction->isVisible());
 }
 
 #include "dbusmenuimportertest.moc"
