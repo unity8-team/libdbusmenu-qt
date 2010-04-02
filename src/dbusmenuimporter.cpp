@@ -145,24 +145,25 @@ public:
      */
     void updateAction(QAction *action, const QVariantMap &map, const QStringList &requestedProperties)
     {
-        if (requestedProperties.contains("label")) {
-            updateActionLabel(action, map.value("label"));
+        Q_FOREACH(const QString &key, requestedProperties) {
+            updateActionProperty(action, key, map.value(key));
         }
+    }
 
-        if (requestedProperties.contains("enabled")) {
-            updateActionEnabled(action, map.value("enabled"));
-        }
-
-        if (requestedProperties.contains("toggle-state")) {
-            updateActionChecked(action, map.value("toggle-state"));
-        }
-
-        if (requestedProperties.contains("icon-name")) {
-            updateActionIcon(action, map.value("icon-name"));
-        }
-
-        if (requestedProperties.contains("visible")) {
-            updateActionVisible(action, map.value("visible"));
+    void updateActionProperty(QAction *action, const QString &key, const QVariant &value)
+    {
+        if (key == "label") {
+            updateActionLabel(action, value);
+        } else if (key == "enabled") {
+            updateActionEnabled(action, value);
+        } else if (key == "toggle-state") {
+            updateActionChecked(action, value);
+        } else if (key == "icon-name") {
+            updateActionIcon(action, value);
+        } else if (key == "visible") {
+            updateActionVisible(action, value);
+        } else {
+            DMWARNING << "Unhandled property update" << key;
         }
     }
 
@@ -297,27 +298,14 @@ void DBusMenuImporter::slotItemUpdated(int id)
     d->m_taskForWatcher.insert(watcher, task);
 }
 
-void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &_value)
+void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value)
 {
-    QVariant value = _value.variant();
     QAction *action = d->m_actionForId.value(id);
     if (!action) {
         DMWARNING << "No action for id" << id;
         return;
     }
-    if (key == "label") {
-        d->updateActionLabel(action, value);
-    } else if (key == "enabled") {
-        d->updateActionEnabled(action, value);
-    } else if (key == "toggle-state") {
-        d->updateActionChecked(action, value);
-    } else if (key == "icon-name") {
-        d->updateActionIcon(action, value);
-    } else if (key == "visible") {
-        d->updateActionVisible(action, value);
-    } else {
-        DMWARNING << "Unhandled property update" << key;
-    }
+    d->updateActionProperty(action, key, value.variant());
 }
 
 void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *watcher)
