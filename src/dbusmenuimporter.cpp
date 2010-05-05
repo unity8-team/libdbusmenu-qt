@@ -72,6 +72,7 @@ public:
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
     QMap<int, QAction *> m_actionForId;
     QSignalMapper m_mapper;
+    bool m_alreadyRefreshed;
 
     QDBusPendingCallWatcher *refresh(int id)
     {
@@ -97,6 +98,8 @@ public:
         QMenu *menu = q->createMenu(parent);
         QObject::connect(menu, SIGNAL(aboutToShow()),
             q, SLOT(slotMenuAboutToShow()));
+        QObject::connect(menu, SIGNAL(aboutToHide()),
+            q, SLOT(slotMenuAboutToHide()));
         return menu;
     }
 
@@ -230,6 +233,7 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     d->q = this;
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
     d->m_menu = 0;
+    d->m_alreadyRefreshed = false;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
     connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
@@ -402,6 +406,11 @@ static bool waitForWatcher(QDBusPendingCallWatcher *watcher, int maxWait)
 
 void DBusMenuImporter::slotMenuAboutToShow()
 {
+    if (d->m_alreadyRefreshed) {
+        return;
+    }
+
+    d->m_alreadyRefreshed = true;
     QMenu *menu = qobject_cast<QMenu*>(sender());
     Q_ASSERT(menu);
 
@@ -430,6 +439,11 @@ void DBusMenuImporter::slotMenuAboutToShow()
     #endif
 }
 
+void DBusMenuImporter::slotMenuAboutToHide()
+{
+    d->m_alreadyRefreshed = false;
+}
+
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
     int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
@@ -451,6 +465,8 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
             DMWARNING << "Application did not refresh before timeout";
         }
     }
+
+    emit menuReadyToBeShown();
 }
 
 QMenu *DBusMenuImporter::createMenu(QWidget *parent)

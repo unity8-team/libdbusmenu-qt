@@ -54,6 +54,12 @@ public:
      */
     QMenu *menu() const;
 
+Q_SIGNALS:
+    /**
+     * Emitted when the menu has been filled with entries
+     */
+    void menuReadyToBeShown();
+
 protected:
     /**
      * Must create a menu, may be customized to fit host appearance.
@@ -72,6 +78,7 @@ private Q_SLOTS:
     void sendClickedEvent(int);
     void slotItemUpdated(int id);
     void slotMenuAboutToShow();
+    void slotMenuAboutToHide();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
 
