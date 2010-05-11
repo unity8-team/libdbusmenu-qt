@@ -77,6 +77,7 @@ private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
     void slotItemUpdated(int id);
+    void slotLayoutUpdated(uint revision, int parentId);
     void slotMenuAboutToShow();
     void slotMenuAboutToHide();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);

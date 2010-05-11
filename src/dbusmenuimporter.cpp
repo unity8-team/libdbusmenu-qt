@@ -237,6 +237,7 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
     connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
+    connect(d->m_interface, SIGNAL(LayoutUpdated(uint, int)), SLOT(slotLayoutUpdated(uint, int)));
 
     // For some reason, this connect() fails:
     //connect(d->m_interface, SIGNAL(ItemPropertyUpdated(int, const QString &, const QDBusVariant &)),
@@ -252,6 +253,11 @@ DBusMenuImporter::~DBusMenuImporter()
 {
     delete d->m_menu;
     delete d;
+}
+
+void DBusMenuImporter::slotLayoutUpdated(uint revision, int parentId)
+{
+    d->refresh(parentId);
 }
 
 QMenu *DBusMenuImporter::menu() const
