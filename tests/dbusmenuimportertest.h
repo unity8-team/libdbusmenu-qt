@@ -34,6 +34,7 @@ class DBusMenuImporterTest : public QObject
 Q_OBJECT
 private Q_SLOTS:
     void testStandardItem();
+    void testAddingNewItem();
 
     void init();
     void cleanup();
