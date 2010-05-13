@@ -1,5 +1,5 @@
 if (BUILD_TESTS)
-    find_package(QJSON)
+    find_package(QJson)
     if (QJSON_FOUND)
         message(STATUS "QJSON found and tests enabled, testapp will be built")
         add_subdirectory(testapp)
