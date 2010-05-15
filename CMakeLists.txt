@@ -34,7 +34,7 @@ set(dbusmenu_qt_lib_API_VERSION 0)
 set(dbusmenu_qt_lib_PATCH_VERSION 2)
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
-find_package(Qt4 REQUIRED)
+find_package(Qt4 4.6.0 REQUIRED)
 
 include_directories(
     ${QT_INCLUDE_DIR}
