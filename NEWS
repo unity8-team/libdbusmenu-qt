@@ -1,3 +1,14 @@
+# 0.3.3 - 2010.05.19
+- Introduce a qt minimum version. Qt 4.5 doesn't work. (Michael Jansen)
+- Use the FindQjson.cmake file made by pinotree for chokoq because it works.
+  The old one didn't (for me). (Michael Jansen)
+- Refresh after LayoutUpdated signal (Marco Martin)
+- Test items added to an existing menu are properly imported (Aurelien Gateau)
+- Allow notification of the menu being filled, don't call aboutToShow more than
+  once per actual menu showing (Aaron Seigo)
+- Win32 fixes from Ralf Habacker (Patrick Spendrin)
+- Added option to disable tests (Alex Elsayed)
+
 # 0.3.2 - 2010.04.02
 - Fix some weird positioning of menus and submenus.
 - Handle ItemPropertyUpdated() signal.
