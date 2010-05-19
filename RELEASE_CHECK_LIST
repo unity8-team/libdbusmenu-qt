@@ -1,5 +1,5 @@
 - Update NEWS
-  git log x.y.z-1..HEAD
+  r!git log --pretty=format:'- \%s (\%an)' x.y.z-1..HEAD
 - Bump version number in CMakeLists.txt
 - Commit
 - Create tarball
