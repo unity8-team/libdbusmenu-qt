@@ -237,7 +237,9 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
     connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
-    connect(d->m_interface, SIGNAL(LayoutUpdated(uint, int)), SLOT(slotLayoutUpdated(uint, int)));
+    //connect(d->m_interface, SIGNAL(LayoutUpdated(uint, int)), SLOT(slotLayoutUpdated(uint, int)));
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "LayoutUpdated", "ui", this,
+        SLOT(slotLayoutUpdated(uint, int)));
 
     // For some reason, this connect() fails:
     //connect(d->m_interface, SIGNAL(ItemPropertyUpdated(int, const QString &, const QDBusVariant &)),
