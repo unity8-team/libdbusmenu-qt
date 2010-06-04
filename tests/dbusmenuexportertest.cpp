@@ -91,6 +91,7 @@ void DBusMenuExporterTest::testGetSomeProperties()
     QFETCH(QString, iconName);
     QFETCH(bool, enabled);
 
+    // Create an exporter for a menu with one action, defined by the test data
     QMenu inputMenu;
     TestDBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
@@ -101,13 +102,17 @@ void DBusMenuExporterTest::testGetSomeProperties()
     action->setEnabled(enabled);
     inputMenu.addAction(action);
 
+    // Check out exporter is on DBus
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
+    // Get exported menu info
     QStringList propertyNames = QStringList() << "type" << "enabled" << "label" << "icon-name";
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
     QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
 
+    // Check the info we received, in particular, check that any property set to
+    // its default value is *not* exported
     DBusMenuItemList list = reply.value();
     QCOMPARE(list.count(), 1);
     DBusMenuItem item = list.first();
