@@ -416,6 +416,12 @@ void DBusMenuExporterTest::testMenuShortcut()
     QAction *a2 = inputMenu.addAction("a2");
     a2->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A, Qt::ALT | Qt::Key_B));
 
+    // No shortcut, to test the property is not added in this case
+    QAction *a3 = inputMenu.addAction("a3");
+
+    QList<QAction*> actionList;
+    actionList << a1 << a2 << a3;
+
     // Check out exporter is on DBus
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
@@ -427,22 +433,20 @@ void DBusMenuExporterTest::testMenuShortcut()
 
     // Check the info we received
     DBusMenuItemList list = reply.value();
-    QCOMPARE(list.count(), 2);
+    QCOMPARE(list.count(), actionList.count());
 
-    // This is a1
-    DBusMenuItem item = list.takeFirst();
-    QVERIFY(item.properties.contains("shortcut"));
-    QDBusArgument arg = item.properties.value("shortcut").value<QDBusArgument>();
-    DBusMenuShortcut shortcut;
-    arg >> shortcut;
-    QCOMPARE(shortcut.toKeySequence(), a1->shortcut());
-
-    // This is a2
-    item = list.takeFirst();
-    QVERIFY(item.properties.contains("shortcut"));
-    arg = item.properties.value("shortcut").value<QDBusArgument>();
-    arg >> shortcut;
-    QCOMPARE(shortcut.toKeySequence(), a2->shortcut());
+    Q_FOREACH(const QAction* action, actionList) {
+        DBusMenuItem item = list.takeFirst();
+        if (action->shortcut().isEmpty()) {
+            QVERIFY(!item.properties.contains("shortcut"));
+        } else {
+            QVERIFY(item.properties.contains("shortcut"));
+            QDBusArgument arg = item.properties.value("shortcut").value<QDBusArgument>();
+            DBusMenuShortcut shortcut;
+            arg >> shortcut;
+            QCOMPARE(shortcut.toKeySequence(), action->shortcut());
+        }
+    }
 }
 
 #include "dbusmenuexportertest.moc"
