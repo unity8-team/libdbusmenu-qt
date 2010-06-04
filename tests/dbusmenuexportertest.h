@@ -77,6 +77,7 @@ private Q_SLOTS:
     void testRadioItems();
     void testClickDeletedAction();
     void testDeleteExporterBeforeMenu();
+    void testMenuShortcut();
 
     void init();
     void cleanup();

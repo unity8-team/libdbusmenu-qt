@@ -34,6 +34,7 @@
 #include "dbusmenuexporterdbus_p.h"
 #include "dbusmenuexporterprivate_p.h"
 #include "dbusmenuitem_p.h"
+#include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
 
@@ -125,6 +126,11 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
     QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
         map.insert("icon-name", iconName);
+    }
+    QKeySequence keySequence = action->shortcut();
+    if (!keySequence.isEmpty()) {
+        DBusMenuShortcut shortcut = DBusMenuShortcut::fromKeySequence(keySequence);
+        map.insert("shortcut", QVariant::fromValue(shortcut));
     }
     return map;
 }

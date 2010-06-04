@@ -56,5 +56,18 @@ target_link_libraries(dbusmenuimportertest
     ${test_LIBRARIES}
     )
 
+# dbusmenushortcuttest
+set(dbusmenushortcuttest_SRCS
+    dbusmenushortcuttest.cpp
+    )
+
+qt4_automoc(${dbusmenushortcuttest_SRCS})
+
+add_test_executable(dbusmenushortcuttest ${dbusmenushortcuttest_SRCS})
+
+target_link_libraries(dbusmenushortcuttest
+    ${test_LIBRARIES}
+    )
+
 # Keep this at the end
 create_check_target()

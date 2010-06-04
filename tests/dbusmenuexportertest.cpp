@@ -32,6 +32,7 @@
 // DBusMenuQt
 #include <dbusmenuexporter.h>
 #include <dbusmenuitem_p.h>
+#include <dbusmenushortcut_p.h>
 #include <debug_p.h>
 
 QTEST_MAIN(DBusMenuExporterTest)
@@ -400,6 +401,48 @@ void DBusMenuExporterTest::testDeleteExporterBeforeMenu()
     QAction *a1 = inputMenu.addAction("a1");
     delete exporter;
     inputMenu.removeAction(a1);
+}
+
+void DBusMenuExporterTest::testMenuShortcut()
+{
+    // Create a menu containing an action with a shortcut
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+    a1->setShortcut(Qt::CTRL | Qt::Key_A);
+
+    QAction *a2 = inputMenu.addAction("a2");
+    a2->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A, Qt::ALT | Qt::Key_B));
+
+    // Check out exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Get exported menu info
+    QStringList propertyNames = QStringList() << "shortcut";
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    // Check the info we received
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    // This is a1
+    DBusMenuItem item = list.takeFirst();
+    QVERIFY(item.properties.contains("shortcut"));
+    QDBusArgument arg = item.properties.value("shortcut").value<QDBusArgument>();
+    DBusMenuShortcut shortcut;
+    arg >> shortcut;
+    QCOMPARE(shortcut.toKeySequence(), a1->shortcut());
+
+    // This is a2
+    item = list.takeFirst();
+    QVERIFY(item.properties.contains("shortcut"));
+    arg = item.properties.value("shortcut").value<QDBusArgument>();
+    arg >> shortcut;
+    QCOMPARE(shortcut.toKeySequence(), a2->shortcut());
 }
 
 #include "dbusmenuexportertest.moc"
