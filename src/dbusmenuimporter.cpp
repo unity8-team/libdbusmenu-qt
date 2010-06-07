@@ -33,6 +33,7 @@
 
 // Local
 #include "dbusmenuitem_p.h"
+#include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
 
@@ -169,6 +170,8 @@ public:
             updateActionIcon(action, value);
         } else if (key == "visible") {
             updateActionVisible(action, value);
+        } else if (key == "shortcut") {
+            updateActionShortcut(action, value);
         } else {
             DMWARNING << "Unhandled property update" << key;
         }
@@ -210,6 +213,15 @@ public:
     void updateActionVisible(QAction *action, const QVariant &value)
     {
         action->setVisible(value.isValid() ? value.toBool() : true);
+    }
+
+    void updateActionShortcut(QAction *action, const QVariant &value)
+    {
+        QDBusArgument arg = value.value<QDBusArgument>();
+        DBusMenuShortcut dmShortcut;
+        arg >> dmShortcut;
+        QKeySequence keySequence = dmShortcut.toKeySequence();
+        action->setShortcut(keySequence);
     }
 
     QMenu *menuForId(int id) const

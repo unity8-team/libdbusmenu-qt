@@ -35,6 +35,7 @@ Q_OBJECT
 private Q_SLOTS:
     void testStandardItem();
     void testAddingNewItem();
+    void testShortcut();
 
     void init();
     void cleanup();
