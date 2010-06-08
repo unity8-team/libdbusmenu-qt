@@ -28,6 +28,7 @@
 #include <QDBusReply>
 #include <QDBusVariant>
 #include <QMenu>
+#include <QPointer>
 #include <QSignalMapper>
 #include <QTime>
 
@@ -265,7 +266,10 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 
 DBusMenuImporter::~DBusMenuImporter()
 {
-    delete d->m_menu;
+    // Do not use "delete d->m_menu": even if we are being deleted we should
+    // leave enough time for the menu to finish what it was doing, for example
+    // if it was being displayed.
+    d->m_menu->deleteLater();
     delete d;
 }
 
@@ -405,12 +409,20 @@ void DBusMenuImporter::sendClickedEvent(int id)
     d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
 }
 
-static bool waitForWatcher(QDBusPendingCallWatcher *watcher, int maxWait)
+static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
     QTime time;
     time.start();
-    while (!watcher->isFinished() && time.elapsed() < maxWait) {
+    QPointer<QDBusPendingCallWatcher> watcher(_watcher);
+    while (watcher && !watcher->isFinished() && time.elapsed() < maxWait) {
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }
+
+    if (!watcher) {
+        // Watcher died. This can happen if importer got deleted while we were
+        // waiting. See:
+        // https://bugs.kde.org/show_bug.cgi?id=237156
+        return false;
     }
 
     // Tricky: watcher has indicated it is finished, but its finished() signal
