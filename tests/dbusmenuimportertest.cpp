@@ -54,7 +54,6 @@ void DBusMenuImporterTest::testStandardItem()
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
     action->setVisible(false);
-    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
@@ -77,7 +76,6 @@ void DBusMenuImporterTest::testAddingNewItem()
 {
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
-    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
@@ -95,7 +93,6 @@ void DBusMenuImporterTest::testShortcut()
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
     action->setShortcut(Qt::CTRL | Qt::Key_S);
-    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
