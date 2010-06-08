@@ -36,9 +36,7 @@ private Q_SLOTS:
     void testStandardItem();
     void testAddingNewItem();
     void testShortcut();
-
-    void init();
-    void cleanup();
+    void testDeletingImporterWhileWaitingForAboutToShow();
 };
 
 #endif /* DBUSMENUIMPORTERTEST_H */

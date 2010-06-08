@@ -1,3 +1,13 @@
+qt4_automoc(slowmenu.cpp)
+add_executable(slowmenu slowmenu.cpp)
+target_link_libraries(
+    slowmenu
+    ${QT_QTGUI_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QT_QTDBUS_LIBRARY}
+    dbusmenu-qt
+    )
+
 # Macros to create "check" target
 set(_test_executable_list "")
 
