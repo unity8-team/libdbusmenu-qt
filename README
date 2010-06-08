@@ -8,3 +8,17 @@ their menus over DBus.
 # Author
 
 Canonical DX Team, Aurélien Gâteau <aurelien.gateau@canonical.com>
+
+# Links
+
+## Bugtracker and tarball hosts
+
+https://launchpad.net/libdbusmenu-qt
+
+## Source repository
+
+http://gitorious.org/dbusmenu/dbusmenu-qt
+
+## Spec
+
+http://people.canonical.com/~agateau/dbusmenu/spec/index.html
