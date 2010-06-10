@@ -1,3 +1,8 @@
+# 0.3.4 - 2010.06.10
+- Fixed KDE bug #237156 (Aurelien Gateau)
+- Added support for shortcuts (Aurelien Gateau)
+- Make the connection to LayoutUpdated() work :/ (Aurelien Gateau)
+
 # 0.3.3 - 2010.05.19
 - Introduce a qt minimum version. Qt 4.5 doesn't work. (Michael Jansen)
 - Use the FindQjson.cmake file made by pinotree for chokoq because it works.

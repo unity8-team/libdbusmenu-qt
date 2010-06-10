@@ -2,7 +2,7 @@ project(dbusmenu-qt)
 cmake_minimum_required(VERSION 2.6.0)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-set(dbusmenu_qt_VERSION 0.3.3)
+set(dbusmenu_qt_VERSION 0.3.4)
 
 set(ARCHIVE_NAME libdbusmenu-qt-${dbusmenu_qt_VERSION})
 add_custom_target(dist
@@ -31,7 +31,7 @@ set(dbusmenu_qt_lib_SOVERSION 2)
 set(dbusmenu_qt_lib_API_VERSION 0)
 
 # Bump this one when changes do not extend the API
-set(dbusmenu_qt_lib_PATCH_VERSION 3)
+set(dbusmenu_qt_lib_PATCH_VERSION 4)
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
 find_package(Qt4 4.6.0 REQUIRED)
