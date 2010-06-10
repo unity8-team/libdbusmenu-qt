@@ -10,3 +10,4 @@
   git push
   git push --tags
 - Upload tarball
+  lp-project-upload libdbusmenu-qt x.y.z build/libdbusmenu-qt-x.y.z.tar.bz2
