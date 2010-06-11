@@ -120,7 +120,8 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
         map.insert("children-display", "submenu");
     }
     if (action->isCheckable()) {
-        map.insert("toggle-type", action->actionGroup() ? "radio" : "checkmark");
+        bool exclusive = action->actionGroup() && action->actionGroup()->isExclusive();
+        map.insert("toggle-type", exclusive ? "radio" : "checkmark");
         map.insert("toggle-state", action->isChecked() ? 1 : 0);
     }
     QString iconName = q->iconNameForAction(action);

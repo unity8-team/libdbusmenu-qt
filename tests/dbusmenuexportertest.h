@@ -75,6 +75,7 @@ private Q_SLOTS:
     void testSubMenu();
     void testDynamicSubMenu();
     void testRadioItems();
+    void testNonExclusiveActionGroup();
     void testClickDeletedAction();
     void testDeleteExporterBeforeMenu();
     void testMenuShortcut();

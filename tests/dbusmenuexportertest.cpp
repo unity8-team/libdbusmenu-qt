@@ -325,10 +325,13 @@ void DBusMenuExporterTest::testRadioItems()
     list = reply.value();
     QCOMPARE(list.count(), 2);
 
+    // Check items are radios and correctly toggled
     item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-type").toString(), QString("radio"));
     QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
     int a1Id = item.id;
     item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-type").toString(), QString("radio"));
     QCOMPARE(item.properties.value("toggle-state").toInt(), 0);
     int a2Id = item.id;
 
@@ -362,6 +365,42 @@ void DBusMenuExporterTest::testRadioItems()
     expectedIds << a1Id << a2Id;
 
     QCOMPARE(updatedIds, expectedIds);
+}
+
+void DBusMenuExporterTest::testNonExclusiveActionGroup()
+{
+    DBusMenuItem item;
+    DBusMenuItemList list;
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Create 2 checkable items
+    QAction *a1 = inputMenu.addAction("a1");
+    a1->setCheckable(true);
+    QAction *a2 = inputMenu.addAction("a1");
+    a2->setCheckable(true);
+
+    // Put them into a non exclusive group
+    QActionGroup group(0);
+    group.addAction(a1);
+    group.addAction(a2);
+    group.setExclusive(false);
+
+    // Get item ids
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    // Check items are checkmark, not radio
+    item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-type").toString(), QString("checkmark"));
+    int a1Id = item.id;
+    item = list.takeFirst();
+    QCOMPARE(item.properties.value("toggle-type").toString(), QString("checkmark"));
+    int a2Id = item.id;
 }
 
 void DBusMenuExporterTest::testClickDeletedAction()
