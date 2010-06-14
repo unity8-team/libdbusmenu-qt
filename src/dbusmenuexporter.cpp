@@ -257,9 +257,15 @@ void DBusMenuExporter::doUpdateActions()
     d->m_itemUpdatedIds.clear();
 }
 
-QString DBusMenuExporter::iconNameForAction(QAction * /*action*/)
+QString DBusMenuExporter::iconNameForAction(QAction *action)
 {
+    DMRETURN_VALUE_IF_FAIL(action, QString());
+#if QT_VERSION >= 0x040700
+    QIcon icon = action->icon();
+    return icon.isNull() ? QString() : icon.name();
+#else
     return QString();
+#endif
 }
 
 #include "dbusmenuexporter.moc"

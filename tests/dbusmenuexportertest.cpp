@@ -40,25 +40,6 @@ QTEST_MAIN(DBusMenuExporterTest)
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
-/**
- * An implementation of DBusMenuExporter which uses a property from the action
- * to get the icon name
- */
-class TestDBusMenuExporter : public DBusMenuExporter
-{
-public:
-    TestDBusMenuExporter(const QString& path, QMenu *menu)
-    : DBusMenuExporter(path, menu)
-    {}
-
-protected:
-    QString iconNameForAction(QAction *action)
-    {
-        return action->property("icon-name").toString();
-    }
-};
-
-
 void MenuFiller::fillMenu()
 {
     m_menu->addAction("a1");
@@ -81,9 +62,9 @@ void DBusMenuExporterTest::testGetSomeProperties_data()
     QTest::addColumn<QString>("iconName");
     QTest::addColumn<bool>("enabled");
 
-    QTest::newRow("label only")           << "label" << QString() << true;
-    QTest::newRow("disabled, label only") << "label" << QString() << false;
-    QTest::newRow("icon name")            << "label" << "icon"    << true;
+    QTest::newRow("label only")           << "label" << QString()   << true;
+    QTest::newRow("disabled, label only") << "label" << QString()   << false;
+    QTest::newRow("icon name")            << "label" << "edit-undo" << true;
 }
 
 void DBusMenuExporterTest::testGetSomeProperties()
@@ -94,11 +75,13 @@ void DBusMenuExporterTest::testGetSomeProperties()
 
     // Create an exporter for a menu with one action, defined by the test data
     QMenu inputMenu;
-    TestDBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QAction *action = new QAction(label, &inputMenu);
     if (!iconName.isEmpty()) {
-        action->setProperty("icon-name", iconName);
+        QIcon icon = QIcon::fromTheme(iconName);
+        QVERIFY(!icon.isNull());
+        action->setIcon(icon);
     }
     action->setEnabled(enabled);
     inputMenu.addAction(action);
@@ -134,9 +117,14 @@ void DBusMenuExporterTest::testGetSomeProperties()
 
 void DBusMenuExporterTest::testGetAllProperties()
 {
+    // set of properties which must be returned because their values are not
+    // the default values
     const QSet<QString> a1Properties = QSet<QString>()
         << "label"
         ;
+
+    const QSet<QString> separatorProperties = QSet<QString>()
+        << "type";
 
     const QSet<QString> a2Properties = QSet<QString>()
         << "label"
@@ -145,29 +133,34 @@ void DBusMenuExporterTest::testGetAllProperties()
         << "visible"
         ;
 
-    const QSet<QString> separatorProperties = QSet<QString>()
-        << "type";
-
+    // Create the menu items
     QMenu inputMenu;
-    TestDBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     inputMenu.addAction("a1");
+
     inputMenu.addSeparator();
+
     QAction *a2 = new QAction("a2", &inputMenu);
     a2->setEnabled(false);
-    a2->setProperty("icon-name", "foo");
+    QIcon icon = QIcon::fromTheme("edit-undo");
+    QVERIFY(!icon.isNull());
+    a2->setIcon(icon);
     a2->setVisible(false);
     inputMenu.addAction(a2);
 
+    // Export them
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
+    // Get children
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
     QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
 
     DBusMenuItemList list = reply.value();
     QCOMPARE(list.count(), 3);
 
+    // Check we get the right properties
     DBusMenuItem item = list.takeFirst();
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a1Properties);
 
