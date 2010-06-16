@@ -34,6 +34,9 @@
 #include <dbusmenuimporter.h>
 #include <debug_p.h>
 
+// Local
+#include "testutils.h"
+
 QTEST_MAIN(DBusMenuImporterTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
@@ -139,6 +142,59 @@ void DBusMenuImporterTest::testDeletingImporterWhileWaitingForAboutToShow()
     // Done, stop our test program
     slowMenuProcess.close();
     slowMenuProcess.waitForFinished();
+}
+
+void DBusMenuImporterTest::testDynamicMenu()
+{
+    RegisterServiceHelper helper;
+
+    QMenu rootMenu;
+    QAction* a1 = new QAction("a1", &rootMenu);
+    QAction* a2 = new QAction("a2", &rootMenu);
+    MenuFiller rootMenuFiller(&rootMenu);
+    rootMenuFiller.addAction(a1);
+    rootMenuFiller.addAction(a2);
+
+    QMenu subMenu;
+    MenuFiller subMenuFiller(&subMenu);
+    subMenuFiller.addAction(new QAction("a3", &subMenu));
+
+    a1->setMenu(&subMenu);
+
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &rootMenu);
+
+    // Import this menu
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    QTest::qWait(500);
+    QMenu *outputMenu = importer.menu();
+
+    // There should be no children for now
+    QCOMPARE(outputMenu->actions().count(), 0);
+
+    // Show menu, a1 and a2 should get added
+    QSignalSpy spy(&importer, SIGNAL(menuReadyToBeShown()));
+    QMetaObject::invokeMethod(outputMenu, "aboutToShow");
+    while (spy.isEmpty()) {
+        QTest::qWait(500);
+    }
+
+    QCOMPARE(outputMenu->actions().count(), 2);
+    QTest::qWait(500);
+    QAction* a1Output = outputMenu->actions().first();
+
+    // a1Output should have an empty menu
+    QMenu* a1OutputMenu = a1Output->menu();
+    QVERIFY(a1OutputMenu);
+    QCOMPARE(a1OutputMenu->actions().count(), 0);
+
+    // Show a1OutputMenu, a3 should get added
+    QMetaObject::invokeMethod(a1OutputMenu, "aboutToShow");
+    QTest::qWait(500);
+
+    QCOMPARE(a1OutputMenu->actions().count(), 1);
+
+    // menuReadyToBeShown() should only have been emitted once
+    QCOMPARE(spy.count(), 1);
 }
 
 #include "dbusmenuimportertest.moc"

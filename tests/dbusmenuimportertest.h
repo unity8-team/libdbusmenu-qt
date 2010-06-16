@@ -37,6 +37,7 @@ private Q_SLOTS:
     void testAddingNewItem();
     void testShortcut();
     void testDeletingImporterWhileWaitingForAboutToShow();
+    void testDynamicMenu();
 };
 
 #endif /* DBUSMENUIMPORTERTEST_H */

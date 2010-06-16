@@ -79,7 +79,6 @@ private Q_SLOTS:
     void slotItemUpdated(int id);
     void slotLayoutUpdated(uint revision, int parentId);
     void slotMenuAboutToShow();
-    void slotMenuAboutToHide();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
 

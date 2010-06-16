@@ -57,6 +57,7 @@ target_link_libraries(dbusmenuexportertest
 # dbusmenuimportertest
 set(dbusmenuimportertest_SRCS
     dbusmenuimportertest.cpp
+    testutils.cpp
     )
 
 qt4_automoc(${dbusmenuimportertest_SRCS})
