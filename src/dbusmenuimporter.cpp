@@ -74,6 +74,8 @@ public:
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
     QMap<int, QAction *> m_actionForId;
     QSignalMapper m_mapper;
+
+    QSet<int> m_idsRefreshedByAboutToShow;
     bool m_alreadyRefreshed;
 
     QDBusPendingCallWatcher *refresh(int id)
@@ -275,6 +277,9 @@ DBusMenuImporter::~DBusMenuImporter()
 
 void DBusMenuImporter::slotLayoutUpdated(uint revision, int parentId)
 {
+    if (d->m_idsRefreshedByAboutToShow.remove(parentId)) {
+        return;
+    }
     d->refresh(parentId);
 }
 
@@ -492,6 +497,7 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
 
     if (needRefresh || menu->actions().isEmpty()) {
         DMDEBUG << "Menu" << id << "must be refreshed";
+        d->m_idsRefreshedByAboutToShow << id;
         watcher = d->refresh(id);
         if (!waitForWatcher(watcher, REFRESH_TIMEOUT)) {
             DMWARNING << "Application did not refresh before timeout";
