@@ -40,12 +40,6 @@ QTEST_MAIN(DBusMenuExporterTest)
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
-void MenuFiller::fillMenu()
-{
-    m_menu->addAction("a1");
-    m_menu->addAction("a2");
-}
-
 void DBusMenuExporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
@@ -257,6 +251,8 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     QMenu *subMenu = new QMenu;
     action->setMenu(subMenu);
     MenuFiller filler(subMenu);
+    filler.addAction(new QAction("a1", subMenu));
+    filler.addAction(new QAction("a2", subMenu));
 
     // Get id of submenu
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());

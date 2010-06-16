@@ -56,11 +56,22 @@ public:
         connect(m_menu, SIGNAL(aboutToShow()), SLOT(fillMenu()));
     }
 
+    void addAction(QAction *action)
+    {
+        m_actions << action;
+    }
+
 public Q_SLOTS:
-    void fillMenu();
+    void fillMenu()
+    {
+        while (!m_actions.isEmpty()) {
+            m_menu->addAction(m_actions.takeFirst());
+        }
+    }
 
 private:
     QMenu *m_menu;
+    QList<QAction *> m_actions;
 };
 
 class DBusMenuExporterTest : public QObject
