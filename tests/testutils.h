@@ -1,5 +1,5 @@
 /* This file is part of the KDE libraries
-   Copyright 2009 Canonical
+   Copyright 2010 Canonical
    Author: Aurelien Gateau <aurelien.gateau@canonical.com>
 
    This library is free software; you can redistribute it and/or
@@ -18,36 +18,56 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUEXPORTERTEST_H
-#define DBUSMENUEXPORTERTEST_H
-
-#define QT_GUI_LIB
-#include <QtGui>
+#ifndef TESTUTILS_H
+#define TESTUTILS_H
 
 // Qt
 #include <QObject>
+#include <QMenu>
+#include <QVariant>
 
-// Local
-
-class DBusMenuExporterTest : public QObject
+class ManualSignalSpy : public QObject, public QList<QVariantList>
 {
-Q_OBJECT
-private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
-    void testNonExclusiveActionGroup();
-    void testClickDeletedAction();
-    void testDeleteExporterBeforeMenu();
-    void testMenuShortcut();
+    Q_OBJECT
+public Q_SLOTS:
+    void receiveCall(int value)
+    {
+        append(QVariantList() << value);
+    }
 
-    void init();
-    void cleanup();
+    void receiveCall(uint v1, int v2)
+    {
+        append(QVariantList() << v1 << v2);
+    }
 };
 
-#endif /* DBUSMENUEXPORTERTEST_H */
+class MenuFiller : public QObject
+{
+    Q_OBJECT
+public:
+    MenuFiller(QMenu *menu)
+    : m_menu(menu)
+    {
+        connect(m_menu, SIGNAL(aboutToShow()), SLOT(fillMenu()));
+    }
+
+    void addAction(QAction *action)
+    {
+        m_actions << action;
+    }
+
+public Q_SLOTS:
+    void fillMenu()
+    {
+        while (!m_actions.isEmpty()) {
+            m_menu->addAction(m_actions.takeFirst());
+        }
+    }
+
+private:
+    QMenu *m_menu;
+    QList<QAction *> m_actions;
+};
+
+
+#endif /* TESTUTILS_H */

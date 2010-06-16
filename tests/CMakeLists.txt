@@ -43,6 +43,7 @@ enable_testing()
 # dbusmenuexportertest
 set(dbusmenuexportertest_SRCS
     dbusmenuexportertest.cpp
+    testutils.cpp
     )
 
 qt4_automoc(${dbusmenuexportertest_SRCS})

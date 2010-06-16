@@ -1,5 +1,5 @@
 /* This file is part of the KDE libraries
-   Copyright 2009 Canonical
+   Copyright 2010 Canonical
    Author: Aurelien Gateau <aurelien.gateau@canonical.com>
 
    This library is free software; you can redistribute it and/or
@@ -18,36 +18,5 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUEXPORTERTEST_H
-#define DBUSMENUEXPORTERTEST_H
-
-#define QT_GUI_LIB
-#include <QtGui>
-
-// Qt
-#include <QObject>
-
-// Local
-
-class DBusMenuExporterTest : public QObject
-{
-Q_OBJECT
-private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
-    void testNonExclusiveActionGroup();
-    void testClickDeletedAction();
-    void testDeleteExporterBeforeMenu();
-    void testMenuShortcut();
-
-    void init();
-    void cleanup();
-};
-
-#endif /* DBUSMENUEXPORTERTEST_H */
+#include "testutils.h"
+#include "testutils.moc"

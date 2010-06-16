@@ -35,6 +35,9 @@
 #include <dbusmenushortcut_p.h>
 #include <debug_p.h>
 
+// Local
+#include "testutils.h"
+
 QTEST_MAIN(DBusMenuExporterTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
