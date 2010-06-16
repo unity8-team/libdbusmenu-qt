@@ -244,14 +244,19 @@ void DBusMenuExporterTest::testSubMenu()
 
 void DBusMenuExporterTest::testDynamicSubMenu()
 {
+    // Track LayoutUpdated() signal: we don't want this signal to be emitted
+    // too often because it causes refreshes
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    ManualSignalSpy layoutUpdatedSpy;
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "LayoutUpdated", "ui", &layoutUpdatedSpy, SLOT(receiveCall(uint, int)));
+
+    // Create our test menu
     QMenu inputMenu;
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
     QAction *action = inputMenu.addAction("menu");
     QMenu *subMenu = new QMenu;
     action->setMenu(subMenu);
     MenuFiller filler(subMenu);
-
-    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
 
     // Get id of submenu
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
@@ -263,15 +268,17 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     // Nothing for now
     QCOMPARE(subMenu->actions().count(), 0);
 
-    // Pretend we show the menu
-    ManualSignalSpy layoutUpdatedSpy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "LayoutUpdated", "ui", &layoutUpdatedSpy, SLOT(receiveCall(uint, int)));
+    // LayoutUpdated should be emitted once because inputMenu is filled
+    QTest::qWait(500);
+    QCOMPARE(layoutUpdatedSpy.count(), 1);
+    QCOMPARE(layoutUpdatedSpy.takeFirst().at(1).toInt(), 0);
 
+    // Pretend we show the menu
     QDBusReply<bool> aboutToShowReply = iface.call("AboutToShow", id);
     QVERIFY2(aboutToShowReply.isValid(), qPrintable(reply.error().message()));
     QVERIFY(aboutToShowReply.value());
     QTest::qWait(500);
-    QVERIFY(layoutUpdatedSpy.count() >= 1);
+    QCOMPARE(layoutUpdatedSpy.count(), 1);
     QCOMPARE(layoutUpdatedSpy.takeFirst().at(1).toInt(), id);
 
     // Get submenu items

@@ -52,6 +52,9 @@ public:
     QSet<int> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
 
+    QSet<int> m_layoutUpdatedIds;
+    QTimer *m_layoutUpdatedTimer;
+
     int idForAction(QAction *action) const;
     void addMenu(QMenu *menu, int parentId);
     QVariantMap propertiesForAction(QAction *action) const;

@@ -205,7 +205,11 @@ void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
 
 void DBusMenuExporterPrivate::emitLayoutUpdated(int id)
 {
-    m_dbusObject->LayoutUpdated(m_revision, id);
+    if (m_layoutUpdatedIds.contains(id)) {
+        return;
+    }
+    m_layoutUpdatedIds << id;
+    m_layoutUpdatedTimer->start();
 }
 
 //-------------------------------------------------
@@ -222,6 +226,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
     d->m_nextId = 1;
     d->m_revision = 1;
     d->m_itemUpdatedTimer = new QTimer(this);
+    d->m_layoutUpdatedTimer = new QTimer(this);
     d->m_dbusObject = new DBusMenuExporterDBus(this);
 
     d->addMenu(d->m_rootMenu, 0);
@@ -229,6 +234,10 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
     d->m_itemUpdatedTimer->setInterval(0);
     d->m_itemUpdatedTimer->setSingleShot(true);
     connect(d->m_itemUpdatedTimer, SIGNAL(timeout()), SLOT(doUpdateActions()));
+
+    d->m_layoutUpdatedTimer->setInterval(0);
+    d->m_layoutUpdatedTimer->setSingleShot(true);
+    connect(d->m_layoutUpdatedTimer, SIGNAL(timeout()), SLOT(doEmitLayoutUpdated()));
 
     QDBusConnection connection(_connection);
     connection.registerObject(objectPath, d->m_dbusObject, QDBusConnection::ExportAllContents);
@@ -255,6 +264,14 @@ void DBusMenuExporter::doUpdateActions()
         d->m_dbusObject->ItemUpdated(id);
     }
     d->m_itemUpdatedIds.clear();
+}
+
+void DBusMenuExporter::doEmitLayoutUpdated()
+{
+    Q_FOREACH(int id, d->m_layoutUpdatedIds) {
+        d->m_dbusObject->LayoutUpdated(d->m_revision, id);
+    }
+    d->m_layoutUpdatedIds.clear();
 }
 
 QString DBusMenuExporter::iconNameForAction(QAction *action)
