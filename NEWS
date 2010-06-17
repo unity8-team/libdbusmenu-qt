@@ -1,3 +1,10 @@
+# 0.3.5 - 2010.06.17
+- Rework the way menuReadyToBeShown() is emitted (Aurelien Gateau)
+- Queue LayoutUpdated() signal to avoid emitting it too often (Aurelien Gateau)
+- Increase timeouts: prefer slow but complete menus to fast but incomplete (Aurelien Gateau)
+- Use QIcon::name() to return the icon name, when built with Qt 4.7 (Aurelien Gateau)
+- Correctly handle non-exclusive action groups (Aurelien Gateau)
+
 # 0.3.4 - 2010.06.10
 - Fixed KDE bug #237156 (Aurelien Gateau)
 - Added support for shortcuts (Aurelien Gateau)
