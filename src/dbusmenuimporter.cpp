@@ -407,7 +407,6 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
 
 void DBusMenuImporter::sendClickedEvent(int id)
 {
-    DMDEBUG << id;
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
@@ -449,7 +448,6 @@ static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 void DBusMenuImporter::slotMenuAboutToShow()
 {
     QMenu *menu = qobject_cast<QMenu*>(sender());
-    DMDEBUG << menu;
     Q_ASSERT(menu);
 
     QAction *action = menu->menuAction();
@@ -493,7 +491,6 @@ void DBusMenuImporter::slotMenuAboutToShow()
 
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
-    DMDEBUG;
     int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
 
     QDBusPendingReply<bool> reply = *watcher;
@@ -507,14 +504,12 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
     DMRETURN_IF_FAIL(menu);
 
     if (needRefresh || menu->actions().isEmpty()) {
-        DMDEBUG << "Menu" << id << "must be refreshed";
         d->m_idsRefreshedByAboutToShow << id;
         watcher = d->refresh(id);
         if (!waitForWatcher(watcher, REFRESH_TIMEOUT)) {
             DMWARNING << "Application did not refresh before timeout";
         }
     }
-    DMDEBUG << "end";
 }
 
 QMenu *DBusMenuImporter::createMenu(QWidget *parent)
