@@ -25,6 +25,7 @@ endmacro(create_check_target)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
+    ${CMAKE_CURRENT_BINARY_DIR}/../src
     ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_QTTEST_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}

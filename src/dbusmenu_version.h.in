@@ -18,20 +18,12 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENU_EXPORT_H
-#define DBUSMENU_EXPORT_H
+#ifndef DBUSMENUQT_VERSION_H
+#define DBUSMENUQT_VERSION_H
 
-// Include this file from here to make transition from version 0.3.5 and
-// earlier easier (no need to conditionally include a file)
-#include <dbusmenu_version.h>
+#define DBUSMENUQT_VERSION \
+    ((@dbusmenu_qt_VERSION_MAJOR@ << 16) \
+    |(@dbusmenu_qt_VERSION_MINOR@ << 8) \
+    |@dbusmenu_qt_VERSION_PATCH@)
 
-// Qt
-#include <QtCore/QtGlobal>
-
-#ifdef dbusmenu_qt_EXPORTS
-#define DBUSMENU_EXPORT Q_DECL_EXPORT
-#else
-#define DBUSMENU_EXPORT Q_DECL_IMPORT
-#endif
-
-#endif /* DBUSMENU_EXPORT_H */
+#endif /*DBUSMENUQT_VERSION_H */

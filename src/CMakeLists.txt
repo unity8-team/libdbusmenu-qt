@@ -40,6 +40,10 @@ qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
     )
 
+configure_file(dbusmenu_version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
+    )
+
 add_library(dbusmenu-qt SHARED ${dbusmenu_qt_SRCS})
 set_target_properties(dbusmenu-qt PROPERTIES
     VERSION ${dbusmenu_qt_lib_VERSION}
@@ -63,4 +67,8 @@ install(DIRECTORY .
     DESTINATION include/dbusmenu-qt
     FILES_MATCHING PATTERN "*.h"
     PATTERN "*_p.h" EXCLUDE
+    )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
+    DESTINATION include/dbusmenu-qt/
     )
