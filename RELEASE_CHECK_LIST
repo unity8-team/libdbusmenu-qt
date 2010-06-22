@@ -4,6 +4,7 @@
 - Commit
 - Create tarball
 - Unpack tarball, build and run tests
+- Test with KDE trunk
 - If ok, create "x.y.z" tag
   git tag -a x.y.z
 - Push
