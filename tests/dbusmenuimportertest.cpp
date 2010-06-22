@@ -171,9 +171,10 @@ void DBusMenuImporterTest::testDynamicMenu()
     // There should be no children for now
     QCOMPARE(outputMenu->actions().count(), 0);
 
-    // Show menu, a1 and a2 should get added
-    QSignalSpy spy(&importer, SIGNAL(menuReadyToBeShown()));
-    QMetaObject::invokeMethod(outputMenu, "aboutToShow");
+    // Update menu, a1 and a2 should get added
+    QSignalSpy spy(&importer, SIGNAL(menuUpdated()));
+    QSignalSpy spyOld(&importer, SIGNAL(menuReadyToBeShown()));
+    importer.updateMenu();
     while (spy.isEmpty()) {
         QTest::qWait(500);
     }
@@ -193,8 +194,10 @@ void DBusMenuImporterTest::testDynamicMenu()
 
     QCOMPARE(a1OutputMenu->actions().count(), 1);
 
-    // menuReadyToBeShown() should only have been emitted once
+    // menuUpdated() and menuReadyToBeShown() should only have been emitted
+    // once
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(spyOld.count(), 1);
 }
 
 #include "dbusmenuimportertest.moc"

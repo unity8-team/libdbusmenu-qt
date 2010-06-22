@@ -77,6 +77,8 @@ public:
 
     QSet<int> m_idsRefreshedByAboutToShow;
 
+    bool m_mustEmitMenuUpdated;
+
     QDBusPendingCallWatcher *refresh(int id)
     {
         #ifdef BENCHMARK
@@ -245,6 +247,7 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     d->q = this;
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
     d->m_menu = 0;
+    d->m_mustEmitMenuUpdated = false;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
     connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
@@ -410,6 +413,12 @@ void DBusMenuImporter::sendClickedEvent(int id)
     d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
 }
 
+void DBusMenuImporter::updateMenu()
+{
+    d->m_mustEmitMenuUpdated = true;
+    QMetaObject::invokeMethod(menu(), "aboutToShow");
+}
+
 static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
     QTime time;
@@ -440,6 +449,7 @@ static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 void DBusMenuImporter::slotMenuAboutToShow()
 {
     QMenu *menu = qobject_cast<QMenu*>(sender());
+    DMDEBUG << menu;
     Q_ASSERT(menu);
 
     QAction *action = menu->menuAction();
@@ -472,6 +482,10 @@ void DBusMenuImporter::slotMenuAboutToShow()
         return;
     }
 
+    if (menu == d->m_menu && d->m_mustEmitMenuUpdated) {
+        d->m_mustEmitMenuUpdated = false;
+        menuUpdated();
+    }
     if (menu == d->m_menu) {
         menuReadyToBeShown();
     }
@@ -479,6 +493,7 @@ void DBusMenuImporter::slotMenuAboutToShow()
 
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
+    DMDEBUG;
     int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
 
     QDBusPendingReply<bool> reply = *watcher;
@@ -499,6 +514,7 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
             DMWARNING << "Application did not refresh before timeout";
         }
     }
+    DMDEBUG << "end";
 }
 
 QMenu *DBusMenuImporter::createMenu(QWidget *parent)

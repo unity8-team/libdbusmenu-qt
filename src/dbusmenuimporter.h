@@ -54,9 +54,34 @@ public:
      */
     QMenu *menu() const;
 
+    /**
+     * Simulates a QMenu::aboutToShow() signal on the menu returned by menu(),
+     * ensuring it is up to date in case the menu is populated on the fly. It
+     * is not mandatory to call this method, showing the menu with
+     * QMenu::popup() or QMenu::exec() will generates an aboutToShow() signal,
+     * but calling it before ensures the size-hint of the menu is correct when
+     * it is time to show it, avoiding wrong positioning.
+     *
+     * menuUpdated() will be emitted when the menu is ready.
+     *
+     * Not that the aboutToShow() signal is only sent to the root menu, not to
+     * any submenu.
+     */
+    void updateMenu();
+
 Q_SIGNALS:
     /**
-     * Emitted when the menu has been filled with entries
+     * Emitted after a call to updateMenu().
+     * @see updateMenu()
+     */
+    void menuUpdated();
+
+    /**
+     * Emitted after every aboutToShow of the root menu.
+     * This signal is deprecated and only kept to keep compatibility with
+     * dbusmenu-qt 0.3.x. New code should use updateMenu() and menuUpdated()
+     *
+     * @deprecated
      */
     void menuReadyToBeShown();
 
