@@ -250,17 +250,15 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     d->m_mustEmitMenuUpdated = false;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
-    connect(d->m_interface, SIGNAL(ItemUpdated(int)), SLOT(slotItemUpdated(int)));
-    //connect(d->m_interface, SIGNAL(LayoutUpdated(uint, int)), SLOT(slotLayoutUpdated(uint, int)));
-    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "LayoutUpdated", "ui", this,
-        SLOT(slotLayoutUpdated(uint, int)));
 
-    // For some reason, this connect() fails:
-    //connect(d->m_interface, SIGNAL(ItemPropertyUpdated(int, const QString &, const QDBusVariant &)),
-    //    SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
-    // This one works:
-    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemPropertyUpdated", "isv", this,
-        SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
+    // For some reason, using QObject::connect() does not work but
+    // QDBusConnect::connect() does
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemUpdated", "i",
+        this, SLOT(slotItemUpdated(int)));
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "LayoutUpdated", "ui",
+        this, SLOT(slotLayoutUpdated(uint, int)));
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemPropertyUpdated", "isv",
+        this, SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
 
     d->refresh(0);
 }
