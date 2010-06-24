@@ -5,10 +5,11 @@
 - Create tarball
 - Unpack tarball, build and run tests
 - Test with KDE trunk
-- If ok, create "x.y.z" tag
-  git tag -a x.y.z
+- If ok, create tag
+  tag=x.y.z
+  git tag -a $tag -m "Release $tag"
 - Push
   git push
   git push --tags
 - Upload tarball
-  lp-project-upload libdbusmenu-qt x.y.z build/libdbusmenu-qt-x.y.z.tar.bz2
+  lp-project-upload libdbusmenu-qt $tag libdbusmenu-qt-$tag.tar.bz2
