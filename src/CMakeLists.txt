@@ -24,7 +24,7 @@ endif (MSVC)
 # Check whether QIcon::name() exists. It was added in late Qt 4.7 cycle, and is
 # not present in betas.
 set(CMAKE_REQUIRED_INCLUDES "${QT_INCLUDE_DIR}")
-set(CMAKE_REQUIRED_LIBRARIES "QtGui")
+set(CMAKE_REQUIRED_LIBRARIES "${QT_QTGUI_LIBRARIES}")
 check_cxx_source_compiles("
 #include <QtGui/QIcon>
 int main() {
