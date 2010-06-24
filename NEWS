@@ -1,3 +1,8 @@
+# 0.4.0 - 2010.06.24
+- Introduce a dbusmenu_version.h file (Aurelien Gateau)
+- Introduce updateMenu() and menuUpdated(), deprecate menuReadyToBeShown() (Aurelien Gateau)
+- Better build check for QIcon::name() (LP BUG 597975) (Aurelien Gateau)
+
 # 0.3.5 - 2010.06.17
 - Rework the way menuReadyToBeShown() is emitted (Aurelien Gateau)
 - Queue LayoutUpdated() signal to avoid emitting it too often (Aurelien Gateau)
