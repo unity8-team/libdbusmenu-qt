@@ -30,6 +30,7 @@
 #include <QXmlStreamWriter>
 
 // Local
+#include "dbusmenu_config.h"
 #include "dbusmenu_p.h"
 #include "dbusmenuexporterdbus_p.h"
 #include "dbusmenuexporterprivate_p.h"
@@ -277,7 +278,7 @@ void DBusMenuExporter::doEmitLayoutUpdated()
 QString DBusMenuExporter::iconNameForAction(QAction *action)
 {
     DMRETURN_VALUE_IF_FAIL(action, QString());
-#if QT_VERSION >= 0x040700
+#ifdef HAVE_QICON_NAME
     QIcon icon = action->icon();
     return icon.isNull() ? QString() : icon.name();
 #else

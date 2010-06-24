@@ -1,4 +1,7 @@
+include(CheckCXXSourceCompiles)
 include (CheckCXXCompilerFlag)
+
+# Check some compiler flags
 check_cxx_compiler_flag(-fvisibility=hidden __DBUSMENU_HAVE_GCC_VISIBILITY)
 if (__DBUSMENU_HAVE_GCC_VISIBILITY AND NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
@@ -17,6 +20,24 @@ endif (__DBUSMENU_HAVE_W_ALL)
 if (MSVC)
 	add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)
 endif (MSVC)
+
+# Check whether QIcon::name() exists. It was added in late Qt 4.7 cycle, and is
+# not present in betas.
+set(CMAKE_REQUIRED_INCLUDES "${QT_INCLUDE_DIR}")
+set(CMAKE_REQUIRED_LIBRARIES "QtGui")
+check_cxx_source_compiles("
+#include <QtGui/QIcon>
+int main() {
+    QIcon icon;
+    icon.name();
+    return 0;
+}
+" HAVE_QICON_NAME)
+if (NOT HAVE_QICON_NAME)
+    message(STATUS "QIcon::name() does not exist, DBusMenuExporter will not export icon names by itself")
+endif()
+configure_file(dbusmenu_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_config.h @ONLY)
+
 
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
