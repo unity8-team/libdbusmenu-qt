@@ -54,6 +54,7 @@ public:
      */
     QMenu *menu() const;
 
+public Q_SLOTS:
     /**
      * Simulates a QMenu::aboutToShow() signal on the menu returned by menu(),
      * ensuring it is up to date in case the menu is populated on the fly. It
@@ -106,6 +107,7 @@ private Q_SLOTS:
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
+    void processPendingLayoutUpdates();
 
 private:
     Q_DISABLE_COPY(DBusMenuImporter)

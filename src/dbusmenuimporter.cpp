@@ -31,6 +31,7 @@
 #include <QPointer>
 #include <QSignalMapper>
 #include <QTime>
+#include <QTimer>
 
 // Local
 #include "dbusmenuitem_p.h"
@@ -74,8 +75,10 @@ public:
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
     QMap<int, QAction *> m_actionForId;
     QSignalMapper m_mapper;
+    QTimer *m_pendingLayoutUpdateTimer;
 
     QSet<int> m_idsRefreshedByAboutToShow;
+    QSet<int> m_pendingLayoutUpdates;
 
     bool m_mustEmitMenuUpdated;
 
@@ -251,6 +254,10 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
 
+    d->m_pendingLayoutUpdateTimer = new QTimer(this);
+    d->m_pendingLayoutUpdateTimer->setSingleShot(true);
+    connect(d->m_pendingLayoutUpdateTimer, SIGNAL(timeout()), SLOT(processPendingLayoutUpdates()));
+
     // For some reason, using QObject::connect() does not work but
     // QDBusConnect::connect() does
     QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemUpdated", "i",
@@ -277,7 +284,19 @@ void DBusMenuImporter::slotLayoutUpdated(uint revision, int parentId)
     if (d->m_idsRefreshedByAboutToShow.remove(parentId)) {
         return;
     }
-    d->refresh(parentId);
+    d->m_pendingLayoutUpdates << parentId;
+    if (!d->m_pendingLayoutUpdateTimer->isActive()) {
+        d->m_pendingLayoutUpdateTimer->start();
+    }
+}
+
+void DBusMenuImporter::processPendingLayoutUpdates()
+{
+    QSet<int> ids = d->m_pendingLayoutUpdates;
+    d->m_pendingLayoutUpdates.clear();
+    Q_FOREACH(int id, ids) {
+        d->refresh(id);
+    }
 }
 
 QMenu *DBusMenuImporter::menu() const
