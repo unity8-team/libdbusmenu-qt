@@ -32,6 +32,8 @@
 #include <QSignalMapper>
 #include <QTime>
 #include <QTimer>
+#include <QToolButton>
+#include <QWidgetAction>
 
 // Local
 #include "dbusmenuitem_p.h"
@@ -63,6 +65,29 @@ struct Task
 
     int m_id;
     DBusMenuImporterMethod m_method;
+};
+
+class EventSniffer : public QObject
+{
+public:
+    EventSniffer(QObject *parent = 0)
+        : QObject(parent) { }
+
+    ~EventSniffer() { }
+
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+        Q_UNUSED(object);
+
+        if (event->type() == QEvent::Paint ||
+            event->type() == QEvent::KeyPress ||
+            event->type() == QEvent::KeyRelease) {
+            return false;
+        }
+
+        event->accept();
+        return true;
+    }
 };
 
 class DBusMenuImporterPrivate
@@ -142,8 +167,29 @@ public:
                 group->addAction(action);
             }
         }
+
+        bool isMenuTitle = map.take("x-kde-title").toBool();
+
         updateAction(action, map, map.keys());
 
+        if (isMenuTitle) {
+            QAction *buttonAction = action;
+            QFont font = buttonAction->font();
+            font.setBold(true);
+            buttonAction->setFont(font);
+            buttonAction->setEnabled(true);
+
+            QWidgetAction *action = new QWidgetAction(0);
+            action->setObjectName("kmenu_title");
+            QToolButton *titleButton = new QToolButton(0);
+            EventSniffer *eventSniffer = new EventSniffer(titleButton);
+            titleButton->installEventFilter(eventSniffer); // prevent clicks on the title of the menu
+            titleButton->setDefaultAction(buttonAction);
+            titleButton->setDown(true); // prevent hover style changes in some styles
+            titleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+            action->setDefaultWidget(titleButton);
+            return action;
+        }
         return action;
     }
 
