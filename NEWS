@@ -1,3 +1,6 @@
+# 0.5.1 - 2010.07.01
+- Add support for KMenu titles (Christoph Feck)
+
 # 0.5.0 - 2010.06.28
 - Queue calls to refresh() because we may be spammed with many LayoutUpdated()
   signals at once (Aurelien Gateau)
