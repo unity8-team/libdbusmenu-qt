@@ -1,3 +1,6 @@
+- Verify copy is clean and up to date
+  git status
+  git pull --rebase
 - Update NEWS
   r!git log --pretty=format:'- \%s (\%an)' x.y.z-1..HEAD
 - Bump version number in CMakeLists.txt
