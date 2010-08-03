@@ -178,7 +178,7 @@ License version 3 and version 2.1 along with this program.  If not, see
 		</method>
 
 		<method name="GetGroupProperties">
-			<annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantList"/>
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QList&lt;int&gt;"/>
 			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="DBusMenuItemList"/>
 			<dox:d>
 			Returns the list of items which are children of @a parentId.

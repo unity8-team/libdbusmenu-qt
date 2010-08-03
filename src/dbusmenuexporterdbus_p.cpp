@@ -115,12 +115,12 @@ QVariantMap DBusMenuExporterDBus::GetProperties(int id, const QStringList &names
     }
 }
 
-DBusMenuItemList DBusMenuExporterDBus::GetGroupProperties(const QVariantList &ids, const QStringList &names)
+DBusMenuItemList DBusMenuExporterDBus::GetGroupProperties(const QList<int> &ids, const QStringList &names)
 {
     DBusMenuItemList list;
-    Q_FOREACH(const QVariant &id, ids) {
+    Q_FOREACH(int id, ids) {
         DBusMenuItem item;
-        item.id = id.toInt();
+        item.id = id;
         item.properties = GetProperties(item.id, names);
         list << item;
     }

@@ -43,6 +43,8 @@ QTEST_MAIN(DBusMenuExporterTest)
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
+Q_DECLARE_METATYPE(QList<int>)
+
 void DBusMenuExporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
@@ -484,6 +486,45 @@ void DBusMenuExporterTest::testMenuShortcut()
             arg >> shortcut;
             QCOMPARE(shortcut.toKeySequence(), action->shortcut());
         }
+    }
+}
+
+void DBusMenuExporterTest::testGetGroupProperties()
+{
+    // Create a menu containing two actions
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+    QAction *a2 = inputMenu.addAction("a2");
+
+    // Check exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Get item ids
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), inputMenu.actions().count());
+
+    int id1 = list.at(0).id;
+    int id2 = list.at(1).id;
+
+    // Get group properties
+    QList<int> ids = QList<int>() << id1 << id2;
+    reply = iface.call("GetGroupProperties", QVariant::fromValue(ids), QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+    list = reply.value();
+
+    // Check the info we received
+    QCOMPARE(list.count(), inputMenu.actions().count());
+
+    Q_FOREACH(const QAction* action, inputMenu.actions()) {
+        DBusMenuItem item = list.takeFirst();
+        QCOMPARE(item.properties.value("label").toString(), action->text());
     }
 }
 
