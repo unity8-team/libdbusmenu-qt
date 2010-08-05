@@ -1,5 +1,6 @@
 # 0.5.2 - 2010.08.05
 - Fix implementation of GetGroupProperties() (Aurelien Gateau)
+- Fix detection of QIcon::name() with gold (Aurelien Gateau)
 
 # 0.5.1 - 2010.07.01
 - Add support for KMenu titles (Christoph Feck)
