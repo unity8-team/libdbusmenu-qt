@@ -49,6 +49,12 @@ public:
 
     ~DBusMenuExporter();
 
+    /**
+     * Asks the matching DBusMenuImporter to activate @p action. For menus it
+     * means popup them, for items it means triggering the associated action.
+     */
+    void activateAction(QAction *action);
+
 protected:
     /**
      * Must extract the icon name for action. This is the name which will

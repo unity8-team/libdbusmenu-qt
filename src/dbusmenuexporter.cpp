@@ -21,6 +21,7 @@
 #include "dbusmenuexporter.h"
 
 // Qt
+#include <QDateTime>
 #include <QMap>
 #include <QMenu>
 #include <QSet>
@@ -285,6 +286,14 @@ QString DBusMenuExporter::iconNameForAction(QAction *action)
 #else
     return QString();
 #endif
+}
+
+void DBusMenuExporter::activateAction(QAction *action)
+{
+    int id = d->idForAction(action);
+    DMRETURN_IF_FAIL(id >= 0);
+    uint timeStamp = QDateTime::currentDateTime().toTime_t();
+    d->m_dbusObject->ItemActivationRequested(id, timeStamp);
 }
 
 #include "dbusmenuexporter.moc"

@@ -46,6 +46,7 @@ private Q_SLOTS:
     void testDeleteExporterBeforeMenu();
     void testMenuShortcut();
     void testGetGroupProperties();
+    void testActivateAction();
 
     void init();
     void cleanup();

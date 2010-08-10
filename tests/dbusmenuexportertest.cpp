@@ -528,4 +528,42 @@ void DBusMenuExporterTest::testGetGroupProperties()
     }
 }
 
+void DBusMenuExporterTest::testActivateAction()
+{
+    // Create a menu containing two actions
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+    QAction *a2 = inputMenu.addAction("a2");
+
+    // Check exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    ManualSignalSpy spy;
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemActivationRequested", "iu", &spy, SLOT(receiveCall(int, uint)));
+
+    // Get item ids
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), inputMenu.actions().count());
+
+    int id1 = list.at(0).id;
+    int id2 = list.at(1).id;
+
+    // Trigger actions
+    exporter->activateAction(a1);
+    exporter->activateAction(a2);
+
+    // Check we received the signals in the correct order
+    QTest::qWait(500);
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.takeFirst().at(0).toInt(), id1);
+    QCOMPARE(spy.takeFirst().at(0).toInt(), id2);
+}
+
 #include "dbusmenuexportertest.moc"

@@ -57,6 +57,7 @@ Q_SIGNALS:
     void ItemUpdated(int);
     void ItemPropertyUpdated(int, QString, QVariant);
     void LayoutUpdated(uint revision, int parentId);
+    void ItemActivationRequested(int id, uint timeStamp);
 
 private:
     DBusMenuExporter *m_exporter;

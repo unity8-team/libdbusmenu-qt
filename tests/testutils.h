@@ -39,6 +39,11 @@ public Q_SLOTS:
     {
         append(QVariantList() << v1 << v2);
     }
+
+    void receiveCall(int v1, uint v2)
+    {
+        append(QVariantList() << v1 << v2);
+    }
 };
 
 class MenuFiller : public QObject

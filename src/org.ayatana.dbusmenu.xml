@@ -312,6 +312,20 @@ License version 3 and version 2.1 along with this program.  If not, see
 				</dox:d>
 			</arg>
 		</signal>
+		<signal name="ItemActivationRequested">
+			<dox:d>
+			  The server is requesting that all clients displaying this
+			  menu open it to the user.  This would be for things like
+			  hotkeys that when the user presses them the menu should
+			  open and display itself to the user.
+			</dox:d>
+			<arg type="i" name="id" direction="out" >
+				<dox:d>ID of the menu that should be activated</dox:d>
+			</arg>
+			<arg type="u" name="timestamp" direction="out" >
+				<dox:d>The time that the event occured</dox:d>
+			</arg>
+		</signal>
 
 <!-- End of interesting stuff -->
 
