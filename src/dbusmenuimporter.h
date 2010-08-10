@@ -27,6 +27,7 @@
 // Local
 #include <dbusmenu_export.h>
 
+class QAction;
 class QDBusAbstractInterface;
 class QDBusPendingCallWatcher;
 class QDBusVariant;
@@ -86,6 +87,11 @@ Q_SIGNALS:
      */
     void menuReadyToBeShown();
 
+    /**
+     * Emitted when the exporter was asked to activate an action
+     */
+    void actionActivationRequested(QAction *);
+
 protected:
     /**
      * Must create a menu, may be customized to fit host appearance.
@@ -107,6 +113,7 @@ private Q_SLOTS:
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
+    void slotItemActivationRequested(int id, uint timestamp);
     void processPendingLayoutUpdates();
 
 private:

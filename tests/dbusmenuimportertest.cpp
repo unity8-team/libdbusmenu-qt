@@ -61,6 +61,13 @@ public:
     }
 };
 
+Q_DECLARE_METATYPE(QAction*)
+
+void DBusMenuImporterTest::initTestCase()
+{
+    qRegisterMetaType<QAction*>("QAction*");
+}
+
 void DBusMenuImporterTest::testStandardItem()
 {
     RegisterServiceHelper helper;
@@ -198,6 +205,39 @@ void DBusMenuImporterTest::testDynamicMenu()
     // once
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spyOld.count(), 1);
+}
+
+void DBusMenuImporterTest::testActionActivationRequested()
+{
+    RegisterServiceHelper helper;
+
+    // Export a menu
+    QMenu inputMenu;
+    QAction *inputA1 = inputMenu.addAction("a1");
+    QAction *inputA2 = inputMenu.addAction("a2");
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Import the menu
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    QSignalSpy spy(&importer, SIGNAL(actionActivationRequested(QAction*)));
+
+    QTest::qWait(500);
+    QMenu *outputMenu = importer.menu();
+
+    // Get matching output actions
+    QCOMPARE(outputMenu->actions().count(), 2);
+    QAction *outputA1 = outputMenu->actions().at(0);
+    QAction *outputA2 = outputMenu->actions().at(1);
+
+    // Request activation
+    exporter.activateAction(inputA1);
+    exporter.activateAction(inputA2);
+
+    // Check we received the signal in the right order
+    QTest::qWait(500);
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.takeFirst().at(0).value<QAction*>(), outputA1);
+    QCOMPARE(spy.takeFirst().at(0).value<QAction*>(), outputA2);
 }
 
 #include "dbusmenuimportertest.moc"

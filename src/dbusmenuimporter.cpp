@@ -312,6 +312,8 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
         this, SLOT(slotLayoutUpdated(uint, int)));
     QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemPropertyUpdated", "isv",
         this, SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemActivationRequested", "iu",
+        this, SLOT(slotItemActivationRequested(int, uint)));
 
     d->refresh(0);
 }
@@ -405,6 +407,13 @@ void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const
         return;
     }
     d->updateActionProperty(action, key, value.variant());
+}
+
+void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
+{
+    QAction *action = d->m_actionForId.value(id);
+    DMRETURN_IF_FAIL(action);
+    actionActivationRequested(action);
 }
 
 void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *watcher)
