@@ -33,6 +33,7 @@ class DBusMenuImporterTest : public QObject
 {
 Q_OBJECT
 private Q_SLOTS:
+    void cleanup();
     void testStandardItem();
     void testAddingNewItem();
     void testShortcut();

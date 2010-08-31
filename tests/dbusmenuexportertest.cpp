@@ -253,7 +253,7 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     QMenu inputMenu;
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
     QAction *action = inputMenu.addAction("menu");
-    QMenu *subMenu = new QMenu;
+    QMenu *subMenu = new QMenu(&inputMenu);
     action->setMenu(subMenu);
     MenuFiller filler(subMenu);
     filler.addAction(new QAction("a1", subMenu));

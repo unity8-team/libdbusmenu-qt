@@ -68,6 +68,15 @@ void DBusMenuImporterTest::initTestCase()
     qRegisterMetaType<QAction*>("QAction*");
 }
 
+void DBusMenuImporterTest::cleanup()
+{
+    while (QCoreApplication::hasPendingEvents()) {
+        QCoreApplication::sendPostedEvents();
+        QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+        QCoreApplication::processEvents();
+    }
+}
+
 void DBusMenuImporterTest::testStandardItem()
 {
     RegisterServiceHelper helper;
