@@ -98,7 +98,8 @@ public:
     QDBusAbstractInterface *m_interface;
     QMenu *m_menu;
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
-    QMap<int, QAction *> m_actionForId;
+    typedef QMap<int, QAction *> ActionForId;
+    ActionForId m_actionForId;
     QSignalMapper m_mapper;
     QTimer *m_pendingLayoutUpdateTimer;
 
@@ -324,6 +325,9 @@ DBusMenuImporter::~DBusMenuImporter()
     // leave enough time for the menu to finish what it was doing, for example
     // if it was being displayed.
     d->m_menu->deleteLater();
+    Q_FOREACH(QAction *action, d->m_actionForId) {
+        action->deleteLater();
+    }
     delete d;
 }
 
@@ -461,7 +465,13 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
 
     Q_FOREACH(const DBusMenuItem &dbusMenuItem, list) {
         QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties);
-        d->m_actionForId.insert(dbusMenuItem.id, action);
+        DBusMenuImporterPrivate::ActionForId::Iterator it = d->m_actionForId.find(dbusMenuItem.id);
+        if (it == d->m_actionForId.end()) {
+            d->m_actionForId.insert(dbusMenuItem.id, action);
+        } else {
+            it.value()->deleteLater();
+            *it = action;
+        }
         menu->addAction(action);
 
         connect(action, SIGNAL(triggered()),
