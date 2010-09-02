@@ -1,3 +1,6 @@
+# 0.6.1 - 2010.09.02
+- Fix some memory leaks (Aurelien Gateau)
+
 # 0.6.0 - 2010.08.19
 - Added the DBusMenuImporter::actionActivationRequested(QAction*) signal (Aurelien Gateau)
 - Fix hardcoded libdir in pkgconfig file (LP BUG: 610633) (oneforall)
