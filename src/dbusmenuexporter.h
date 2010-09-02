@@ -59,7 +59,8 @@ protected:
     /**
      * Must extract the icon name for action. This is the name which will
      * be used to present the icon over DBus.
-     * Default implementation returns a null QString.
+     * Default implementation returns action->icon().name() when built on Qt
+     * >= 4.7 and a null string otherwise.
      */
     virtual QString iconNameForAction(QAction *action);
 
