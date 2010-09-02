@@ -443,6 +443,25 @@ void DBusMenuExporterTest::testDeleteExporterBeforeMenu()
     inputMenu.removeAction(a1);
 }
 
+void DBusMenuExporterTest::testUpdateAndDeleteSubMenu()
+{
+    // Create a menu with a submenu
+    QMenu inputMenu;
+    QMenu *subMenu = inputMenu.addMenu("menu");
+    QAction *a1 = subMenu->addAction("a1");
+
+    // Export it
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Update a1 (which is in subMenu) and delete subMenu right after that. If
+    // DBusMenuExporter is not careful it will crash in the qWait() because it
+    // tries to send itemUpdated() for a1.
+    a1->setText("Not a menu anymore");
+    delete subMenu;
+    QTest::qWait(500);
+}
+
 void DBusMenuExporterTest::testMenuShortcut()
 {
     // Create a menu containing an action with a shortcut

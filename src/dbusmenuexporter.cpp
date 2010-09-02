@@ -187,6 +187,7 @@ void DBusMenuExporterPrivate::addAction(QAction *action, int parentId)
 {
     QVariantMap map = propertiesForAction(action);
     int id = m_nextId++;
+    QObject::connect(action, SIGNAL(destroyed(QObject*)), q, SLOT(slotActionDestroyed(QObject*)));
     m_actionForId.insert(id, action);
     m_idForAction.insert(action, id);
     m_actionProperties.insert(action, map);
@@ -197,11 +198,23 @@ void DBusMenuExporterPrivate::addAction(QAction *action, int parentId)
     emitLayoutUpdated(parentId);
 }
 
-void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
+/**
+ * IMPORTANT: action might have already been destroyed when this method is
+ * called, so don't dereference the pointer (it is a QObject to avoid being
+ * tempted to dereference)
+ */
+void DBusMenuExporterPrivate::removeActionInternal(QObject *object)
 {
+    QAction* action = static_cast<QAction*>(object);
     m_actionProperties.remove(action);
     int id = m_idForAction.take(action);
     m_actionForId.remove(id);
+}
+
+void DBusMenuExporterPrivate::removeAction(QAction *action, int parentId)
+{
+    removeActionInternal(action);
+    QObject::disconnect(action, SIGNAL(destroyed(QObject*)), q, SLOT(slotActionDestroyed(QObject*)));
     ++m_revision;
     emitLayoutUpdated(parentId);
 }
@@ -294,6 +307,11 @@ void DBusMenuExporter::activateAction(QAction *action)
     DMRETURN_IF_FAIL(id >= 0);
     uint timeStamp = QDateTime::currentDateTime().toTime_t();
     d->m_dbusObject->ItemActivationRequested(id, timeStamp);
+}
+
+void DBusMenuExporter::slotActionDestroyed(QObject* object)
+{
+    d->removeActionInternal(object);
 }
 
 #include "dbusmenuexporter.moc"

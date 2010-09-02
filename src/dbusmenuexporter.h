@@ -67,6 +67,7 @@ protected:
 private Q_SLOTS:
     void doUpdateActions();
     void doEmitLayoutUpdated();
+    void slotActionDestroyed(QObject*);
 
 private:
     Q_DISABLE_COPY(DBusMenuExporter)

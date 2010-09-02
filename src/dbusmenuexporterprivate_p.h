@@ -67,6 +67,15 @@ public:
     void addAction(QAction *action, int parentId);
     void updateAction(QAction *action);
     void removeAction(QAction *action, int parentId);
+    /**
+     * Removes any reference from action in the exporter, but do not notify the
+     * change outside. This is useful when a submenu is destroyed because we do
+     * not receive QEvent::ActionRemoved events for its actions.
+     * IMPORTANT: action might have already been destroyed when this method is
+     * called, so don't dereference the pointer (it is a QObject to avoid being
+     * tempted to dereference)
+     */
+    void removeActionInternal(QObject *action);
 
     void emitLayoutUpdated(int id);
 };
