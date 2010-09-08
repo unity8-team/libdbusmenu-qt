@@ -74,5 +74,6 @@ private:
     QList<QAction *> m_actions;
 };
 
+void waitForDeferredDeletes();
 
 #endif /* TESTUTILS_H */

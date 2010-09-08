@@ -19,4 +19,16 @@
    Boston, MA 02110-1301, USA.
 */
 #include "testutils.h"
+
+#include <QCoreApplication>
+
+void waitForDeferredDeletes()
+{
+    while (QCoreApplication::hasPendingEvents()) {
+        QCoreApplication::sendPostedEvents();
+        QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+        QCoreApplication::processEvents();
+    }
+}
+
 #include "testutils.moc"
