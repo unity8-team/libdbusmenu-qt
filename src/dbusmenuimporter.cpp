@@ -98,7 +98,7 @@ public:
     QDBusAbstractInterface *m_interface;
     QMenu *m_menu;
     QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
-    typedef QMap<int, QAction *> ActionForId;
+    typedef QMap<int, QPointer<QAction> > ActionForId;
     ActionForId m_actionForId;
     QSignalMapper m_mapper;
     QTimer *m_pendingLayoutUpdateTimer;
@@ -143,10 +143,10 @@ public:
      * instead of QMap::value()) to avoid warnings about these properties in
      * updateAction()
      */
-    QAction *createAction(int id, const QVariantMap &_map)
+    QAction *createAction(int id, const QVariantMap &_map, QWidget *parent)
     {
         QVariantMap map = _map;
-        QAction *action = new QAction(0);
+        QAction *action = new QAction(parent);
         action->setProperty(DBUSMENU_PROPERTY_ID, id);
 
         QString type = map.take("type").toString();
@@ -155,8 +155,7 @@ public:
         }
 
         if (map.take("children-display").toString() == "submenu") {
-            // FIXME: Leak?
-            QMenu *menu = createMenu(0);
+            QMenu *menu = createMenu(parent);
             action->setMenu(menu);
         }
 
@@ -180,7 +179,7 @@ public:
             buttonAction->setFont(font);
             buttonAction->setEnabled(true);
 
-            QWidgetAction *action = new QWidgetAction(0);
+            QWidgetAction *action = new QWidgetAction(parent);
             action->setObjectName("kmenu_title");
             QToolButton *titleButton = new QToolButton(0);
             EventSniffer *eventSniffer = new EventSniffer(titleButton);
@@ -189,8 +188,8 @@ public:
             titleButton->setDown(true); // prevent hover style changes in some styles
             titleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             action->setDefaultWidget(titleButton);
-            return action;
         }
+
         return action;
     }
 
@@ -325,9 +324,6 @@ DBusMenuImporter::~DBusMenuImporter()
     // leave enough time for the menu to finish what it was doing, for example
     // if it was being displayed.
     d->m_menu->deleteLater();
-    Q_FOREACH(QAction *action, d->m_actionForId) {
-        action->deleteLater();
-    }
     delete d;
 }
 
@@ -464,12 +460,12 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     menu->clear();
 
     Q_FOREACH(const DBusMenuItem &dbusMenuItem, list) {
-        QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties);
+        QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties, menu);
         DBusMenuImporterPrivate::ActionForId::Iterator it = d->m_actionForId.find(dbusMenuItem.id);
         if (it == d->m_actionForId.end()) {
             d->m_actionForId.insert(dbusMenuItem.id, action);
         } else {
-            it.value()->deleteLater();
+            delete *it;
             *it = action;
         }
         menu->addAction(action);

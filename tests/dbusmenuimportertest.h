@@ -40,6 +40,7 @@ private Q_SLOTS:
     void testDeletingImporterWhileWaitingForAboutToShow();
     void testDynamicMenu();
     void testActionActivationRequested();
+    void testActionsAreDeletedWhenImporterIs();
 
     void initTestCase();
 };

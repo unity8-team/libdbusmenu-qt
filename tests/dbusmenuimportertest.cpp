@@ -245,4 +245,43 @@ void DBusMenuImporterTest::testActionActivationRequested()
     QCOMPARE(spy.takeFirst().at(0).value<QAction*>(), outputA2);
 }
 
+void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
+{
+    RegisterServiceHelper helper;
+
+    // Export a menu
+    QMenu inputMenu;
+    inputMenu.addAction("a1");
+    QMenu *inputSubMenu = inputMenu.addMenu("subMenu");
+    inputSubMenu->addAction("a2");
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Import the menu
+    DBusMenuImporter *importer = new DBusMenuImporter(TEST_SERVICE, TEST_OBJECT_PATH);
+    QTest::qWait(500);
+
+    // Put all items of the menu in a list of QPointers
+    QList< QPointer<QObject> > children;
+
+    QMenu *outputMenu = importer->menu();
+    QCOMPARE(outputMenu->actions().count(), 2);
+    QMenu *outputSubMenu = outputMenu->actions().at(1)->menu();
+    QVERIFY(outputSubMenu);
+    QCOMPARE(outputSubMenu->actions().count(), 1);
+
+    children << outputMenu->actions().at(0);
+    children << outputMenu->actions().at(1);
+    children << outputSubMenu;
+    children << outputSubMenu->actions().at(0);
+
+    delete importer;
+    waitForDeferredDeletes();
+
+    // There should be only invalid pointers in children
+    Q_FOREACH(QPointer<QObject> child, children) {
+        //qDebug() << child;
+        QVERIFY(child.isNull());
+    }
+}
+
 #include "dbusmenuimportertest.moc"
