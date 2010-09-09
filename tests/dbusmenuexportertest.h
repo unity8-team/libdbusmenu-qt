@@ -36,7 +36,6 @@ private Q_SLOTS:
     void testGetSomeProperties();
     void testGetSomeProperties_data();
     void testGetAllProperties();
-    void testGetIconDataProperty();
     void testGetNonExistentProperty();
     void testClickedEvent();
     void testSubMenu();

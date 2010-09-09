@@ -170,49 +170,6 @@ void DBusMenuExporterTest::testGetAllProperties()
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a2Properties);
 }
 
-void DBusMenuExporterTest::testGetIconDataProperty()
-{
-    // Create an icon
-    QImage img(16, 16, QImage::Format_ARGB32);
-    {
-        QPainter painter(&img);
-        painter.setCompositionMode(QPainter::CompositionMode_Source);
-        QRect rect = img.rect();
-        painter.fillRect(rect, Qt::transparent);
-        rect.adjust(2, 2, -2, -2);
-        painter.fillRect(rect, Qt::red);
-        rect.adjust(2, 2, -2, -2);
-        painter.fillRect(rect, Qt::green);
-    }
-    QIcon icon(QPixmap::fromImage(img));
-
-    // Create a menu with the icon and export it
-    QMenu inputMenu;
-    QAction* a1 = inputMenu.addAction("a1");
-    a1->setIcon(icon);
-    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
-
-    // Get properties
-    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
-    QCOMPARE(list.count(), 1);
-
-    // Check we have the right property
-    DBusMenuItem item = list.takeFirst();
-    QVERIFY(!item.properties.contains("icon-name"));
-    QVERIFY(item.properties.contains("icon-data"));
-
-    // Check saved image is the same
-    QByteArray data = item.properties.value("icon-data").toByteArray();
-    QVERIFY(!data.isEmpty());
-    QImage result;
-    QVERIFY(result.loadFromData(data, "PNG"));
-    QCOMPARE(result, img);
-}
-
 void DBusMenuExporterTest::testGetNonExistentProperty()
 {
     const char* NON_EXISTENT_KEY = "i-do-not-exist";
