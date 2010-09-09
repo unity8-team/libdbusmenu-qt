@@ -188,6 +188,7 @@ public:
             titleButton->setDown(true); // prevent hover style changes in some styles
             titleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             action->setDefaultWidget(titleButton);
+            return action;
         }
 
         return action;
