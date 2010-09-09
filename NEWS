@@ -1,9 +1,14 @@
+# 0.6.2 - 2010.09.09
+- Fix some memory leaks (Aurelien Gateau)
+- Do not keep dangling pointers to deleted actions (LP BUG 624964) (Aurelien Gateau)
+- Updated documentation of iconNameForAction() (Aurelien Gateau)
+
 # 0.6.1 - 2010.09.02
 - Fix some memory leaks (Aurelien Gateau)
 
 # 0.6.0 - 2010.08.19
 - Added the DBusMenuImporter::actionActivationRequested(QAction*) signal (Aurelien Gateau)
-- Fix hardcoded libdir in pkgconfig file (LP BUG: 610633) (oneforall)
+- Fix hardcoded libdir in pkgconfig file (LP BUG 610633) (oneforall)
 
 # 0.5.2 - 2010.08.05
 - Fix implementation of GetGroupProperties() (Aurelien Gateau)
