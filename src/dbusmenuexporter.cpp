@@ -89,10 +89,7 @@ QVariantMap DBusMenuExporterPrivate::propertiesForKMenuTitleAction(QAction *acti
     DMRETURN_VALUE_IF_FAIL(action, map);
 
     map.insert("label", swapMnemonicChar(action->text(), '&', '_'));
-    QString iconName = q->iconNameForAction(action);
-    if (!iconName.isEmpty()) {
-        map.insert("icon-name", iconName);
-    }
+    insertIconProperty(&map, action);
     if (!action->isVisible()) {
         map.insert("visible", false);
     }
@@ -127,10 +124,7 @@ QVariantMap DBusMenuExporterPrivate::propertiesForStandardAction(QAction *action
         map.insert("toggle-type", exclusive ? "radio" : "checkmark");
         map.insert("toggle-state", action->isChecked() ? 1 : 0);
     }
-    QString iconName = q->iconNameForAction(action);
-    if (!iconName.isEmpty()) {
-        map.insert("icon-name", iconName);
-    }
+    insertIconProperty(&map, action);
     QKeySequence keySequence = action->shortcut();
     if (!keySequence.isEmpty()) {
         DBusMenuShortcut shortcut = DBusMenuShortcut::fromKeySequence(keySequence);
@@ -226,6 +220,21 @@ void DBusMenuExporterPrivate::emitLayoutUpdated(int id)
     }
     m_layoutUpdatedIds << id;
     m_layoutUpdatedTimer->start();
+}
+
+void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *action) const
+{
+    QString iconName = q->iconNameForAction(action);
+    if (!iconName.isEmpty()) {
+        map->insert("icon-name", iconName);
+        return;
+    }
+    QIcon icon = action->icon();
+    if (icon.isNull()) {
+        return;
+    }
+
+    // "icon-data";
 }
 
 //-------------------------------------------------
