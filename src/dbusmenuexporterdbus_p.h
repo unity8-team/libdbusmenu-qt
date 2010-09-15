@@ -44,6 +44,10 @@ class DBusMenuExporterDBus : public QObject
 public:
     DBusMenuExporterDBus(DBusMenuExporter *m_exporter);
 
+    Q_PROPERTY(bool IsRightToLeft READ IsRightToLeft)
+
+    bool IsRightToLeft() const;
+
 public Q_SLOTS:
     DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);
     Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, uint timestamp);

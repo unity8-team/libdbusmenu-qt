@@ -142,6 +142,13 @@ License version 3 and version 2.1 along with this program.  If not, see
 			</dox:d>
 		</property>
 
+		<property name="IsRightToLeft" type="b" access="read">
+			<dox:d>
+			Set to true if this menu should be shown using right-to-left
+			direction.
+			</dox:d>
+		</property>
+
 <!-- Functions -->
 
 		<method name="GetLayout">

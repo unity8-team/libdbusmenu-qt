@@ -28,6 +28,7 @@
 #include "dbusmenuexporterprivate_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
+#include <qapplication.h>
 
 DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
 : QObject(exporter)
@@ -39,6 +40,12 @@ DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
     new DbusmenuAdaptor(this);
 }
 
+bool DBusMenuExporterDBus::IsRightToLeft() const
+{
+    QMenu *menu = m_exporter->d->menuForId(0);
+    DMRETURN_VALUE_IF_FAIL(menu, false);
+    return menu->layoutDirection() == Qt::RightToLeft;
+}
 
 DBusMenuItemList DBusMenuExporterDBus::GetChildren(int parentId, const QStringList &names)
 {

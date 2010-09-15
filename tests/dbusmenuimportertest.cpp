@@ -240,4 +240,29 @@ void DBusMenuImporterTest::testActionActivationRequested()
     QCOMPARE(spy.takeFirst().at(0).value<QAction*>(), outputA2);
 }
 
+void DBusMenuImporterTest::testRightToLeft_data()
+{
+    QTest::addColumn<bool>("isRightToLeft");
+    QTest::newRow("ltr") << false;
+    QTest::newRow("rtl") << true;
+}
+
+void DBusMenuImporterTest::testRightToLeft()
+{
+    QFETCH(bool, isRightToLeft);
+
+    RegisterServiceHelper helper;
+
+    // Export a menu
+    QMenu inputMenu;
+    inputMenu.setLayoutDirection(isRightToLeft ? Qt::RightToLeft : Qt::LeftToRight);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Import the menu
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    QMenu *outputMenu = importer.menu();
+
+    QCOMPARE(outputMenu->layoutDirection(), inputMenu.layoutDirection());
+}
+
 #include "dbusmenuimportertest.moc"

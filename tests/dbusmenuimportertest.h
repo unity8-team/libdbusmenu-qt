@@ -39,6 +39,8 @@ private Q_SLOTS:
     void testDeletingImporterWhileWaitingForAboutToShow();
     void testDynamicMenu();
     void testActionActivationRequested();
+    void testRightToLeft_data();
+    void testRightToLeft();
 
     void initTestCase();
 };

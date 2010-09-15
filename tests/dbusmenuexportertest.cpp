@@ -42,6 +42,7 @@ QTEST_MAIN(DBusMenuExporterTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
+static const char *DBUSMENU_INTERFACE = "org.ayatana.dbusmenu";
 
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -564,6 +565,35 @@ void DBusMenuExporterTest::testActivateAction()
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.takeFirst().at(0).toInt(), id1);
     QCOMPARE(spy.takeFirst().at(0).toInt(), id2);
+}
+
+void DBusMenuExporterTest::testRightToLeft_data()
+{
+    QTest::addColumn<bool>("isRightToLeft");
+    QTest::newRow("ltr") << false;
+    QTest::newRow("rtl") << true;
+}
+
+void DBusMenuExporterTest::testRightToLeft()
+{
+    QFETCH(bool, isRightToLeft);
+
+    // Create a RTL menu
+    QMenu inputMenu;
+    inputMenu.setLayoutDirection(isRightToLeft ? Qt::RightToLeft : Qt::LeftToRight);
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Check exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH, DBUSMENU_INTERFACE);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+    
+    // Check the value of the property is correct
+    QVariant value = iface.property("IsRightToLeft");
+    QVERIFY(value.isValid());
+
+    bool result = value.toBool();
+    QCOMPARE(result, isRightToLeft);
 }
 
 #include "dbusmenuexportertest.moc"

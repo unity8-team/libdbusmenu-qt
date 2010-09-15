@@ -21,7 +21,7 @@
 #include "dbusmenuimporter.h"
 
 // Qt
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusMetaType>
@@ -284,6 +284,13 @@ public:
         DMRETURN_VALUE_IF_FAIL(action, 0);
         return action->menu();
     }
+    
+    bool isRightToLeft() const
+    {
+        QVariant value = m_interface->property("IsRightToLeft");
+        DMRETURN_VALUE_IF_FAIL(value.isValid(), QApplication::isRightToLeft());
+        return value.toBool();
+    }
 };
 
 DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, QObject *parent)
@@ -351,6 +358,9 @@ QMenu *DBusMenuImporter::menu() const
 {
     if (!d->m_menu) {
         d->m_menu = d->createMenu(0);
+        bool rtl = d->isRightToLeft();
+        DMVAR(rtl);
+        d->m_menu->setLayoutDirection(rtl ? Qt::RightToLeft : Qt::LeftToRight);
     }
     return d->m_menu;
 }
