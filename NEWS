@@ -1,3 +1,8 @@
+# 0.6.3 - 2010.09.16
+- Moved to LP (Aurelien Gateau)
+- Removed all code which did not belong to Canonical. Hopefully we get this
+  code back in soon (Aurelien Gateau)
+
 # 0.6.2 - 2010.09.09
 - Fix some memory leaks (Aurelien Gateau)
 - Do not keep dangling pointers to deleted actions (LP BUG 624964) (Aurelien Gateau)
