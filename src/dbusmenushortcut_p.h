@@ -38,10 +38,6 @@ public:
     static DBusMenuShortcut fromKeySequence(const QKeySequence&);
 };
 
-#ifdef _MSC_VER
-uint qHash( const QStringList& key );
-#endif
-
 Q_DECLARE_METATYPE(DBusMenuShortcut)
 
 #endif /* DBUSMENUSHORTCUT_H */

@@ -19,5 +19,5 @@ target_link_libraries(dbusmenubench-qtapp
     ${QT_QTGUI_LIBRARY}
     ${QT_QTCORE_LIBRARY}
     ${QT_QTDBUS_LIBRARY}
-    ${QJSON_LIBRARY}
+    ${QJSON_LIBRARIES}
     )

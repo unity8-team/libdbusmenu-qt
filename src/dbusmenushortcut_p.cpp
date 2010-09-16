@@ -29,11 +29,6 @@
 static const int QT_COLUMN = 0;
 static const int DM_COLUMN = 1;
 
-#ifdef _MSC_VER
-// dummy implementation to make MSVC happy (due to QList::toSet())
-uint qHash( const QStringList& key ) { return 0; }
-#endif
-
 static void processKeyTokens(QStringList* tokens, int srcCol, int dstCol)
 {
     struct Row {

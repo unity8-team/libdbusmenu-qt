@@ -109,12 +109,12 @@ private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
     void slotItemUpdated(int id);
-    void slotLayoutUpdated(uint revision, int parentId);
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
     void slotItemActivationRequested(int id, uint timestamp);
     void processPendingLayoutUpdates();
+    void slotLayoutUpdated(uint revision, int parentId);
 
 private:
     Q_DISABLE_COPY(DBusMenuImporter)

@@ -37,7 +37,7 @@ set(dbusmenu_qt_lib_API_VERSION 3)
 set(dbusmenu_qt_lib_PATCH_VERSION 2)
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
-find_package(Qt4 4.6.0 REQUIRED)
+find_package(Qt4 REQUIRED)
 
 include_directories(
     ${QT_INCLUDE_DIR}
@@ -53,10 +53,6 @@ install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
     DESTINATION lib${LIB_SUFFIX}/pkgconfig
     )
 
-option(BUILD_TESTS "Build tests" ON)
-
 add_subdirectory(src)
-if (BUILD_TESTS)
-    add_subdirectory(tests)
-endif (BUILD_TESTS)
+add_subdirectory(tests)
 add_subdirectory(tools)

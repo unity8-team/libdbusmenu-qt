@@ -17,10 +17,6 @@ if (__DBUSMENU_HAVE_W_ALL)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif (__DBUSMENU_HAVE_W_ALL)
 
-if (MSVC)
-	add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)
-endif (MSVC)
-
 # Check whether QIcon::name() exists. It was added in late Qt 4.7 cycle, and is
 # not present in betas.
 set(CMAKE_REQUIRED_INCLUDES "${QT_INCLUDE_DIR}")
@@ -37,7 +33,6 @@ if (NOT HAVE_QICON_NAME)
     message(STATUS "QIcon::name() does not exist, DBusMenuExporter will not export icon names by itself")
 endif()
 configure_file(dbusmenu_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_config.h @ONLY)
-
 
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
@@ -79,10 +74,7 @@ target_link_libraries(dbusmenu-qt
     )
 
 install(TARGETS dbusmenu-qt
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
+    LIBRARY DESTINATION lib${LIB_SUFFIX})
 
 install(DIRECTORY .
     DESTINATION include/dbusmenu-qt
