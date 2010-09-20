@@ -1,4 +1,4 @@
-/* This file is part of the KDE libraries
+/* This file is part of the dbusmenu-qt library
    Copyright 2009 Canonical
    Author: Aurelien Gateau <aurelien.gateau@canonical.com>
 
