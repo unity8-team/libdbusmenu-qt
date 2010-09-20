@@ -80,7 +80,9 @@ void DBusMenuExporterDBus::Event(int id, const QString &eventType, const QDBusVa
         if (!action) {
             return;
         }
-        action->trigger();
+        // dbusmenu-glib seems to ignore the Q_NOREPLY and blocks when calling
+        // Event(), so trigger the action asynchronously
+        QMetaObject::invokeMethod(action, "trigger", Qt::QueuedConnection);
     } else if (eventType == "hovered") {
         QMenu *menu = m_exporter->d->menuForId(id);
         if (menu) {
