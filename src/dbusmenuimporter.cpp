@@ -27,11 +27,14 @@
 #include <QDBusMetaType>
 #include <QDBusReply>
 #include <QDBusVariant>
+#include <QFont>
 #include <QMenu>
 #include <QPointer>
 #include <QSignalMapper>
 #include <QTime>
 #include <QTimer>
+#include <QToolButton>
+#include <QWidgetAction>
 
 // Local
 #include "dbusmenuitem_p.h"
@@ -65,6 +68,22 @@ struct Task
     int m_id;
     DBusMenuImporterMethod m_method;
 };
+
+static QAction *createKdeTitle(QAction *action, QWidget *parent)
+{
+    QToolButton *titleWidget = new QToolButton(0);
+    QFont font = titleWidget->font();
+    font.setBold(true);
+    titleWidget->setFont(font);
+    titleWidget->setIcon(action->icon());
+    titleWidget->setText(action->text());
+    titleWidget->setDown(true);
+    titleWidget->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+    QWidgetAction *titleAction = new QWidgetAction(parent);
+    titleAction->setDefaultWidget(titleWidget);
+    return titleAction;
+}
 
 class DBusMenuImporterPrivate
 {
@@ -143,7 +162,13 @@ public:
                 group->addAction(action);
             }
         }
+
+        bool isKdeTitle = map.take("x-kde-title").toBool();
         updateAction(action, map, map.keys());
+
+        if (isKdeTitle) {
+            action = createKdeTitle(action, parent);
+        }
 
         return action;
     }
