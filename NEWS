@@ -1,3 +1,7 @@
+# 0.6.4 - 2010.09.23
+- Trigger action asynchronously when the "clicked" event is received (LP BUG 643393) (Aurelien Gateau)
+- Fixed copyright headers (Aurelien Gateau)
+
 # 0.6.3 - 2010.09.16
 - Moved to LP (Aurelien Gateau)
 - Removed all code which did not belong to Canonical. Hopefully we get this

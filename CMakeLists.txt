@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(dbusmenu_qt_VERSION_MAJOR 0)
 set(dbusmenu_qt_VERSION_MINOR 6)
-set(dbusmenu_qt_VERSION_PATCH 3)
+set(dbusmenu_qt_VERSION_PATCH 4)
 set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR}.${dbusmenu_qt_VERSION_PATCH})
 
 set(ARCHIVE_NAME libdbusmenu-qt-${dbusmenu_qt_VERSION})
@@ -33,7 +33,7 @@ set(dbusmenu_qt_lib_SOVERSION 2)
 set(dbusmenu_qt_lib_API_VERSION 3)
 
 # Bump this one when changes do not extend the API
-set(dbusmenu_qt_lib_PATCH_VERSION 3)
+set(dbusmenu_qt_lib_PATCH_VERSION 4)
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
 find_package(Qt4 REQUIRED)
