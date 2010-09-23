@@ -8,10 +8,17 @@
 - Create tarball
 - Unpack tarball, build and run tests
 - Test with KDE trunk
+- Sync the gitorious repository if necessary
 - If ok, create tag
   tag=x.y.z
   bzr tag $tag
+  cd $gitorious
+  git tag $tag.kde
+  cd -
 - Push
   bzr push
+  cd $gitorious
+  git push --tags
+  cd -
 - Upload tarball
   lp-project-upload libdbusmenu-qt $tag libdbusmenu-qt-$tag.tar.bz2
