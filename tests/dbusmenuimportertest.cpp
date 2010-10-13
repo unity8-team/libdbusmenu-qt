@@ -30,6 +30,8 @@
 #include <QtTest>
 
 // DBusMenuQt
+#include <dbusmenucustomitemaction.h>
+#include <dbusmenucustomitemfactory.h>
 #include <dbusmenuexporter.h>
 #include <dbusmenuimporter.h>
 #include <debug_p.h>
@@ -282,6 +284,57 @@ void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
         //qDebug() << child;
         QVERIFY(child.isNull());
     }
+}
+
+class TestCustomItemFactory : public DBusMenuCustomItemFactory
+{
+public:
+    TestCustomItemFactory(const QString &type)
+    : DBusMenuCustomItemFactory(type)
+    {}
+
+    virtual QAction *createAction(const QVariantMap &properties, QObject *parent)
+    {
+        QString text = QString("type=%1 int=%2 str=%3")
+            .arg(itemType())
+            .arg(properties.value("int").toInt())
+            .arg(properties.value("str").toString());
+        return new QAction(text, parent);
+    }
+};
+
+void DBusMenuImporterTest::testCustomItems()
+{
+    // Create a menu containing two custom items
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QVariantMap props1;
+    props1["type"] = "x-a1";
+    props1["int"] = 1;
+    props1["str"] = "a1";
+    QVariantMap props2;
+    props2["type"] = "x-a2";
+    props2["int"] = 2;
+    props2["str"] = "a2";
+    inputMenu.addAction(new DBusMenuCustomItemAction(props1));
+    inputMenu.addAction(new DBusMenuCustomItemAction(props2));
+
+    // Check exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Import the menu
+    DBusMenuImporter *importer = new DBusMenuImporter(TEST_SERVICE, TEST_OBJECT_PATH);
+    importer->addCustomItemFactory(new TestCustomItemFactory("x-a1"));
+    importer->addCustomItemFactory(new TestCustomItemFactory("x-a2"));
+    QTest::qWait(500);
+
+    QMenu *outputMenu = importer->menu();
+    QCOMPARE(outputMenu->actions().count(), 2);
+    QCOMPARE(outputMenu->actions().at(0)->text(), QString("type=x-a1 int=1 str=a1"));
+    QCOMPARE(outputMenu->actions().at(1)->text(), QString("type=x-a2 int=2 str=a2"));
 }
 
 #include "dbusmenuimportertest.moc"

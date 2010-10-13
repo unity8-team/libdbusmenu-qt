@@ -18,40 +18,36 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUEXPORTERTEST_H
-#define DBUSMENUEXPORTERTEST_H
-
-#define QT_GUI_LIB
-#include <QtGui>
+#ifndef DBUSMENUCUSTOMITEMFACTORY_H
+#define DBUSMENUCUSTOMITEMFACTORY_H
 
 // Qt
-#include <QObject>
+#include <QtCore/QVariant>
 
 // Local
+#include <dbusmenu_export.h>
 
-class DBusMenuExporterTest : public QObject
+class QAction;
+class QObject;
+
+class DBusMenuCustomItemFactoryPrivate;
+/**
+ * A DBusMenuCustomItemFactory instance can recreate custom items serialized over DBus
+ */
+class DBUSMENU_EXPORT DBusMenuCustomItemFactory
 {
-Q_OBJECT
-private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
-    void testNonExclusiveActionGroup();
-    void testClickDeletedAction();
-    void testDeleteExporterBeforeMenu();
-    void testUpdateAndDeleteSubMenu();
-    void testMenuShortcut();
-    void testGetGroupProperties();
-    void testActivateAction();
-    void testCustomItems();
+public:
+    DBusMenuCustomItemFactory(const QString &itemType);
+    virtual ~DBusMenuCustomItemFactory();
 
-    void init();
-    void cleanup();
+    QString itemType() const;
+
+    virtual QAction *createAction(const QVariantMap &properties, QObject *parent) = 0;
+
+private:
+    Q_DISABLE_COPY(DBusMenuCustomItemFactory)
+    DBusMenuCustomItemFactoryPrivate *const d;
+    friend class DBusMenuCustomItemFactoryPrivate;
 };
 
-#endif /* DBUSMENUEXPORTERTEST_H */
+#endif /* DBUSMENUCUSTOMITEMFACTORY_H */

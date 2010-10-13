@@ -34,6 +34,7 @@
 #include <QTimer>
 
 // Local
+#include "dbusmenucustomitemfactory.h"
 #include "dbusmenuitem_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
@@ -77,6 +78,7 @@ public:
     typedef QMap<int, QPointer<QAction> > ActionForId;
     ActionForId m_actionForId;
     QSignalMapper m_mapper;
+    QHash<QString, DBusMenuCustomItemFactory*> m_factories;
     QTimer *m_pendingLayoutUpdateTimer;
 
     QSet<int> m_idsRefreshedByAboutToShow;
@@ -122,10 +124,17 @@ public:
     QAction *createAction(int id, const QVariantMap &_map, QWidget *parent)
     {
         QVariantMap map = _map;
+        QString type = map.take("type").toString();
+        DBusMenuCustomItemFactory *factory = m_factories.value(type);
+        if (factory) {
+            QAction *action = factory->createAction(map, parent);
+            action->setProperty(DBUSMENU_PROPERTY_ID, id);
+            return action;
+        }
+
         QAction *action = new QAction(parent);
         action->setProperty(DBUSMENU_PROPERTY_ID, id);
 
-        QString type = map.take("type").toString();
         if (type == "separator") {
             action->setSeparator(true);
         }
@@ -279,6 +288,7 @@ DBusMenuImporter::~DBusMenuImporter()
     // leave enough time for the menu to finish what it was doing, for example
     // if it was being displayed.
     d->m_menu->deleteLater();
+    qDeleteAll(d->m_factories);
     delete d;
 }
 
@@ -553,6 +563,11 @@ QMenu *DBusMenuImporter::createMenu(QWidget *parent)
 QIcon DBusMenuImporter::iconForName(const QString &/*name*/)
 {
     return QIcon();
+}
+
+void DBusMenuImporter::addCustomItemFactory(DBusMenuCustomItemFactory *factory)
+{
+    d->m_factories.insert(factory->itemType(), factory);
 }
 
 #include "dbusmenuimporter.moc"

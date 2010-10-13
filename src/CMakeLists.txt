@@ -36,6 +36,8 @@ configure_file(dbusmenu_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_config.
 
 set(dbusmenu_qt_SRCS
     dbusmenu_p.cpp
+    dbusmenucustomitemaction.cpp
+    dbusmenucustomitemfactory.cpp
     dbusmenuexporter.cpp
     dbusmenuexporterdbus_p.cpp
     dbusmenuimporter.cpp

@@ -18,40 +18,30 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUEXPORTERTEST_H
-#define DBUSMENUEXPORTERTEST_H
-
-#define QT_GUI_LIB
-#include <QtGui>
+#include "dbusmenucustomitemfactory.h"
 
 // Qt
-#include <QObject>
+#include <QString>
 
 // Local
-
-class DBusMenuExporterTest : public QObject
+class DBusMenuCustomItemFactoryPrivate
 {
-Q_OBJECT
-private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
-    void testNonExclusiveActionGroup();
-    void testClickDeletedAction();
-    void testDeleteExporterBeforeMenu();
-    void testUpdateAndDeleteSubMenu();
-    void testMenuShortcut();
-    void testGetGroupProperties();
-    void testActivateAction();
-    void testCustomItems();
-
-    void init();
-    void cleanup();
+public:
+    QString m_itemType;
 };
 
-#endif /* DBUSMENUEXPORTERTEST_H */
+DBusMenuCustomItemFactory::DBusMenuCustomItemFactory(const QString &itemType)
+: d(new DBusMenuCustomItemFactoryPrivate)
+{
+    d->m_itemType = itemType;
+}
+
+DBusMenuCustomItemFactory::~DBusMenuCustomItemFactory()
+{
+    delete d;
+}
+
+QString DBusMenuCustomItemFactory::itemType() const
+{
+    return d->m_itemType;
+}
