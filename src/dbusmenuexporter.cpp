@@ -55,6 +55,11 @@ int DBusMenuExporterPrivate::idForAction(QAction *action) const
 
 void DBusMenuExporterPrivate::addMenu(QMenu *menu, int parentId)
 {
+    if (menu->findChild<DBusMenu *>()) {
+        // This can happen if a menu is removed from its parent and added back
+        // See KDE bug 254066
+        return;
+    }
     new DBusMenu(menu, q, parentId);
     Q_FOREACH(QAction *action, menu->actions()) {
         addAction(action, parentId);
@@ -178,8 +183,13 @@ void DBusMenuExporterPrivate::updateAction(QAction *action)
 
 void DBusMenuExporterPrivate::addAction(QAction *action, int parentId)
 {
+    int id = m_idForAction.value(action, -1);
+    if (id != -1) {
+        DMWARNING << "Already tracking action" << action->text() << "under id" << id;
+        return;
+    }
     QVariantMap map = propertiesForAction(action);
-    int id = m_nextId++;
+    id = m_nextId++;
     QObject::connect(action, SIGNAL(destroyed(QObject*)), q, SLOT(slotActionDestroyed(QObject*)));
     m_actionForId.insert(id, action);
     m_idForAction.insert(action, id);
@@ -282,7 +292,7 @@ void DBusMenuExporter::doUpdateActions()
         }
         d->m_actionProperties[action] = d->propertiesForAction(action);
         QMenu *menu = action->menu();
-        if (menu && !menu->findChild<DBusMenu *>()) {
+        if (menu) {
             d->addMenu(menu, id);
         }
         d->m_dbusObject->ItemUpdated(id);
