@@ -24,11 +24,27 @@
 // Qt
 #include <QtCore/QVariant>
 
+#include <QtGui/QAction>
+
 // Local
 #include <dbusmenu_export.h>
 
-class QAction;
 class QObject;
+
+class DBusMenuImporter;
+
+class DBUSMENU_EXPORT DBusMenuImporterAction : public QAction
+{
+public:
+    DBusMenuImporterAction(DBusMenuImporter *importer, int id);
+
+    virtual void update(const QVariantMap &properties, const QVariant &keys);
+
+    int id() const;
+    
+protected:
+    void sendEvent(const QString &name, const QVariant &data = QVariant()) const;
+};
 
 class DBusMenuCustomItemFactoryPrivate;
 /**
@@ -42,7 +58,7 @@ public:
 
     QString itemType() const;
 
-    virtual QAction *createAction(const QVariantMap &properties, QObject *parent) = 0;
+    virtual DBusMenuImporterAction *createAction(const QVariantMap &properties, QObject *parent) = 0;
 
 private:
     Q_DISABLE_COPY(DBusMenuCustomItemFactory)

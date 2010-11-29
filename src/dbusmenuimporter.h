@@ -127,7 +127,8 @@ private Q_SLOTS:
 private:
     Q_DISABLE_COPY(DBusMenuImporter)
     DBusMenuImporterPrivate *const d;
-    friend class DBusMenuImporterPrivate;
+    friend class DBusMenuImporterPrivate;        
+    friend class DBusMenuImporter;
 
     void GetChildrenCallback(int id, QDBusPendingCallWatcher *);
     void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);

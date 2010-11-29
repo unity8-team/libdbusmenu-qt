@@ -39,6 +39,11 @@ public:
     QVariantMap properties() const;
     void setProperties(const QVariantMap &properties);
 
+    void setProperty(const QString &name, const QVariant &value);
+    
+protected:
+    virtual void event(const QString &name, const QVariant &data);
+
 private:
     Q_DISABLE_COPY(DBusMenuCustomItemAction)
     friend class DBusMenuCustomItemActionPrivate;
