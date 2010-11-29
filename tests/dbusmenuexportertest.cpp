@@ -585,4 +585,41 @@ void DBusMenuExporterTest::testActivateAction()
     QCOMPARE(spy.takeFirst().at(0).toInt(), id2);
 }
 
+static int trackCount(QMenu* menu)
+{
+    QList<QObject*> lst = menu->findChildren<QObject*>();
+    int count = 0;
+    Q_FOREACH(QObject* child, lst) {
+        if (qstrcmp(child->metaObject()->className(), "DBusMenu") == 0) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+// Check we do not create more than one DBusMenu object for each menu
+// See KDE bug 254066
+void DBusMenuExporterTest::testTrackActionsOnlyOnce()
+{
+    // Create a menu with a submenu, unplug the submenu and plug it back. The
+    // submenu should not have more than one DBusMenu child object.
+    QMenu mainMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &mainMenu);
+
+    QMenu* subMenu = new QMenu("File");
+    subMenu->addAction("a1");
+    mainMenu.addAction(subMenu->menuAction());
+
+    QTest::qWait(500);
+    QCOMPARE(trackCount(subMenu), 1);
+
+    mainMenu.removeAction(subMenu->menuAction());
+
+    mainMenu.addAction(subMenu->menuAction());
+
+    QTest::qWait(500);
+    QCOMPARE(trackCount(subMenu), 1);
+}
+
 #include "dbusmenuexportertest.moc"

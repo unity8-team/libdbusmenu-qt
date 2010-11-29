@@ -48,6 +48,7 @@ private Q_SLOTS:
     void testMenuShortcut();
     void testGetGroupProperties();
     void testActivateAction();
+    void testTrackActionsOnlyOnce();
 
     void init();
     void cleanup();
