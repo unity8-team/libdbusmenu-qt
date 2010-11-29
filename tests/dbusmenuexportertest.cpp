@@ -30,6 +30,7 @@
 #include <QtTest>
 
 // DBusMenuQt
+#include <dbusmenucustomitemaction.h>
 #include <dbusmenuexporter.h>
 #include <dbusmenuitem_p.h>
 #include <dbusmenushortcut_p.h>
@@ -585,6 +586,7 @@ void DBusMenuExporterTest::testActivateAction()
     QCOMPARE(spy.takeFirst().at(0).toInt(), id2);
 }
 
+<<<<<<< TREE
 static int trackCount(QMenu* menu)
 {
     QList<QObject*> lst = menu->findChildren<QObject*>();
@@ -620,6 +622,43 @@ void DBusMenuExporterTest::testTrackActionsOnlyOnce()
 
     QTest::qWait(500);
     QCOMPARE(trackCount(subMenu), 1);
+}
+
+void DBusMenuExporterTest::testCustomItems()
+{
+    // Create a menu containing two custom items
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QVariantMap props1;
+    props1["type"] = "x-a1";
+    props1["int"] = 1;
+    props1["str"] = "a1";
+    QVariantMap props2;
+    props2["type"] = "x-a2";
+    props2["int"] = 2;
+    props2["str"] = "a2";
+    inputMenu.addAction(new DBusMenuCustomItemAction(props1));
+    inputMenu.addAction(new DBusMenuCustomItemAction(props2));
+
+    // Check exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Get children
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
+    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
+
+    DBusMenuItemList list = reply.value();
+    QCOMPARE(list.count(), 2);
+
+    // Check we get the right properties
+    DBusMenuItem item = list.takeFirst();
+    QCOMPARE(item.properties, props1);
+
+    item = list.takeFirst();
+    QCOMPARE(item.properties, props2);
 }
 
 #include "dbusmenuexportertest.moc"

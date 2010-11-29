@@ -34,6 +34,7 @@
 #include <QTimer>
 
 // Local
+#include "dbusmenucustomitemfactory.h"
 #include "dbusmenuitem_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
@@ -66,98 +67,53 @@ struct Task
     DBusMenuImporterMethod m_method;
 };
 
-class DBusMenuImporterPrivate
+class DefaultFactory : public DBusMenuCustomItemFactory
 {
 public:
-    DBusMenuImporter *q;
-
-    QDBusAbstractInterface *m_interface;
-    QMenu *m_menu;
-    QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
-    typedef QMap<int, QPointer<QAction> > ActionForId;
-    ActionForId m_actionForId;
-    QSignalMapper m_mapper;
-    QTimer *m_pendingLayoutUpdateTimer;
-
-    QSet<int> m_idsRefreshedByAboutToShow;
-    QSet<int> m_pendingLayoutUpdates;
-
-    bool m_mustEmitMenuUpdated;
-
-    QDBusPendingCallWatcher *refresh(int id)
+    DefaultFactory()
+    : DBusMenuCustomItemFactory(QString())
+    {}
+    
+    virtual DBusMenuImporterAction *createAction(DBusMenuImporter *importer, int id, const QVariantMap &map, QObject *parent)
     {
-        #ifdef BENCHMARK
-        DMDEBUG << "Starting refresh chrono for id" << id;
-        sChrono.start();
-        #endif
-        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, QStringList());
-        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
-        QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-            q, SLOT(dispatch(QDBusPendingCallWatcher*)));
-
-        Task task;
-        task.m_id = id;
-        task.m_method = &DBusMenuImporter::GetChildrenCallback;
-        m_taskForWatcher.insert(watcher, task);
-
-        return watcher;
+        return new DefaultAction(importer, id, map, parent);
     }
+};
 
-    QMenu *createMenu(QWidget *parent)
+class DefaultAction : public DBusMenuImporterAction
+{
+public:
+    DefaultAction(DBusMenuImporter *importer, int id, const QVariantMap &map, QObject *parent)
+    : DBusMenuImporterAction(importer, id)
     {
-        QMenu *menu = q->createMenu(parent);
-        QObject::connect(menu, SIGNAL(aboutToShow()),
-            q, SLOT(slotMenuAboutToShow()));
-        return menu;
-    }
-
-    /**
-     * Init all the immutable action properties here
-     * TODO: Document immutable properties?
-     *
-     * Note: we remove properties we handle from the map (using QMap::take()
-     * instead of QMap::value()) to avoid warnings about these properties in
-     * updateAction()
-     */
-    QAction *createAction(int id, const QVariantMap &_map, QWidget *parent)
-    {
-        QVariantMap map = _map;
-        QAction *action = new QAction(parent);
-        action->setProperty(DBUSMENU_PROPERTY_ID, id);
-
-        QString type = map.take("type").toString();
-        if (type == "separator") {
-            action->setSeparator(true);
-        }
-
         if (map.take("children-display").toString() == "submenu") {
             QMenu *menu = createMenu(parent);
-            action->setMenu(menu);
+            setMenu(menu);
         }
 
         QString toggleType = map.take("toggle-type").toString();
         if (!toggleType.isEmpty()) {
-            action->setCheckable(true);
+            setCheckable(true);
             if (toggleType == "radio") {
-                QActionGroup *group = new QActionGroup(action);
-                group->addAction(action);
+                QActionGroup *group = new QActionGroup(this);
+                group->addAction(this);
             }
         }
-        updateAction(action, map, map.keys());
-
-        return action;
+        update(map, map.keys());
+        
+        connect(this, SIGNAL(triggered()), SLOT(sendClickedEvent()));
     }
-
+    
+private:
     /**
      * Update mutable properties of an action. A property may be listed in
      * requestedProperties but not in map, this means we should use the default value
      * for this property.
      *
-     * @param action the action to update
      * @param map holds the property values
      * @param requestedProperties which properties has been requested
      */
-    void updateAction(QAction *action, const QVariantMap &map, const QStringList &requestedProperties)
+    void update(const QVariantMap &map, const QStringList &requestedProperties)
     {
         Q_FOREACH(const QString &key, requestedProperties) {
             updateActionProperty(action, key, map.value(key));
@@ -229,6 +185,97 @@ public:
         QKeySequence keySequence = dmShortcut.toKeySequence();
         action->setShortcut(keySequence);
     }
+};
+
+void DefaultAction::sendClickedEvent()
+{
+    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
+    sendEvent("clicked", empty);
+}
+
+class SeparatorFactory : public DBusMenuCustomItemFactory
+{
+public:
+    SeparatorFactory()
+    : DBusMenuCustomItemFactory("separator");
+    {}
+    
+    virtual DBusMenuImporterAction *createAction(const QVariantMap &properties, QObject *parent)
+    {    
+        DBusMenuImporterAction *action = new DBusMenuImporterAction(parent);
+        action->setSeparator(true);
+        return action;
+    }
+};
+
+class DBusMenuImporterPrivate
+{
+public:
+    DBusMenuImporter *q;
+
+    QDBusAbstractInterface *m_interface;
+    QMenu *m_menu;
+    QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
+    typedef QMap<int, QPointer<QAction> > ActionForId;
+    ActionForId m_actionForId;
+    QSignalMapper m_mapper;
+    QHash<QString, DBusMenuCustomItemFactory*> m_factories;
+    QTimer *m_pendingLayoutUpdateTimer;
+
+    QSet<int> m_idsRefreshedByAboutToShow;
+    QSet<int> m_pendingLayoutUpdates;
+
+    bool m_mustEmitMenuUpdated;
+
+    QDBusPendingCallWatcher *refresh(int id)
+    {
+        #ifdef BENCHMARK
+        DMDEBUG << "Starting refresh chrono for id" << id;
+        sChrono.start();
+        #endif
+        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, QStringList());
+        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
+        QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+            q, SLOT(dispatch(QDBusPendingCallWatcher*)));
+
+        Task task;
+        task.m_id = id;
+        task.m_method = &DBusMenuImporter::GetChildrenCallback;
+        m_taskForWatcher.insert(watcher, task);
+
+        return watcher;
+    }
+
+    QMenu *createMenu(QWidget *parent)
+    {
+        QMenu *menu = q->createMenu(parent);
+        QObject::connect(menu, SIGNAL(aboutToShow()),
+            q, SLOT(slotMenuAboutToShow()));
+        return menu;
+    }
+
+    /**
+     * Init all the immutable action properties here
+     * TODO: Document immutable properties?
+     *
+     * Note: we remove properties we handle from the map (using QMap::take()
+     * instead of QMap::value()) to avoid warnings about these properties in
+     * updateAction()
+     */
+    DBusMenuImporterAction *createAction(int id, const QVariantMap &_map, QWidget *parent)
+    {
+        QVariantMap map = _map;
+        QString type = map.take("type").toString();
+        DBusMenuCustomItemFactory *factory = m_factories.value(type);
+        if (factory) {
+            DBusMenuImporterAction *action = factory->createAction(map, parent);
+            action->setProperty(DBUSMENU_PROPERTY_ID, id);
+            return action;            
+        } else {
+            DM_WARNING << "No factory for item of type" << type;
+            return 0;
+        }
+    }
 
     QMenu *menuForId(int id) const
     {
@@ -252,8 +299,6 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
     d->m_menu = 0;
     d->m_mustEmitMenuUpdated = false;
-
-    connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
 
     d->m_pendingLayoutUpdateTimer = new QTimer(this);
     d->m_pendingLayoutUpdateTimer->setSingleShot(true);
@@ -279,6 +324,7 @@ DBusMenuImporter::~DBusMenuImporter()
     // leave enough time for the menu to finish what it was doing, for example
     // if it was being displayed.
     d->m_menu->deleteLater();
+    qDeleteAll(d->m_factories);
     delete d;
 }
 
@@ -322,7 +368,7 @@ void DBusMenuImporter::dispatch(QDBusPendingCallWatcher *watcher)
 
 void DBusMenuImporter::slotItemUpdated(int id)
 {
-    QAction *action = d->m_actionForId.value(id);
+    DBusMenuImporterAction *action = d->m_actionForId.value(id);
     if (!action) {
         DMWARNING << "No action for id" << id;
         return;
@@ -356,12 +402,14 @@ void DBusMenuImporter::slotItemUpdated(int id)
 
 void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value)
 {
-    QAction *action = d->m_actionForId.value(id);
+    DBusMenuImporterAction *action = d->m_actionForId.value(id);
     if (!action) {
         DMWARNING << "No action for id" << id;
         return;
     }
-    d->updateActionProperty(action, key, value.variant());
+    QVariantMap map;
+    map.insert(key, value.variant());
+    action->update(map, map.keys());
 }
 
 void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
@@ -385,12 +433,12 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
 
     QVariantMap properties = reply.value();
 
-    QAction *action = d->m_actionForId.value(id);
+    DBusMenuImporterAction *action = d->m_actionForId.value(id);
     if (!action) {
         DMWARNING << "No action for id" << id;
         return;
     }
-    d->updateAction(action, properties, requestedProperties);
+    action->update(properties, requestedProperties);
     #ifdef BENCHMARK
     DMDEBUG << "- Item updated" << id << sChrono.elapsed() << "ms";
     #endif
@@ -415,7 +463,7 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     menu->clear();
 
     Q_FOREACH(const DBusMenuItem &dbusMenuItem, list) {
-        QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties, menu);
+        DBusMenuImporterAction *action = d->createAction(this, dbusMenuItem.id, dbusMenuItem.properties, menu);
         DBusMenuImporterPrivate::ActionForId::Iterator it = d->m_actionForId.find(dbusMenuItem.id);
         if (it == d->m_actionForId.end()) {
             d->m_actionForId.insert(dbusMenuItem.id, action);
@@ -424,10 +472,6 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
             *it = action;
         }
         menu->addAction(action);
-
-        connect(action, SIGNAL(triggered()),
-            &d->m_mapper, SLOT(map()));
-        d->m_mapper.setMapping(action, dbusMenuItem.id);
 
         if (action->menu()) {
             d->refresh(dbusMenuItem.id);
@@ -438,11 +482,10 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     #endif
 }
 
-void DBusMenuImporter::sendClickedEvent(int id)
+void DBusMenuImporter::sendEvent(int id, const QString &name, const QVariant &data)
 {
-    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
-    d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
+    d->m_interface->asyncCall("Event", id, name, data, timestamp);
 }
 
 void DBusMenuImporter::updateMenu()
@@ -553,6 +596,11 @@ QMenu *DBusMenuImporter::createMenu(QWidget *parent)
 QIcon DBusMenuImporter::iconForName(const QString &/*name*/)
 {
     return QIcon();
+}
+
+void DBusMenuImporter::addCustomItemFactory(DBusMenuCustomItemFactory *factory)
+{
+    d->m_factories.insert(factory->itemType(), factory);
 }
 
 #include "dbusmenuimporter.moc"

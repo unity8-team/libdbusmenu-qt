@@ -41,6 +41,7 @@ private Q_SLOTS:
     void testDynamicMenu();
     void testActionActivationRequested();
     void testActionsAreDeletedWhenImporterIs();
+    void testCustomItems();
 
     void initTestCase();
 };

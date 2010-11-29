@@ -34,6 +34,8 @@ class QDBusVariant;
 class QIcon;
 class QMenu;
 
+class DBusMenuCustomItemFactory;
+
 class DBusMenuImporterPrivate;
 /**
  * A DBusMenuImporter instance can recreate a menu serialized over DBus by
@@ -54,6 +56,12 @@ public:
      * The menu created from listening to the DBusMenuExporter over DBus
      */
     QMenu *menu() const;
+
+    /**
+     * Adds a new factory to handle custom items.
+     * DBusMenuImporter takes ownership of the factory.
+     */
+    void addCustomItemFactory(DBusMenuCustomItemFactory *factory);
 
 public Q_SLOTS:
     /**
@@ -119,7 +127,8 @@ private Q_SLOTS:
 private:
     Q_DISABLE_COPY(DBusMenuImporter)
     DBusMenuImporterPrivate *const d;
-    friend class DBusMenuImporterPrivate;
+    friend class DBusMenuImporterPrivate;        
+    friend class DBusMenuImporter;
 
     void GetChildrenCallback(int id, QDBusPendingCallWatcher *);
     void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);

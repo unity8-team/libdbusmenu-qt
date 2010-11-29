@@ -33,6 +33,7 @@
 // Local
 #include "dbusmenu_config.h"
 #include "dbusmenu_p.h"
+#include "dbusmenucustomitemaction.h"
 #include "dbusmenuexporterdbus_p.h"
 #include "dbusmenuexporterprivate_p.h"
 #include "dbusmenuitem_p.h"
@@ -70,6 +71,10 @@ QVariantMap DBusMenuExporterPrivate::propertiesForAction(QAction *action) const
 {
     DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
 
+    DBusMenuCustomItemAction* customAction = qobject_cast<DBusMenuCustomItemAction*>(action);
+    if (customAction) {
+        return customAction->properties();
+    }
     if (action->objectName() == KMENU_TITLE) {
         // Hack: Support for KDE menu titles in a Qt-only library...
         return propertiesForKMenuTitleAction(action);

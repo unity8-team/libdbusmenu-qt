@@ -18,41 +18,36 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUEXPORTERTEST_H
-#define DBUSMENUEXPORTERTEST_H
+// Self
+#include "dbusmenucustomitemaction.h"
 
-#define QT_GUI_LIB
-#include <QtGui>
-
-// Qt
-#include <QObject>
-
-// Local
-
-class DBusMenuExporterTest : public QObject
+class DBusMenuCustomItemActionPrivate
 {
-Q_OBJECT
-private Q_SLOTS:
-    void testGetSomeProperties();
-    void testGetSomeProperties_data();
-    void testGetAllProperties();
-    void testGetNonExistentProperty();
-    void testClickedEvent();
-    void testSubMenu();
-    void testDynamicSubMenu();
-    void testRadioItems();
-    void testNonExclusiveActionGroup();
-    void testClickDeletedAction();
-    void testDeleteExporterBeforeMenu();
-    void testUpdateAndDeleteSubMenu();
-    void testMenuShortcut();
-    void testGetGroupProperties();
-    void testActivateAction();
-    void testCustomItems();
-    void testTrackActionsOnlyOnce();
-
-    void init();
-    void cleanup();
+public:
+    QVariantMap m_properties;
 };
 
-#endif /* DBUSMENUEXPORTERTEST_H */
+DBusMenuCustomItemAction::DBusMenuCustomItemAction(const QVariantMap& properties, QObject* parent)
+: QAction(parent)
+, d(new DBusMenuCustomItemActionPrivate)
+{
+    d->m_properties = properties;
+}
+
+DBusMenuCustomItemAction::DBusMenuCustomItemAction(QObject* parent)
+: QAction(parent)
+, d(new DBusMenuCustomItemActionPrivate)
+{
+}
+
+QVariantMap DBusMenuCustomItemAction::properties() const
+{
+    return d->m_properties;
+}
+
+void DBusMenuCustomItemAction::setProperties(const QVariantMap& properties)
+{
+    d->m_properties = properties;
+}
+
+#include "dbusmenucustomitemaction.moc"
