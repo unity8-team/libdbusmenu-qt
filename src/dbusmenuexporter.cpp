@@ -143,10 +143,10 @@ QMenu *DBusMenuExporterPrivate::menuForId(int id) const
         return m_rootMenu;
     }
     QAction *action = m_actionForId.value(id);
-    DMRETURN_VALUE_IF_FAIL(action, 0);
-    QMenu *menu = action->menu();
-    DMRETURN_VALUE_IF_FAIL(menu, 0);
-    return menu;
+    // Action may not be in m_actionForId if it has been deleted between the
+    // time it was announced by the exporter and the time the importer asks for
+    // it.
+    return action ? action->menu() : 0;
 }
 
 void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
