@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(dbusmenu_qt_VERSION_MAJOR 0)
 set(dbusmenu_qt_VERSION_MINOR 6)
-set(dbusmenu_qt_VERSION_PATCH 4)
+set(dbusmenu_qt_VERSION_PATCH 5)
 set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR}.${dbusmenu_qt_VERSION_PATCH})
 
 set(ARCHIVE_NAME libdbusmenu-qt-${dbusmenu_qt_VERSION})

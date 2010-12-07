@@ -1,3 +1,8 @@
+# 0.6.5 - 2010.12.07
+- Avoid false warnings (Aurelien Gateau)
+- Make sure we don't track actions twice (KDE BUG 254066) (Aurelien Gateau)
+- CMake-parser-friendly of dbusmenu_version.h (Aurelien Gateau)
+
 # 0.6.4 - 2010.09.23
 - Trigger action asynchronously when the "clicked" event is received (LP BUG 643393) (Aurelien Gateau)
 - Fixed copyright headers (Aurelien Gateau)
