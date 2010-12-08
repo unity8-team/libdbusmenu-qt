@@ -4,11 +4,12 @@
 - Update NEWS
   r!bzr log --line -r tag:x.y.z-1..
 - Bump version number in CMakeLists.txt
+- Bump library version number in CMakeLists.txt
 - Commit
 - Create tarball
 - Unpack tarball, build and run tests
 - Test with KDE trunk
-- Sync the gitorious repository if necessary
+- Sync the gitorious repository (at least the version number changes)
 - If ok, create tag
   tag=x.y.z
   bzr tag $tag
