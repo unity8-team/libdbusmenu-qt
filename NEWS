@@ -1,3 +1,6 @@
+# 0.6.6 - 2010.12.08
+- Properly increase version numbers (Aurelien Gateau)
+
 # 0.6.5 - 2010.12.07
 - Avoid false warnings (Aurelien Gateau)
 - Make sure we don't track actions twice (KDE BUG 254066) (Aurelien Gateau)
