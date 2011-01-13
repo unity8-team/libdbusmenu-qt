@@ -48,7 +48,7 @@ static QTime sChrono;
 
 typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWatcher*);
 
-static const char *DBUSMENU_INTERFACE = "org.ayatana.dbusmenu";
+static const char *DBUSMENU_INTERFACE = "com.canonical.dbusmenu";
 
 static const int ABOUT_TO_SHOW_TIMEOUT = 3000;
 static const int REFRESH_TIMEOUT = 4000;
