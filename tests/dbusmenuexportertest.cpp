@@ -247,7 +247,7 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     // too often because it causes refreshes
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
     ManualSignalSpy layoutUpdatedSpy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "LayoutUpdated", "ui", &layoutUpdatedSpy, SLOT(receiveCall(uint, int)));
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "LayoutUpdated", "ui", &layoutUpdatedSpy, SLOT(receiveCall(uint, int)));
 
     // Create our test menu
     QMenu inputMenu;
@@ -338,7 +338,7 @@ void DBusMenuExporterTest::testRadioItems()
 
     // Click a2
     ManualSignalSpy spy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemUpdated", &spy, SLOT(receiveCall(int)));
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "ItemUpdated", &spy, SLOT(receiveCall(int)));
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     iface.call("Event", a2Id, "clicked", empty, timestamp);
@@ -562,7 +562,7 @@ void DBusMenuExporterTest::testActivateAction()
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
     ManualSignalSpy spy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.ayatana.dbusmenu", "ItemActivationRequested", "iu", &spy, SLOT(receiveCall(int, uint)));
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "ItemActivationRequested", "iu", &spy, SLOT(receiveCall(int, uint)));
 
     // Get item ids
     QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
