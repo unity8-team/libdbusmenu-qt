@@ -1,3 +1,6 @@
+# 0.7.0 - 2011.13.01
+- Switched DBus domain from org.ayatana to com.canonical (Aurelien Gateau)
+
 # 0.6.6 - 2010.12.08
 - Properly increase version numbers (Aurelien Gateau)
 
