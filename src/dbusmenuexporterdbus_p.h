@@ -40,7 +40,7 @@ class DBusMenuExporter;
 class DBusMenuExporterDBus : public QObject
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.ayatana.dbusmenu")
+    Q_CLASSINFO("D-Bus Interface", "com.canonical.dbusmenu")
 public:
     DBusMenuExporterDBus(DBusMenuExporter *m_exporter);
 
