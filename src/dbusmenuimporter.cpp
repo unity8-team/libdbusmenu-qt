@@ -274,6 +274,8 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 {
     qDBusRegisterMetaType<DBusMenuItem>();
     qDBusRegisterMetaType<DBusMenuItemList>();
+    qDBusRegisterMetaType<DBusMenuItemKeys>();
+    qDBusRegisterMetaType<DBusMenuItemKeysList>();
 
     d->q = this;
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
