@@ -23,18 +23,36 @@
 // Qt
 #include <QDBusArgument>
 
-QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItem &item)
+//// DBusMenuItem
+QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItem &obj)
 {
     argument.beginStructure();
-    argument << item.id << item.properties;
+    argument << obj.id << obj.properties;
     argument.endStructure();
     return argument;
 }
 
-const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItem &item)
+const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItem &obj)
 {
     argument.beginStructure();
-    argument >> item.id >> item.properties;
+    argument >> obj.id >> obj.properties;
+    argument.endStructure();
+    return argument;
+}
+
+//// DBusMenuItemKeys
+QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItemKeys &obj)
+{
+    argument.beginStructure();
+    argument << obj.id << obj.properties;
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItemKeys &obj)
+{
+    argument.beginStructure();
+    argument >> obj.id >> obj.properties;
     argument.endStructure();
     return argument;
 }

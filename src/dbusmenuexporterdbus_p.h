@@ -21,14 +21,14 @@
 #ifndef DBUSMENUEXPORTERDBUS_P_H
 #define DBUSMENUEXPORTERDBUS_P_H
 
+// Local
+#include <dbusmenuitem_p.h>
+
 // Qt
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 #include <QtDBus/QDBusAbstractAdaptor>
 #include <QtDBus/QDBusVariant>
-
-// Local
-#include <dbusmenuitem_p.h>
 
 class DBusMenuExporter;
 
@@ -54,8 +54,7 @@ public Q_SLOTS:
     bool AboutToShow(int id);
 
 Q_SIGNALS:
-    void ItemUpdated(int);
-    void ItemPropertyUpdated(int, QString, QVariant);
+    void ItemsPropertiesUpdated(DBusMenuItemList, DBusMenuItemKeysList);
     void LayoutUpdated(uint revision, int parentId);
     void ItemActivationRequested(int id, uint timeStamp);
 

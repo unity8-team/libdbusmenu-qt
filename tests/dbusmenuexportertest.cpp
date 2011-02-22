@@ -338,7 +338,8 @@ void DBusMenuExporterTest::testRadioItems()
 
     // Click a2
     ManualSignalSpy spy;
-    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "ItemUpdated", &spy, SLOT(receiveCall(int)));
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "ItemsPropertiesUpdated", "a(ia{sv})a(ias)",
+        &spy, SLOT(receiveCall(DBusMenuItemList, DBusMenuItemKeysList)));
     QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
     uint timestamp = QDateTime::currentDateTime().toTime_t();
     iface.call("Event", a2Id, "clicked", empty, timestamp);
@@ -357,10 +358,14 @@ void DBusMenuExporterTest::testRadioItems()
     QCOMPARE(item.properties.value("toggle-state").toInt(), 1);
 
     // Did we get notified?
-    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.count(), 1);
     QSet<int> updatedIds;
-    updatedIds << spy.takeFirst().at(0).toInt();
-    updatedIds << spy.takeFirst().at(0).toInt();
+    {
+        QVariantList lst = spy.takeFirst().at(0).toList();
+        Q_FOREACH(QVariant variant, lst) {
+            updatedIds << variant.toInt();
+        }
+    }
 
     QSet<int> expectedIds;
     expectedIds << a1Id << a2Id;

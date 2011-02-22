@@ -21,6 +21,10 @@
 #ifndef TESTUTILS_H
 #define TESTUTILS_H
 
+// Local
+#include <debug_p.h>
+#include <dbusmenuitem_p.h>
+
 // Qt
 #include <QObject>
 #include <QMenu>
@@ -43,6 +47,23 @@ public Q_SLOTS:
     void receiveCall(int v1, uint v2)
     {
         append(QVariantList() << v1 << v2);
+    }
+
+    void receiveCall(DBusMenuItemList itemList, DBusMenuItemKeysList removedPropsList)
+    {
+        QVariantList propsIds;
+        Q_FOREACH(DBusMenuItem item, itemList) {
+            propsIds << item.id;
+        }
+        QVariantList removedPropsIds;
+        Q_FOREACH(DBusMenuItemKeys props, removedPropsList) {
+            removedPropsIds << props.id;
+        }
+
+        QVariantList args;
+        args.push_back(propsIds);
+        args.push_back(removedPropsIds);
+        append(args);
     }
 };
 

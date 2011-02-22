@@ -35,6 +35,8 @@ DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
 {
     qDBusRegisterMetaType<DBusMenuItem>();
     qDBusRegisterMetaType<DBusMenuItemList>();
+    qDBusRegisterMetaType<DBusMenuItemKeys>();
+    qDBusRegisterMetaType<DBusMenuItemKeysList>();
     qDBusRegisterMetaType<DBusMenuShortcut>();
     new DbusmenuAdaptor(this);
 }

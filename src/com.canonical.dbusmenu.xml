@@ -320,23 +320,17 @@ License version 3 and version 2.1 along with this program.  If not, see
 		</method>
 
 <!-- Signals -->
-		<signal name="ItemPropertyUpdated">
+		<signal name="ItemsPropertiesUpdated">
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="DBusMenuItemList"/>
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In1" value="DBusMenuItemKeysList"/>
 			<dox:d>
-			Triggered by the application to notify the applet that the property @a property
-			from item @a id has changed to @a value.
+			Triggered when there are lots of property updates across many items
+			so they all get grouped into a single dbus message.  The format is
+			the ID of the item with a hashtable of names and values for those
+			properties.
 			</dox:d>
-			<arg type="i" name="id" direction="out" />
-			<arg type="s" name="prop" direction="out" />
-			<arg type="v" name="value" direction="out" />
-		</signal>
-
-		<signal name="ItemUpdated">
-			<dox:d>
-				Triggered by the application to notify the applet that all properties of item
-			</dox:d>
-			<arg type="i" name="id" direction="out" >
-				<dox:d>id which should be considered outdated</dox:d>
-			</arg>
+			<arg type="a(ia{sv})" name="updatedProps" direction="out" />
+			<arg type="a(ias)" name="removedProps" direction="out" />
 		</signal>
 
 		<signal name="LayoutUpdated">

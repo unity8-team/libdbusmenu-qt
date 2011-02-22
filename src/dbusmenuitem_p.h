@@ -23,6 +23,7 @@
 
 // Qt
 #include <QtCore/QList>
+#include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
 // Local
@@ -30,6 +31,7 @@
 
 class QDBusArgument;
 
+//// DBusMenuItem
 /**
  * Internal struct used to communicate on DBus
  */
@@ -47,5 +49,25 @@ DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, D
 typedef QList<DBusMenuItem> DBusMenuItemList;
 
 Q_DECLARE_METATYPE(DBusMenuItemList)
+
+
+//// DBusMenuItemKeys
+/**
+ * Represents a list of keys for a menu item
+ */
+struct DBUSMENU_EXPORT DBusMenuItemKeys
+{
+    int id;
+    QStringList properties;
+};
+
+Q_DECLARE_METATYPE(DBusMenuItemKeys)
+
+DBUSMENU_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItemKeys &);
+DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItemKeys &);
+
+typedef QList<DBusMenuItemKeys> DBusMenuItemKeysList;
+
+Q_DECLARE_METATYPE(DBusMenuItemKeysList)
 
 #endif /* DBUSMENUITEM_H */
