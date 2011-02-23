@@ -24,7 +24,6 @@
 #include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusInterface>
-#include <QDBusMetaType>
 #include <QDBusReply>
 #include <QDBusVariant>
 #include <QFont>
@@ -272,10 +271,7 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 : QObject(parent)
 , d(new DBusMenuImporterPrivate)
 {
-    qDBusRegisterMetaType<DBusMenuItem>();
-    qDBusRegisterMetaType<DBusMenuItemList>();
-    qDBusRegisterMetaType<DBusMenuItemKeys>();
-    qDBusRegisterMetaType<DBusMenuItemKeysList>();
+    DBusMenuTypes_register();
 
     d->q = this;
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);

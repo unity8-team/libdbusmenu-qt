@@ -20,8 +20,12 @@
 */
 #include "dbusmenutypes_p.h"
 
+// Local
+#include <dbusmenushortcut_p.h>
+
 // Qt
 #include <QDBusArgument>
+#include <QDBusMetaType>
 
 //// DBusMenuItem
 QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItem &obj)
@@ -55,4 +59,19 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItemKeys 
     argument >> obj.id >> obj.properties;
     argument.endStructure();
     return argument;
+}
+
+
+void DBusMenuTypes_register()
+{
+    static bool registered = false;
+    if (registered) {
+        return;
+    }
+    qDBusRegisterMetaType<DBusMenuItem>();
+    qDBusRegisterMetaType<DBusMenuItemList>();
+    qDBusRegisterMetaType<DBusMenuItemKeys>();
+    qDBusRegisterMetaType<DBusMenuItemKeysList>();
+    qDBusRegisterMetaType<DBusMenuShortcut>();
+    registered = true;
 }

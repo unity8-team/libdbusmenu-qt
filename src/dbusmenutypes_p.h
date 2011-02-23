@@ -70,4 +70,6 @@ typedef QList<DBusMenuItemKeys> DBusMenuItemKeysList;
 
 Q_DECLARE_METATYPE(DBusMenuItemKeysList)
 
+void DBusMenuTypes_register();
+
 #endif /* DBUSMENUTYPES_P_H */

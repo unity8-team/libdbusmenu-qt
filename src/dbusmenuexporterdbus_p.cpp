@@ -33,11 +33,7 @@ DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
 : QObject(exporter)
 , m_exporter(exporter)
 {
-    qDBusRegisterMetaType<DBusMenuItem>();
-    qDBusRegisterMetaType<DBusMenuItemList>();
-    qDBusRegisterMetaType<DBusMenuItemKeys>();
-    qDBusRegisterMetaType<DBusMenuItemKeysList>();
-    qDBusRegisterMetaType<DBusMenuShortcut>();
+    DBusMenuTypes_register();
     new DbusmenuAdaptor(this);
 }
 
