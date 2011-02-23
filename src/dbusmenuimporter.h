@@ -119,7 +119,7 @@ private:
     DBusMenuImporterPrivate *const d;
     friend class DBusMenuImporterPrivate;
 
-    void GetChildrenCallback(int id, QDBusPendingCallWatcher *);
+    void GetLayoutCallback(int id, QDBusPendingCallWatcher *);
     void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);
 
     // Use Q_PRIVATE_SLOT to avoid exposing DBusMenuItemList

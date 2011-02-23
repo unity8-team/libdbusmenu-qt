@@ -108,14 +108,14 @@ public:
         DMDEBUG << "Starting refresh chrono for id" << id;
         sChrono.start();
         #endif
-        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, QStringList());
+        QDBusPendingCall call = m_interface->asyncCall("GetLayout", id, 1, QStringList());
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
         QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             q, SLOT(dispatch(QDBusPendingCallWatcher*)));
 
         Task task;
         task.m_id = id;
-        task.m_method = &DBusMenuImporter::GetChildrenCallback;
+        task.m_method = &DBusMenuImporter::GetLayoutCallback;
         m_taskForWatcher.insert(watcher, task);
 
         return watcher;
@@ -405,9 +405,9 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
     #endif
 }
 
-void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher *watcher)
+void DBusMenuImporter::GetLayoutCallback(int parentId, QDBusPendingCallWatcher *watcher)
 {
-    QDBusReply<DBusMenuItemList> reply = *watcher;
+    QDBusPendingReply<uint, DBusMenuLayoutItem> reply = *watcher;
     if (!reply.isValid()) {
         DMWARNING << reply.error().message();
         return;
@@ -416,14 +416,14 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     #ifdef BENCHMARK
     DMDEBUG << "- items received:" << sChrono.elapsed() << "ms";
     #endif
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItem rootItem = reply.argumentAt<1>();
 
     QMenu *menu = d->menuForId(parentId);
     DMRETURN_IF_FAIL(menu);
 
     menu->clear();
 
-    Q_FOREACH(const DBusMenuItem &dbusMenuItem, list) {
+    Q_FOREACH(const DBusMenuLayoutItem &dbusMenuItem, rootItem.children) {
         QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties, menu);
         DBusMenuImporterPrivate::ActionForId::Iterator it = d->m_actionForId.find(dbusMenuItem.id);
         if (it == d->m_actionForId.end()) {
