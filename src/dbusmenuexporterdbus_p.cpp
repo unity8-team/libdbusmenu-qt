@@ -37,36 +37,14 @@ DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
     new DbusmenuAdaptor(this);
 }
 
-
-DBusMenuItemList DBusMenuExporterDBus::GetChildren(int parentId, const QStringList &names)
-{
-    DBusMenuItemList list;
-
-    QMenu *menu = m_exporter->d->menuForId(parentId);
-    if (!menu) {
-        return DBusMenuItemList();
-    }
-    // Process pending actions, we need them *now*
-    QMetaObject::invokeMethod(m_exporter, "doUpdateActions");
-    Q_FOREACH(QAction *action, menu->actions()) {
-        DBusMenuItem item;
-        item.id = m_exporter->d->idForAction(action);
-        item.properties = GetProperties(item.id, names);
-        list << item;
-    }
-    return list;
-}
-
-uint DBusMenuExporterDBus::GetLayout(int parentId, QString &layout)
+uint DBusMenuExporterDBus::GetLayout(int parentId, int recursionDepth, const QStringList &propertyNames, DBusMenuLayoutItem &item)
 {
     QMenu *menu = m_exporter->d->menuForId(parentId);
     DMRETURN_VALUE_IF_FAIL(menu, 0);
 
-    QXmlStreamWriter writer(&layout);
-    writer.setAutoFormatting(true);
-    writer.writeStartDocument();
-    m_exporter->d->writeXmlForMenu(&writer, menu, parentId);
-    writer.writeEndDocument();
+    // Process pending actions, we need them *now*
+    QMetaObject::invokeMethod(m_exporter, "doUpdateActions");
+    m_exporter->d->fillLayoutItem(&item, menu, parentId, recursionDepth, propertyNames);
 
     return m_exporter->d->m_revision;
 }
@@ -96,8 +74,13 @@ QDBusVariant DBusMenuExporterDBus::GetProperty(int id, const QString &name)
     return QDBusVariant(m_exporter->d->m_actionProperties.value(action).value(name));
 }
 
-QVariantMap DBusMenuExporterDBus::GetProperties(int id, const QStringList &names)
+QVariantMap DBusMenuExporterDBus::getProperties(int id, const QStringList &names) const
 {
+    if (id == 0) {
+        QVariantMap map;
+        map.insert("children-display", "submenu");
+        return map;
+    }
     QAction *action = m_exporter->d->m_actionForId.value(id);
     DMRETURN_VALUE_IF_FAIL(action, QVariantMap());
     QVariantMap all = m_exporter->d->m_actionProperties.value(action);
@@ -121,7 +104,7 @@ DBusMenuItemList DBusMenuExporterDBus::GetGroupProperties(const QList<int> &ids,
     Q_FOREACH(int id, ids) {
         DBusMenuItem item;
         item.id = id;
-        item.properties = GetProperties(item.id, names);
+        item.properties = getProperties(item.id, names);
         list << item;
     }
     return list;

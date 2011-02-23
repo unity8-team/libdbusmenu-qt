@@ -45,6 +45,19 @@ static const char *TEST_OBJECT_PATH = "/TestMenuBar";
 
 Q_DECLARE_METATYPE(QList<int>)
 
+static DBusMenuLayoutItemList getChildren(QDBusAbstractInterface* iface, int parentId, const QStringList &propertyNames)
+{
+    QDBusPendingReply<uint, DBusMenuLayoutItem> reply = iface->call("GetLayout", parentId, /*recursionDepth=*/ 1, propertyNames);
+    reply.waitForFinished();
+    if (!reply.isValid()) {
+        qFatal("%s", qPrintable(reply.error().message()));
+        return DBusMenuLayoutItemList();
+    }
+
+    DBusMenuLayoutItem rootItem = reply.argumentAt<1>();
+    return rootItem.children;
+}
+
 void DBusMenuExporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
@@ -91,15 +104,10 @@ void DBusMenuExporterTest::testGetSomeProperties()
 
     // Get exported menu info
     QStringList propertyNames = QStringList() << "type" << "enabled" << "label" << "icon-name";
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    // Check the info we received, in particular, check that any property set to
-    // its default value is *not* exported
-    DBusMenuItemList list = reply.value();
-    QCOMPARE(list.count(), 1);
-    DBusMenuItem item = list.first();
+    DBusMenuLayoutItemList list = getChildren(&iface, /*parentId=*/0, propertyNames);
+    DBusMenuLayoutItem item = list.first();
     QVERIFY(item.id != 0);
+    QVERIFY(item.children.isEmpty());
     QVERIFY(!item.properties.contains("type"));
     QCOMPARE(item.properties.value("label").toString(), label);
     if (enabled) {
@@ -153,14 +161,11 @@ void DBusMenuExporterTest::testGetAllProperties()
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
     // Get children
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 3);
 
     // Check we get the right properties
-    DBusMenuItem item = list.takeFirst();
+    DBusMenuLayoutItem item = list.takeFirst();
     QCOMPARE(QSet<QString>::fromList(item.properties.keys()), a1Properties);
 
     item = list.takeFirst();
@@ -179,13 +184,10 @@ void DBusMenuExporterTest::testGetNonExistentProperty()
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList() << NON_EXISTENT_KEY);
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList() << NON_EXISTENT_KEY);
     QCOMPARE(list.count(), 1);
 
-    DBusMenuItem item = list.takeFirst();
+    DBusMenuLayoutItem item = list.takeFirst();
     QVERIFY(!item.properties.contains(NON_EXISTENT_KEY));
 }
 
@@ -197,10 +199,7 @@ void DBusMenuExporterTest::testClickedEvent()
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 1);
     int id = list.first().id;
 
@@ -221,19 +220,14 @@ void DBusMenuExporterTest::testSubMenu()
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 1);
     int id = list.first().id;
 
-    reply = iface.call("GetChildren", id, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    list = getChildren(&iface, id, QStringList());
     QCOMPARE(list.count(), 2);
 
-    DBusMenuItem item = list.takeFirst();
+    DBusMenuLayoutItem item = list.takeFirst();
     QVERIFY(item.id != 0);
     QCOMPARE(item.properties.value("label").toString(), a1->text());
 
@@ -260,9 +254,7 @@ void DBusMenuExporterTest::testDynamicSubMenu()
     filler.addAction(new QAction("a2", subMenu));
 
     // Get id of submenu
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 1);
     int id = list.first().id;
 
@@ -276,21 +268,19 @@ void DBusMenuExporterTest::testDynamicSubMenu()
 
     // Pretend we show the menu
     QDBusReply<bool> aboutToShowReply = iface.call("AboutToShow", id);
-    QVERIFY2(aboutToShowReply.isValid(), qPrintable(reply.error().message()));
+    QVERIFY2(aboutToShowReply.isValid(), qPrintable(aboutToShowReply.error().message()));
     QVERIFY(aboutToShowReply.value());
     QTest::qWait(500);
     QCOMPARE(layoutUpdatedSpy.count(), 1);
     QCOMPARE(layoutUpdatedSpy.takeFirst().at(1).toInt(), id);
 
     // Get submenu items
-    reply = iface.call("GetChildren", id, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    list = getChildren(&iface, id, QStringList());
     QVERIFY(subMenu->actions().count() > 0);
     QCOMPARE(list.count(), subMenu->actions().count());
 
     for (int pos=0; pos< list.count(); ++pos) {
-        DBusMenuItem item = list.at(pos);
+        DBusMenuLayoutItem item = list.at(pos);
         QVERIFY(item.id != 0);
         QAction *action = subMenu->actions().at(pos);
         QVERIFY(action);
@@ -300,8 +290,8 @@ void DBusMenuExporterTest::testDynamicSubMenu()
 
 void DBusMenuExporterTest::testRadioItems()
 {
-    DBusMenuItem item;
-    DBusMenuItemList list;
+    DBusMenuLayoutItem item;
+    DBusMenuLayoutItemList list;
     QMenu inputMenu;
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
@@ -321,9 +311,7 @@ void DBusMenuExporterTest::testRadioItems()
 
     // Get item ids
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 2);
 
     // Check items are radios and correctly toggled
@@ -346,9 +334,7 @@ void DBusMenuExporterTest::testRadioItems()
     QTest::qWait(500);
 
     // Check a1 is not checked, but a2 is
-    reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 2);
 
     item = list.takeFirst();
@@ -375,8 +361,8 @@ void DBusMenuExporterTest::testRadioItems()
 
 void DBusMenuExporterTest::testNonExclusiveActionGroup()
 {
-    DBusMenuItem item;
-    DBusMenuItemList list;
+    DBusMenuLayoutItem item;
+    DBusMenuLayoutItemList list;
     QMenu inputMenu;
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
@@ -395,9 +381,7 @@ void DBusMenuExporterTest::testNonExclusiveActionGroup()
 
     // Get item ids
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 2);
 
     // Check items are checkmark, not radio
@@ -419,9 +403,7 @@ void DBusMenuExporterTest::testClickDeletedAction()
 
     // Get id
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), 1);
     int id = list.takeFirst().id;
 
@@ -491,16 +473,12 @@ void DBusMenuExporterTest::testMenuShortcut()
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
     // Get exported menu info
-    QStringList propertyNames = QStringList() << "shortcut";
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, propertyNames);
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    // Check the info we received
-    DBusMenuItemList list = reply.value();
+    QStringList propertyNames = QStringList() << "label" << "shortcut";
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, propertyNames);
     QCOMPARE(list.count(), actionList.count());
 
     Q_FOREACH(const QAction* action, actionList) {
-        DBusMenuItem item = list.takeFirst();
+        DBusMenuLayoutItem item = list.takeFirst();
         if (action->shortcut().isEmpty()) {
             QVERIFY(!item.properties.contains("shortcut"));
         } else {
@@ -528,10 +506,7 @@ void DBusMenuExporterTest::testGetGroupProperties()
     QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
 
     // Get item ids
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), inputMenu.actions().count());
 
     int id1 = list.at(0).id;
@@ -539,15 +514,15 @@ void DBusMenuExporterTest::testGetGroupProperties()
 
     // Get group properties
     QList<int> ids = QList<int>() << id1 << id2;
-    reply = iface.call("GetGroupProperties", QVariant::fromValue(ids), QStringList());
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetGroupProperties", QVariant::fromValue(ids), QStringList());
     QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-    list = reply.value();
+    DBusMenuItemList groupPropertiesList = reply.value();
 
     // Check the info we received
-    QCOMPARE(list.count(), inputMenu.actions().count());
+    QCOMPARE(groupPropertiesList.count(), inputMenu.actions().count());
 
     Q_FOREACH(const QAction* action, inputMenu.actions()) {
-        DBusMenuItem item = list.takeFirst();
+        DBusMenuItem item = groupPropertiesList.takeFirst();
         QCOMPARE(item.properties.value("label").toString(), action->text());
     }
 }
@@ -570,10 +545,7 @@ void DBusMenuExporterTest::testActivateAction()
     QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "com.canonical.dbusmenu", "ItemActivationRequested", "iu", &spy, SLOT(receiveCall(int, uint)));
 
     // Get item ids
-    QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));
-
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItemList list = getChildren(&iface, 0, QStringList());
     QCOMPARE(list.count(), inputMenu.actions().count());
 
     int id1 = list.at(0).id;

@@ -28,7 +28,6 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QWidgetAction>
-#include <QXmlStreamWriter>
 
 // Local
 #include "dbusmenu_config.h"
@@ -149,26 +148,24 @@ QMenu *DBusMenuExporterPrivate::menuForId(int id) const
     return action ? action->menu() : 0;
 }
 
-void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
+void DBusMenuExporterPrivate::fillLayoutItem(DBusMenuLayoutItem *item, QMenu *menu, int id, int depth, const QStringList &propertyNames)
 {
-    Q_ASSERT(menu);
-    writer->writeStartElement("menu");
-    writer->writeAttribute("id", QString::number(id));
-    Q_FOREACH(QAction *action, menu->actions()) {
-        int actionId = m_idForAction.value(action, -1);
-        if (actionId == -1) {
-            DMWARNING << "No id for action";
-            continue;
-        }
-        QMenu *actionMenu = action->menu();
-        if (actionMenu) {
-            writeXmlForMenu(writer, actionMenu, actionId);
-        } else {
-            writer->writeEmptyElement("menu");
-            writer->writeAttribute("id", QString::number(actionId));
+    item->id = id;
+    item->properties = m_dbusObject->getProperties(id, propertyNames);
+
+    if (depth != 0 && menu) {
+        Q_FOREACH(QAction *action, menu->actions()) {
+            int actionId = m_idForAction.value(action, -1);
+            if (actionId == -1) {
+                DMWARNING << "No id for action";
+                continue;
+            }
+
+            DBusMenuLayoutItem child;
+            fillLayoutItem(&child, action->menu(), actionId, depth - 1, propertyNames);
+            item->children << child;
         }
     }
-    writer->writeEndElement();
 }
 
 void DBusMenuExporterPrivate::updateAction(QAction *action)

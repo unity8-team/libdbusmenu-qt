@@ -22,6 +22,7 @@
 
 // Local
 #include <dbusmenushortcut_p.h>
+#include <debug_p.h>
 
 // Qt
 #include <QDBusArgument>
@@ -61,6 +62,38 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItemKeys 
     return argument;
 }
 
+//// DBusMenuLayoutItem
+QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuLayoutItem &obj)
+{
+    argument.beginStructure();
+    argument << obj.id << obj.properties;
+    argument.beginArray(qMetaTypeId<QDBusVariant>());
+    Q_FOREACH(const DBusMenuLayoutItem& child, obj.children) {
+        argument << QDBusVariant(QVariant::fromValue<DBusMenuLayoutItem>(child));
+    }
+    argument.endArray();
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuLayoutItem &obj)
+{
+    argument.beginStructure();
+    argument >> obj.id >> obj.properties;
+    argument.beginArray();
+    while (!argument.atEnd()) {
+        QDBusVariant dbusVariant;
+        argument >> dbusVariant;
+        QDBusArgument childArgument = dbusVariant.variant().value<QDBusArgument>();
+
+        DBusMenuLayoutItem child;
+        childArgument >> child;
+        obj.children.append(child);
+    }
+    argument.endArray();
+    argument.endStructure();
+    return argument;
+}
 
 void DBusMenuTypes_register()
 {
@@ -72,6 +105,8 @@ void DBusMenuTypes_register()
     qDBusRegisterMetaType<DBusMenuItemList>();
     qDBusRegisterMetaType<DBusMenuItemKeys>();
     qDBusRegisterMetaType<DBusMenuItemKeysList>();
+    qDBusRegisterMetaType<DBusMenuLayoutItem>();
+    qDBusRegisterMetaType<DBusMenuLayoutItemList>();
     qDBusRegisterMetaType<DBusMenuShortcut>();
     registered = true;
 }

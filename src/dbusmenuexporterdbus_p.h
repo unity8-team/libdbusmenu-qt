@@ -45,11 +45,9 @@ public:
     DBusMenuExporterDBus(DBusMenuExporter *m_exporter);
 
 public Q_SLOTS:
-    DBusMenuItemList GetChildren(int parentId, const QStringList &propertyNames);
     Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, uint timestamp);
     QDBusVariant GetProperty(int id, const QString &property);
-    QVariantMap GetProperties(int id, const QStringList &names);
-    uint GetLayout(int parentId, QString &layout);
+    uint GetLayout(int parentId, int recursionDepth, const QStringList &propertyNames, DBusMenuLayoutItem &item);
     DBusMenuItemList GetGroupProperties(const QList<int> &ids, const QStringList &propertyNames);
     bool AboutToShow(int id);
 
@@ -63,6 +61,8 @@ private:
 
     friend class DBusMenuExporter;
     friend class DBusMenuExporterPrivate;
+
+    QVariantMap getProperties(int id, const QStringList &names) const;
 };
 
 #endif /* DBUSMENUEXPORTERDBUS_P_H */

@@ -70,6 +70,27 @@ typedef QList<DBusMenuItemKeys> DBusMenuItemKeysList;
 
 Q_DECLARE_METATYPE(DBusMenuItemKeysList)
 
-void DBusMenuTypes_register();
+//// DBusMenuLayoutItem
+/**
+ * Represents an item with its children. GetLayout() returns a
+ * DBusMenuLayoutItemList.
+ */
+struct DBusMenuLayoutItem;
+struct DBUSMENU_EXPORT DBusMenuLayoutItem
+{
+    int id;
+    QVariantMap properties;
+    QList<DBusMenuLayoutItem> children;
+};
 
+Q_DECLARE_METATYPE(DBusMenuLayoutItem)
+
+DBUSMENU_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuLayoutItem &);
+DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuLayoutItem &);
+
+typedef QList<DBusMenuLayoutItem> DBusMenuLayoutItemList;
+
+Q_DECLARE_METATYPE(DBusMenuLayoutItemList)
+
+void DBusMenuTypes_register();
 #endif /* DBUSMENUTYPES_P_H */

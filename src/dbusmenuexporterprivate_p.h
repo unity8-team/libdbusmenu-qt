@@ -21,17 +21,17 @@
 #ifndef DBUSMENUEXPORTERPRIVATE_P_H
 #define DBUSMENUEXPORTERPRIVATE_P_H
 
+// Local
+#include "dbusmenuexporter.h"
+#include "dbusmenutypes_p.h"
+
 // Qt
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
 
-// Local
-#include "dbusmenuexporter.h"
-
 class QMenu;
-class QXmlStreamWriter;
 
 class DBusMenuExporterDBus;
 
@@ -62,7 +62,7 @@ public:
     QVariantMap propertiesForSeparatorAction(QAction *action) const;
     QVariantMap propertiesForStandardAction(QAction *action) const;
     QMenu *menuForId(int id) const;
-    void writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id);
+    void fillLayoutItem(DBusMenuLayoutItem *item, QMenu *menu, int id, int depth, const QStringList &propertyNames);
 
     void addAction(QAction *action, int parentId);
     void updateAction(QAction *action);
