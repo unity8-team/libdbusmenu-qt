@@ -349,7 +349,7 @@ void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList 
         QAction *action = m_actionForId.value(item.id);
         if (!action) {
             DMWARNING << "No action for id" << item.id;
-            return;
+            continue;
         }
 
         QVariantMap::ConstIterator
@@ -364,7 +364,7 @@ void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList 
         QAction *action = m_actionForId.value(item.id);
         if (!action) {
             DMWARNING << "No action for id" << item.id;
-            return;
+            continue;
         }
 
         Q_FOREACH(const QString &key, item.properties) {
