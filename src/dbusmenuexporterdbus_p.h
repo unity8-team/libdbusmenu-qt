@@ -41,8 +41,11 @@ class DBusMenuExporterDBus : public QObject
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "com.canonical.dbusmenu")
+    Q_PROPERTY(uint Version READ Version)
 public:
     DBusMenuExporterDBus(DBusMenuExporter *m_exporter);
+
+    uint Version() const { return 2; }
 
 public Q_SLOTS:
     Q_NOREPLY void Event(int id, const QString &eventId, const QDBusVariant &data, uint timestamp);

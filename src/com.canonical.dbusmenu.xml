@@ -164,7 +164,7 @@ License version 3 and version 2.1 along with this program.  If not, see
 		]]></dox:d>
 
 <!-- Properties -->
-		<property name="version" type="u" access="read">
+		<property name="Version" type="u" access="read">
 			<dox:d>
 			Provides the version of the DBusmenu API that this API is
 			implementing.
