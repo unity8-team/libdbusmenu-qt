@@ -37,7 +37,7 @@
 #include <QWidgetAction>
 
 // Local
-#include "dbusmenuitem_p.h"
+#include "dbusmenutypes_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 #include "utils_p.h"

@@ -23,7 +23,7 @@
 
 // Local
 #include <debug_p.h>
-#include <dbusmenuitem_p.h>
+#include <dbusmenutypes_p.h>
 
 // Qt
 #include <QObject>

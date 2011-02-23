@@ -39,7 +39,7 @@ set(dbusmenu_qt_SRCS
     dbusmenuexporter.cpp
     dbusmenuexporterdbus_p.cpp
     dbusmenuimporter.cpp
-    dbusmenuitem_p.cpp
+    dbusmenutypes_p.cpp
     dbusmenushortcut_p.cpp
     utils.cpp
     )

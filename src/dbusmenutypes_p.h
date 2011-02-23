@@ -18,8 +18,8 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUITEM_H
-#define DBUSMENUITEM_H
+#ifndef DBUSMENUTYPES_P_H
+#define DBUSMENUTYPES_P_H
 
 // Qt
 #include <QtCore/QList>
@@ -70,4 +70,4 @@ typedef QList<DBusMenuItemKeys> DBusMenuItemKeysList;
 
 Q_DECLARE_METATYPE(DBusMenuItemKeysList)
 
-#endif /* DBUSMENUITEM_H */
+#endif /* DBUSMENUTYPES_P_H */
