@@ -182,8 +182,8 @@ License version 3 and version 2.1 along with this program.  If not, see
 			  properties or specific ones depending of the value in @a propertyNames.
 
 			  The format is recursive, where the second 'v' is in the same format
-			  as the original 'a(ia{sv}av)'.  If @a recursionDepth is set to
-			  zero then the second array will have zero entries.
+			  as the original 'a(ia{sv}av)'.  Its content depends on the value
+			  of @a recursionDepth.
 			</dox:d>
 			<arg type="i" name="parentId" direction="in">
 				<dox:d>The ID of the parent node for the layout.  For
@@ -191,8 +191,11 @@ License version 3 and version 2.1 along with this program.  If not, see
 			</arg>
 			<arg type="i" name="recursionDepth" direction="in">
 				<dox:d>
-				  The amount of levels of recursion to use.  -1, as value would
-				  deliver all the items under the @a parentId.
+				  The amount of levels of recursion to use.  This affects the
+				  content of the second variant array.
+				  - -1: deliver all the items under the @a parentId.
+				  - 0: no recursion, the array will be empty.
+				  - n: array will contains items up to 'n' level depth.
 				</dox:d>
 			</arg>
 			<arg type="as" name="propertyNames" direction="in" >
