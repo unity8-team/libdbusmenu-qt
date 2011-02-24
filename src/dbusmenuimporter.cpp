@@ -27,6 +27,7 @@
 #include <QDBusMetaType>
 #include <QDBusReply>
 #include <QDBusVariant>
+#include <QFont>
 #include <QMenu>
 #include <QPointer>
 #include <QSignalMapper>
@@ -67,28 +68,21 @@ struct Task
     DBusMenuImporterMethod m_method;
 };
 
-class EventSniffer : public QObject
+static QAction *createKdeTitle(QAction *action, QWidget *parent)
 {
-public:
-    EventSniffer(QObject *parent = 0)
-        : QObject(parent) { }
+    QToolButton *titleWidget = new QToolButton(0);
+    QFont font = titleWidget->font();
+    font.setBold(true);
+    titleWidget->setFont(font);
+    titleWidget->setIcon(action->icon());
+    titleWidget->setText(action->text());
+    titleWidget->setDown(true);
+    titleWidget->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-    ~EventSniffer() { }
-
-    bool eventFilter(QObject *object, QEvent *event)
-    {
-        Q_UNUSED(object);
-
-        if (event->type() == QEvent::Paint ||
-            event->type() == QEvent::KeyPress ||
-            event->type() == QEvent::KeyRelease) {
-            return false;
-        }
-
-        event->accept();
-        return true;
-    }
-};
+    QWidgetAction *titleAction = new QWidgetAction(parent);
+    titleAction->setDefaultWidget(titleWidget);
+    return titleAction;
+}
 
 class DBusMenuImporterPrivate
 {
@@ -168,27 +162,11 @@ public:
             }
         }
 
-        bool isMenuTitle = map.take("x-kde-title").toBool();
-
+        bool isKdeTitle = map.take("x-kde-title").toBool();
         updateAction(action, map, map.keys());
 
-        if (isMenuTitle) {
-            QAction *buttonAction = action;
-            QFont font = buttonAction->font();
-            font.setBold(true);
-            buttonAction->setFont(font);
-            buttonAction->setEnabled(true);
-
-            QWidgetAction *action = new QWidgetAction(parent);
-            action->setObjectName("kmenu_title");
-            QToolButton *titleButton = new QToolButton(0);
-            EventSniffer *eventSniffer = new EventSniffer(titleButton);
-            titleButton->installEventFilter(eventSniffer); // prevent clicks on the title of the menu
-            titleButton->setDefaultAction(buttonAction);
-            titleButton->setDown(true); // prevent hover style changes in some styles
-            titleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            action->setDefaultWidget(titleButton);
-            return action;
+        if (isKdeTitle) {
+            action = createKdeTitle(action, parent);
         }
 
         return action;
