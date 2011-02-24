@@ -1,3 +1,7 @@
+# 0.8.0 - 2011.02.24
+- Implements version 2 of the dbusmenu protocol (Aurelien Gateau)
+- Merged support for KMenu titles (Aurelien Gateau)
+
 # 0.7.0 - 2011.13.01
 - Switched DBus domain from org.ayatana to com.canonical (Aurelien Gateau)
 

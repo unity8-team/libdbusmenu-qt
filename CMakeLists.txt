@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 # Versions
 ## Package version
 set(dbusmenu_qt_VERSION_MAJOR 0)
-set(dbusmenu_qt_VERSION_MINOR 7)
+set(dbusmenu_qt_VERSION_MINOR 8)
 set(dbusmenu_qt_VERSION_PATCH 0)
 set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR}.${dbusmenu_qt_VERSION_PATCH})
 
@@ -14,7 +14,7 @@ set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR
 set(dbusmenu_qt_lib_SOVERSION 2)
 
 ### Bump this one when the API is extended in a binary-compatible way
-set(dbusmenu_qt_lib_API_VERSION 4)
+set(dbusmenu_qt_lib_API_VERSION 5)
 
 ### Bump this one when changes do not extend the API
 set(dbusmenu_qt_lib_PATCH_VERSION 0)
