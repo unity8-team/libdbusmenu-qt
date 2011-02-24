@@ -28,14 +28,13 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QWidgetAction>
-#include <QXmlStreamWriter>
 
 // Local
 #include "dbusmenu_config.h"
 #include "dbusmenu_p.h"
 #include "dbusmenuexporterdbus_p.h"
 #include "dbusmenuexporterprivate_p.h"
-#include "dbusmenuitem_p.h"
+#include "dbusmenutypes_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
@@ -149,26 +148,24 @@ QMenu *DBusMenuExporterPrivate::menuForId(int id) const
     return action ? action->menu() : 0;
 }
 
-void DBusMenuExporterPrivate::writeXmlForMenu(QXmlStreamWriter *writer, QMenu *menu, int id)
+void DBusMenuExporterPrivate::fillLayoutItem(DBusMenuLayoutItem *item, QMenu *menu, int id, int depth, const QStringList &propertyNames)
 {
-    Q_ASSERT(menu);
-    writer->writeStartElement("menu");
-    writer->writeAttribute("id", QString::number(id));
-    Q_FOREACH(QAction *action, menu->actions()) {
-        int actionId = m_idForAction.value(action, -1);
-        if (actionId == -1) {
-            DMWARNING << "No id for action";
-            continue;
-        }
-        QMenu *actionMenu = action->menu();
-        if (actionMenu) {
-            writeXmlForMenu(writer, actionMenu, actionId);
-        } else {
-            writer->writeEmptyElement("menu");
-            writer->writeAttribute("id", QString::number(actionId));
+    item->id = id;
+    item->properties = m_dbusObject->getProperties(id, propertyNames);
+
+    if (depth != 0 && menu) {
+        Q_FOREACH(QAction *action, menu->actions()) {
+            int actionId = m_idForAction.value(action, -1);
+            if (actionId == -1) {
+                DMWARNING << "No id for action";
+                continue;
+            }
+
+            DBusMenuLayoutItem child;
+            fillLayoutItem(&child, action->menu(), actionId, depth - 1, propertyNames);
+            item->children << child;
         }
     }
-    writer->writeEndElement();
 }
 
 void DBusMenuExporterPrivate::updateAction(QAction *action)
@@ -284,20 +281,66 @@ DBusMenuExporter::~DBusMenuExporter()
 
 void DBusMenuExporter::doUpdateActions()
 {
+    if (d->m_itemUpdatedIds.isEmpty()) {
+        return;
+    }
+    DBusMenuItemList updatedList;
+    DBusMenuItemKeysList removedList;
+
     Q_FOREACH(int id, d->m_itemUpdatedIds) {
         QAction *action = d->m_actionForId.value(id);
         if (!action) {
             // Action does not exist anymore
             continue;
         }
-        d->m_actionProperties[action] = d->propertiesForAction(action);
+
+        QVariantMap& oldProperties = d->m_actionProperties[action];
+        QVariantMap  newProperties = d->propertiesForAction(action);
+        QVariantMap  updatedProperties;
+        QStringList  removedProperties;
+
+        // Fill removedProperties and updatedProperties
+        QVariantMap::ConstIterator
+            oldIt = oldProperties.constBegin(),
+            oldEnd = oldProperties.constEnd();
+        QVariantMap::Iterator newEnd = newProperties.end();
+
+        for(; oldIt != oldEnd; ++oldIt) {
+            QString key = oldIt.key();
+            QVariantMap::ConstIterator newIt = newProperties.find(key);
+            if (newIt != newEnd) {
+                if (newIt.value() != oldIt.value()) {
+                    updatedProperties.insert(newIt.key(), newIt.value());
+                }
+            } else {
+                removedProperties << key;
+            }
+        }
+
+        // Update our data (oldProperties is a reference)
+        oldProperties = newProperties;
         QMenu *menu = action->menu();
         if (menu) {
             d->addMenu(menu, id);
         }
-        d->m_dbusObject->ItemUpdated(id);
+
+        if (!updatedProperties.isEmpty()) {
+            DBusMenuItem item;
+            item.id = id;
+            item.properties = updatedProperties;
+            updatedList << item;
+        }
+        if (!removedProperties.isEmpty()) {
+            DBusMenuItemKeys itemKeys;
+            itemKeys.id = id;
+            itemKeys.properties = removedProperties;
+            removedList << itemKeys;
+        }
     }
     d->m_itemUpdatedIds.clear();
+    if (!updatedList.isEmpty() || !removedList.isEmpty()) {
+        d->m_dbusObject->ItemsPropertiesUpdated(updatedList, removedList);
+    }
 }
 
 void DBusMenuExporter::doEmitLayoutUpdated()
