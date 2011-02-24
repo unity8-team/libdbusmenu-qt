@@ -108,21 +108,22 @@ protected:
 private Q_SLOTS:
     void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
-    void slotItemUpdated(int id);
-    void slotLayoutUpdated(uint revision, int parentId);
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
-    void slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value);
     void slotItemActivationRequested(int id, uint timestamp);
     void processPendingLayoutUpdates();
+    void slotLayoutUpdated(uint revision, int parentId);
 
 private:
     Q_DISABLE_COPY(DBusMenuImporter)
     DBusMenuImporterPrivate *const d;
     friend class DBusMenuImporterPrivate;
 
-    void GetChildrenCallback(int id, QDBusPendingCallWatcher *);
+    void GetLayoutCallback(int id, QDBusPendingCallWatcher *);
     void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);
+
+    // Use Q_PRIVATE_SLOT to avoid exposing DBusMenuItemList
+    Q_PRIVATE_SLOT(d, void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList));
 };
 
 #endif /* DBUSMENUIMPORTER_H */

@@ -24,7 +24,6 @@
 #include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusInterface>
-#include <QDBusMetaType>
 #include <QDBusReply>
 #include <QDBusVariant>
 #include <QFont>
@@ -37,7 +36,7 @@
 #include <QWidgetAction>
 
 // Local
-#include "dbusmenuitem_p.h"
+#include "dbusmenutypes_p.h"
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 #include "utils_p.h"
@@ -108,14 +107,14 @@ public:
         DMDEBUG << "Starting refresh chrono for id" << id;
         sChrono.start();
         #endif
-        QDBusPendingCall call = m_interface->asyncCall("GetChildren", id, QStringList());
+        QDBusPendingCall call = m_interface->asyncCall("GetLayout", id, 1, QStringList());
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
         QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             q, SLOT(dispatch(QDBusPendingCallWatcher*)));
 
         Task task;
         task.m_id = id;
-        task.m_method = &DBusMenuImporter::GetChildrenCallback;
+        task.m_method = &DBusMenuImporter::GetLayoutCallback;
         m_taskForWatcher.insert(watcher, task);
 
         return watcher;
@@ -263,14 +262,15 @@ public:
         DMRETURN_VALUE_IF_FAIL(action, 0);
         return action->menu();
     }
+
+    void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList);
 };
 
 DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, QObject *parent)
 : QObject(parent)
 , d(new DBusMenuImporterPrivate)
 {
-    qDBusRegisterMetaType<DBusMenuItem>();
-    qDBusRegisterMetaType<DBusMenuItemList>();
+    DBusMenuTypes_register();
 
     d->q = this;
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
@@ -285,12 +285,10 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
 
     // For some reason, using QObject::connect() does not work but
     // QDBusConnect::connect() does
-    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemUpdated", "i",
-        this, SLOT(slotItemUpdated(int)));
     QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "LayoutUpdated", "ui",
         this, SLOT(slotLayoutUpdated(uint, int)));
-    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemPropertyUpdated", "isv",
-        this, SLOT(slotItemPropertyUpdated(int, const QString &, const QDBusVariant &)));
+    QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemsPropertiesUpdated", "a(ia{sv})a(ias)",
+        this, SLOT(slotItemsPropertiesUpdated(DBusMenuItemList, DBusMenuItemKeysList)));
     QDBusConnection::sessionBus().connect(service, path, DBUSMENU_INTERFACE, "ItemActivationRequested", "iu",
         this, SLOT(slotItemActivationRequested(int, uint)));
 
@@ -344,48 +342,34 @@ void DBusMenuImporter::dispatch(QDBusPendingCallWatcher *watcher)
     (this->*task.m_method)(task.m_id, watcher);
 }
 
-void DBusMenuImporter::slotItemUpdated(int id)
+void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList)
 {
-    QAction *action = d->m_actionForId.value(id);
-    if (!action) {
-        DMWARNING << "No action for id" << id;
-        return;
+    Q_FOREACH(const DBusMenuItem &item, updatedList) {
+        QAction *action = m_actionForId.value(item.id);
+        if (!action) {
+            DMWARNING << "No action for id" << item.id;
+            continue;
+        }
+
+        QVariantMap::ConstIterator
+            it = item.properties.constBegin(),
+            end = item.properties.constEnd();
+        for(; it != end; ++it) {
+            updateActionProperty(action, it.key(), it.value());
+        }
     }
 
-    QStringList names;
-    names << "label" << "enabled" << "visible";
-    if (action->isCheckable()) {
-        names << "toggle-state";
+    Q_FOREACH(const DBusMenuItemKeys &item, removedList) {
+        QAction *action = m_actionForId.value(item.id);
+        if (!action) {
+            DMWARNING << "No action for id" << item.id;
+            continue;
+        }
+
+        Q_FOREACH(const QString &key, item.properties) {
+            updateActionProperty(action, key, QVariant());
+        }
     }
-
-    #ifdef BENCHMARK
-    DMDEBUG << "- Starting item update chrono for id" << id;
-    #endif
-
-    QDBusPendingCall call = d->m_interface->asyncCall("GetProperties", id, names);
-    QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(call, this);
-
-    // Keep a trace of which properties we requested because if we request the
-    // value for a property but receive nothing it must be interpreted as "use
-    // the default value" rather than "ignore this property"
-    watcher->setProperty("requestedProperties", names);
-    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-        SLOT(dispatch(QDBusPendingCallWatcher*)));
-
-    Task task;
-    task.m_id = id;
-    task.m_method = &DBusMenuImporter::GetPropertiesCallback;
-    d->m_taskForWatcher.insert(watcher, task);
-}
-
-void DBusMenuImporter::slotItemPropertyUpdated(int id, const QString &key, const QDBusVariant &value)
-{
-    QAction *action = d->m_actionForId.value(id);
-    if (!action) {
-        DMWARNING << "No action for id" << id;
-        return;
-    }
-    d->updateActionProperty(action, key, value.variant());
 }
 
 void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
@@ -420,9 +404,9 @@ void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *wa
     #endif
 }
 
-void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher *watcher)
+void DBusMenuImporter::GetLayoutCallback(int parentId, QDBusPendingCallWatcher *watcher)
 {
-    QDBusReply<DBusMenuItemList> reply = *watcher;
+    QDBusPendingReply<uint, DBusMenuLayoutItem> reply = *watcher;
     if (!reply.isValid()) {
         DMWARNING << reply.error().message();
         return;
@@ -431,14 +415,14 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
     #ifdef BENCHMARK
     DMDEBUG << "- items received:" << sChrono.elapsed() << "ms";
     #endif
-    DBusMenuItemList list = reply.value();
+    DBusMenuLayoutItem rootItem = reply.argumentAt<1>();
 
     QMenu *menu = d->menuForId(parentId);
     DMRETURN_IF_FAIL(menu);
 
     menu->clear();
 
-    Q_FOREACH(const DBusMenuItem &dbusMenuItem, list) {
+    Q_FOREACH(const DBusMenuLayoutItem &dbusMenuItem, rootItem.children) {
         QAction *action = d->createAction(dbusMenuItem.id, dbusMenuItem.properties, menu);
         DBusMenuImporterPrivate::ActionForId::Iterator it = d->m_actionForId.find(dbusMenuItem.id);
         if (it == d->m_actionForId.end()) {
@@ -452,10 +436,6 @@ void DBusMenuImporter::GetChildrenCallback(int parentId, QDBusPendingCallWatcher
         connect(action, SIGNAL(triggered()),
             &d->m_mapper, SLOT(map()));
         d->m_mapper.setMapping(action, dbusMenuItem.id);
-
-        if (action->menu()) {
-            d->refresh(dbusMenuItem.id);
-        }
     }
     #ifdef BENCHMARK
     DMDEBUG << "- Menu filled:" << sChrono.elapsed() << "ms";

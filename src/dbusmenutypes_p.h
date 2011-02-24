@@ -18,11 +18,12 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef DBUSMENUITEM_H
-#define DBUSMENUITEM_H
+#ifndef DBUSMENUTYPES_P_H
+#define DBUSMENUTYPES_P_H
 
 // Qt
 #include <QtCore/QList>
+#include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
 // Local
@@ -30,6 +31,7 @@
 
 class QDBusArgument;
 
+//// DBusMenuItem
 /**
  * Internal struct used to communicate on DBus
  */
@@ -48,4 +50,47 @@ typedef QList<DBusMenuItem> DBusMenuItemList;
 
 Q_DECLARE_METATYPE(DBusMenuItemList)
 
-#endif /* DBUSMENUITEM_H */
+
+//// DBusMenuItemKeys
+/**
+ * Represents a list of keys for a menu item
+ */
+struct DBUSMENU_EXPORT DBusMenuItemKeys
+{
+    int id;
+    QStringList properties;
+};
+
+Q_DECLARE_METATYPE(DBusMenuItemKeys)
+
+DBUSMENU_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuItemKeys &);
+DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuItemKeys &);
+
+typedef QList<DBusMenuItemKeys> DBusMenuItemKeysList;
+
+Q_DECLARE_METATYPE(DBusMenuItemKeysList)
+
+//// DBusMenuLayoutItem
+/**
+ * Represents an item with its children. GetLayout() returns a
+ * DBusMenuLayoutItemList.
+ */
+struct DBusMenuLayoutItem;
+struct DBUSMENU_EXPORT DBusMenuLayoutItem
+{
+    int id;
+    QVariantMap properties;
+    QList<DBusMenuLayoutItem> children;
+};
+
+Q_DECLARE_METATYPE(DBusMenuLayoutItem)
+
+DBUSMENU_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuLayoutItem &);
+DBUSMENU_EXPORT const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuLayoutItem &);
+
+typedef QList<DBusMenuLayoutItem> DBusMenuLayoutItemList;
+
+Q_DECLARE_METATYPE(DBusMenuLayoutItemList)
+
+void DBusMenuTypes_register();
+#endif /* DBUSMENUTYPES_P_H */

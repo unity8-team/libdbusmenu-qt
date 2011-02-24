@@ -48,7 +48,6 @@ include_directories(
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}
-    ${QT_QTXML_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
     )
 

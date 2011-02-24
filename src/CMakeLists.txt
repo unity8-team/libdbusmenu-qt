@@ -44,7 +44,7 @@ set(dbusmenu_qt_SRCS
     dbusmenuexporter.cpp
     dbusmenuexporterdbus_p.cpp
     dbusmenuimporter.cpp
-    dbusmenuitem_p.cpp
+    dbusmenutypes_p.cpp
     dbusmenushortcut_p.cpp
     utils.cpp
     )
@@ -74,7 +74,6 @@ set_target_properties(dbusmenu-qt PROPERTIES
 target_link_libraries(dbusmenu-qt
     ${QT_QTGUI_LIBRARIES}
     ${QT_QTDBUS_LIBRARIES}
-    ${QT_QTXML_LIBRARIES}
     ${QT_QTCORE_LIBRARIES}
     )
 

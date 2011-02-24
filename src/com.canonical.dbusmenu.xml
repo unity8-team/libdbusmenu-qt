@@ -164,7 +164,7 @@ License version 3 and version 2.1 along with this program.  If not, see
 		]]></dox:d>
 
 <!-- Properties -->
-		<property name="version" type="u" access="read">
+		<property name="Version" type="u" access="read">
 			<dox:d>
 			Provides the version of the DBusmenu API that this API is
 			implementing.
@@ -174,35 +174,43 @@ License version 3 and version 2.1 along with this program.  If not, see
 <!-- Functions -->
 
 		<method name="GetLayout">
-			<dox:d><![CDATA[
-			Provides an XML representation of the menu hierarchy
+			<annotation name="com.trolltech.QtDBus.QtTypeName.Out1" value="DBusMenuLayoutItem"/>
+			<dox:d>
+			  Provides the layout and propertiers that are attached to the entries
+			  that are in the layout.  It only gives the items that are children
+			  of the item that is specified in @a parentId.  It will return all of the
+			  properties or specific ones depending of the value in @a propertyNames.
 
-			XML syntax:
-
-			@verbatim
-<menu id="1" revision="2"> # Root container
-	<menu id="2" revision="2"> # First level menu, for example "File"
-		<menu id="3" revision="2"/> ~ Second level menu, for example "Open"
-		<menu id="4" revision="3"/>
-		...
-	</menu>
-	<menu id="5" revision="2"> # Another first level menu, say "Edit"
-		...
-	</menu>
-	...
-</menu>
-			@endverbatim
-			]]></dox:d>
+			  The format is recursive, where the second 'v' is in the same format
+			  as the original 'a(ia{sv}av)'.  Its content depends on the value
+			  of @a recursionDepth.
+			</dox:d>
 			<arg type="i" name="parentId" direction="in">
 				<dox:d>The ID of the parent node for the layout.  For
 				grabbing the layout from the root node use zero.</dox:d>
+			</arg>
+			<arg type="i" name="recursionDepth" direction="in">
+				<dox:d>
+				  The amount of levels of recursion to use.  This affects the
+				  content of the second variant array.
+				  - -1: deliver all the items under the @a parentId.
+				  - 0: no recursion, the array will be empty.
+				  - n: array will contains items up to 'n' level depth.
+				</dox:d>
+			</arg>
+			<arg type="as" name="propertyNames" direction="in" >
+				<dox:d>
+					The list of item properties we are
+					interested in.  If there are no entries in the list all of
+					the properties will be sent.
+				</dox:d>
 			</arg>
 			<arg type="u" name="revision" direction="out">
 				<dox:d>The revision number of the layout.  For matching
 				with layoutUpdated signals.</dox:d>
 			</arg>
-			<arg type="s" name="layout" direction="out">
-				<dox:d>The layout as an XML string of IDs.</dox:d>
+			<arg type="(ia{sv}av)" name="layout" direction="out">
+				<dox:d>The layout, as a recursive structure.</dox:d>
 			</arg>
 		</method>
 
@@ -236,13 +244,6 @@ License version 3 and version 2.1 along with this program.  If not, see
 			</arg>
 		</method>
 
-		<method name="GetChildren">
-			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="DBusMenuItemList"/>
-			<arg type="i" name="id" direction="in" />
-			<arg type="as" name="propertyNames" direction="in" />
-			<arg type="a(ia{sv})" name="properties" direction="out" />
-		</method>
-
 		<method name="GetProperty">
 			<dox:d>
 			  Get a signal property on a single item.  This is not useful if you're
@@ -258,22 +259,6 @@ License version 3 and version 2.1 along with this program.  If not, see
 			<arg type="v" name="value" direction="out">
 				<dox:d>the value of the property</dox:d>
 			</arg>
-		</method>
-
-		<method name="GetProperties">
-			<dox:d>
-			Returns multiple properties in one call. This is more efficient than
-			GetProperty.
-
-			</dox:d>
-			<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
-			<arg type="i" name="id" direction="in" >
-				<dox:d>The item whose properties we want to retrieve.</dox:d>
-			</arg>
-			<arg type="as" name="propertyNames" direction="in" >
-				<dox:d>List of string name of the properties we want.  If the list contains no entries, all properties are sent.</dox:d>
-			</arg>
-			<arg type="a{sv}" name="properties" direction="out" />
 		</method>
 
 		<method name="Event">
@@ -320,23 +305,17 @@ License version 3 and version 2.1 along with this program.  If not, see
 		</method>
 
 <!-- Signals -->
-		<signal name="ItemPropertyUpdated">
+		<signal name="ItemsPropertiesUpdated">
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="DBusMenuItemList"/>
+			<annotation name="com.trolltech.QtDBus.QtTypeName.In1" value="DBusMenuItemKeysList"/>
 			<dox:d>
-			Triggered by the application to notify the applet that the property @a property
-			from item @a id has changed to @a value.
+			Triggered when there are lots of property updates across many items
+			so they all get grouped into a single dbus message.  The format is
+			the ID of the item with a hashtable of names and values for those
+			properties.
 			</dox:d>
-			<arg type="i" name="id" direction="out" />
-			<arg type="s" name="prop" direction="out" />
-			<arg type="v" name="value" direction="out" />
-		</signal>
-
-		<signal name="ItemUpdated">
-			<dox:d>
-				Triggered by the application to notify the applet that all properties of item
-			</dox:d>
-			<arg type="i" name="id" direction="out" >
-				<dox:d>id which should be considered outdated</dox:d>
-			</arg>
+			<arg type="a(ia{sv})" name="updatedProps" direction="out" />
+			<arg type="a(ias)" name="removedProps" direction="out" />
 		</signal>
 
 		<signal name="LayoutUpdated">
