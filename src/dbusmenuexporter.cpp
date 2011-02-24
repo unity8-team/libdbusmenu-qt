@@ -82,6 +82,8 @@ QVariantMap DBusMenuExporterPrivate::propertiesForAction(QAction *action) const
 QVariantMap DBusMenuExporterPrivate::propertiesForKMenuTitleAction(QAction *action_) const
 {
     QVariantMap map;
+    // In case the other side does not know about x-kde-title, show a disabled item
+    map.insert("enabled", false);
     map.insert("x-kde-title", true);
 
     const QWidgetAction *widgetAction = qobject_cast<const QWidgetAction *>(action_);
