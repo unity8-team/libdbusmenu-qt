@@ -297,7 +297,7 @@ void DBusMenuExporter::doUpdateActions()
         }
 
         QVariantMap& oldProperties = d->m_actionProperties[action];
-        QVariantMap  newProperties = d->propertiesForAction(action);
+        const QVariantMap  newProperties = d->propertiesForAction(action);
         QVariantMap  updatedProperties;
         QStringList  removedProperties;
 
@@ -305,7 +305,7 @@ void DBusMenuExporter::doUpdateActions()
         QVariantMap::ConstIterator
             oldIt = oldProperties.constBegin(),
             oldEnd = oldProperties.constEnd();
-        QVariantMap::Iterator newEnd = newProperties.end();
+        QVariantMap::ConstIterator newEnd = newProperties.end();
 
         for(; oldIt != oldEnd; ++oldIt) {
             QString key = oldIt.key();
