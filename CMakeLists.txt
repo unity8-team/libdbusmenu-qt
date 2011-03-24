@@ -2,6 +2,9 @@ project(dbusmenu-qt)
 cmake_minimum_required(VERSION 2.6.0)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
+# Build options
+option(WITH_DOC "Build documentation (requires Doxygen)" ON)
+
 # Versions
 ## Package version
 set(dbusmenu_qt_VERSION_MAJOR 0)
@@ -64,3 +67,15 @@ if (BUILD_TESTS)
     add_subdirectory(tests)
 endif (BUILD_TESTS)
 add_subdirectory(tools)
+
+if(WITH_DOC)
+    configure_file(Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile @ONLY)
+
+    add_custom_target(doc ALL doxygen
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/html/
+        DESTINATION share/doc/dbusmenu-qt
+        )
+endif(WITH_DOC)
