@@ -1,3 +1,6 @@
+# 0.8.1.kde - 2011.03.24
+- Added target to build documentation with Doxygen (Aurelien Gateau)
+
 # 0.8.0.kde - 2011.02.24
 - Implements version 2 of the dbusmenu protocol (Aurelien Gateau)
 - Merged support for KMenu titles (Aurelien Gateau)
