@@ -9,6 +9,11 @@ their menus over DBus.
 
 Canonical DX Team, Aurélien Gâteau <aurelien.gateau@canonical.com>
 
+# Documentation
+
+By default documentation is generated with Doxygen. You can disable
+documentation generation by passing -DWITH_DOC=OFF to cmake.
+
 # Links
 
 ## Source code, bugtracker and tarball hosts
