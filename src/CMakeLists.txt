@@ -70,6 +70,7 @@ target_link_libraries(dbusmenu-qt
     ${QT_QTGUI_LIBRARIES}
     ${QT_QTDBUS_LIBRARIES}
     ${QT_QTCORE_LIBRARIES}
+    ${X11_LIBRARIES}
     )
 
 install(TARGETS dbusmenu-qt

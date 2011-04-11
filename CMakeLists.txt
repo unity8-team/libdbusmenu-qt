@@ -45,12 +45,14 @@ add_custom_target(distcheck
 add_dependencies(distcheck dist)
 
 find_package(Qt4 REQUIRED)
+find_package(X11 REQUIRED)
 
 include_directories(
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
+    ${X11_INCLUDE_DIR}
     )
 
 configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)

@@ -26,51 +26,93 @@
 // Local
 #include "debug_p.h"
 
-static const int QT_COLUMN = 0;
-static const int DM_COLUMN = 1;
+// X11
+#include <X11/XF86keysym.h>
+#include <X11/XKBlib.h>
+#define XK_MISCELLANY
+#define XK_LATIN1
+#define XK_KOREAN
+#define XK_XKB_KEYS
+#include <X11/keysymdef.h>
+#include <X11/Xlib.h>
+#include "keytable.cpp"
 
-static void processKeyTokens(QStringList* tokens, int srcCol, int dstCol)
+enum TableColumn { X11_COLUMN = 0, QT_COLUMN };
+
+static int lookupKeysym(int key, TableColumn src, TableColumn dst)
 {
-    struct Row {
-        const char* zero;
-        const char* one;
-        const char* operator[](int col) const { return col == 0 ? zero : one; }
-    };
-    static const Row table[] =
-    { {"Meta", "Super"},
-      {"Ctrl", "Control"},
-      {0, 0}
-    };
-
-    const Row* ptr = table;
-    for (; ptr->zero != 0; ++ptr) {
-        const char* from = (*ptr)[srcCol];
-        const char* to = (*ptr)[dstCol];
-        tokens->replaceInStrings(from, to);
+    int idx = 0;
+    while (KeyTbl[idx]) {
+        if (key == (int)KeyTbl[idx + src]) {
+            return (int)KeyTbl[idx + dst];
+        }
+        idx += 2;
     }
+    return key;
+}
+
+static QStringList stringListFromQtKey(int key)
+{
+    QStringList lst;
+    #define EXTRACT_MODIFIER(qtModifier, string) \
+        if (key & qtModifier) { \
+            lst << string; \
+            key -= qtModifier; \
+        }
+    EXTRACT_MODIFIER(Qt::CTRL,  "Control");
+    EXTRACT_MODIFIER(Qt::META,  "Super");
+    EXTRACT_MODIFIER(Qt::ALT,   "Alt");
+    EXTRACT_MODIFIER(Qt::SHIFT, "Shift");
+    #undef EXTRACT_MODIFIER
+
+    if (key != 0) {
+        int xKeysym = lookupKeysym(key, QT_COLUMN, X11_COLUMN);
+        lst << XKeysymToString(xKeysym);
+    }
+    return lst;
 }
 
 DBusMenuShortcut DBusMenuShortcut::fromKeySequence(const QKeySequence& sequence)
 {
-    QString string = sequence.toString();
     DBusMenuShortcut shortcut;
-    QStringList tokens = string.split(", ");
-    Q_FOREACH(const QString& token, tokens) {
-        QStringList keyTokens = token.split('+');
-        processKeyTokens(&keyTokens, QT_COLUMN, DM_COLUMN);
-        shortcut << keyTokens;
+    for (uint idx = 0; idx < sequence.count(); ++idx) {
+        shortcut << stringListFromQtKey(sequence[idx]);
     }
     return shortcut;
 }
 
+static int qtKeyFromStringList(const QStringList& tokens)
+{
+    int key = 0;
+    Q_FOREACH(const QString& token, tokens) {
+        #define EXTRACT_MODIFIER(qtModifier, string) \
+            if (token == string) { \
+                key |= qtModifier; \
+                continue; \
+            }
+        EXTRACT_MODIFIER(Qt::CTRL,  "Control");
+        EXTRACT_MODIFIER(Qt::META,  "Super");
+        EXTRACT_MODIFIER(Qt::ALT,   "Alt");
+        EXTRACT_MODIFIER(Qt::SHIFT, "Shift");
+        #undef EXTRACT_MODIFIER
+
+        int xKeysym = XStringToKeysym(token.toUtf8().constData());
+        key |= lookupKeysym(xKeysym, X11_COLUMN, QT_COLUMN);
+    }
+    return key;
+}
+
 QKeySequence DBusMenuShortcut::toKeySequence() const
 {
-    QStringList tmp;
-    Q_FOREACH(const QStringList& keyTokens_, *this) {
-        QStringList keyTokens = keyTokens_;
-        processKeyTokens(&keyTokens, DM_COLUMN, QT_COLUMN);
-        tmp << keyTokens.join(QLatin1String("+"));
+    QVector<int> keys(4);
+    keys.fill(0);
+    int idx = 0;
+    Q_FOREACH(const QStringList& tokens, *this) {
+        keys[idx] = qtKeyFromStringList(tokens);
+        ++idx;
+        if (idx == 4) {
+            break;
+        }
     }
-    QString string = tmp.join(QLatin1String(", "));
-    return QKeySequence::fromString(string);
+    return QKeySequence(keys[0], keys[1], keys[2], keys[3]);
 }
