@@ -30,6 +30,22 @@
 
 QTEST_MAIN(DBusMenuShortcutTest)
 
+namespace QTest
+{
+template<>
+char *toString(const DBusMenuShortcut &dmShortcut)
+{
+    QByteArray ba = "DBusMenuShortcut(";
+    Q_FOREACH(const QStringList& tokens, dmShortcut) {
+        ba += "(";
+        ba += tokens.join("+").toUtf8();
+        ba += ")";
+    }
+    ba += ")";
+    return qstrdup(ba.data());
+}
+}
+
 DBusMenuShortcut createKeyList(const QString& txt)
 {
     DBusMenuShortcut lst;
@@ -61,7 +77,7 @@ void DBusMenuShortcutTest::testConverter()
     DBusMenuShortcut list = DBusMenuShortcut::fromKeySequence(keySequence);
     QCOMPARE(list, keyList);
     QKeySequence sequence = keyList.toKeySequence();
-    QCOMPARE(sequence, keySequence);
+    QCOMPARE(sequence.toString(), keySequence.toString());
 
 }
 
