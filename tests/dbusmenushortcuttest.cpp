@@ -67,6 +67,8 @@ void DBusMenuShortcutTest::testConverter_data()
     ADD_ROW((Qt::CTRL | Qt::Key_S), "Control+S");
     ADD_ROW((Qt::CTRL | Qt::Key_X, Qt::ALT | Qt::SHIFT | Qt::Key_Q), "Control+X,Alt+Shift+Q");
     ADD_ROW((Qt::META | Qt::Key_E), "Super+E");
+    ADD_ROW((Qt::CTRL | Qt::Key_Plus), "Control+plus");
+    ADD_ROW((Qt::CTRL | Qt::Key_Minus), "Control+minus");
 }
 
 void DBusMenuShortcutTest::testConverter()
@@ -78,7 +80,6 @@ void DBusMenuShortcutTest::testConverter()
     QCOMPARE(list, keyList);
     QKeySequence sequence = keyList.toKeySequence();
     QCOMPARE(sequence.toString(), keySequence.toString());
-
 }
 
 #include "dbusmenushortcuttest.moc"
