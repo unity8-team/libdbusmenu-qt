@@ -19,6 +19,7 @@
 - Push
   bzr push
   cd $gitorious
+  git push
   git push --tags
   cd -
 - Upload tarball
