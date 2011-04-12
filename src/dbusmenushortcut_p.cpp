@@ -44,6 +44,11 @@ static void processKeyTokens(QStringList* tokens, int srcCol, int dstCol)
     static const Row table[] =
     { {"Meta", "Super"},
       {"Ctrl", "Control"},
+      // Special cases for compatibility with libdbusmenu-glib which uses
+      // "plus" for "+" and "minus" for "-".
+      // cf https://bugs.launchpad.net/libdbusmenu-qt/+bug/712565
+      {"+", "plus"},
+      {"-", "minus"},
       {0, 0}
     };
 
@@ -60,7 +65,11 @@ DBusMenuShortcut DBusMenuShortcut::fromKeySequence(const QKeySequence& sequence)
     QString string = sequence.toString();
     DBusMenuShortcut shortcut;
     QStringList tokens = string.split(", ");
-    Q_FOREACH(const QString& token, tokens) {
+    Q_FOREACH(QString token, tokens) {
+        // Hack: Qt::CTRL | Qt::Key_Plus is turned into the string "Ctrl++",
+        // but we don't want the call to token.split() to consider the
+        // second '+' as a separator so we replace it with its final value.
+        token.replace("++", "+plus");
         QStringList keyTokens = token.split('+');
         processKeyTokens(&keyTokens, QT_COLUMN, DM_COLUMN);
         shortcut << keyTokens;
