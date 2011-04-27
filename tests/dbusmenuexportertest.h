@@ -49,6 +49,7 @@ private Q_SLOTS:
     void testGetGroupProperties();
     void testActivateAction();
     void testTrackActionsOnlyOnce();
+    void testHonorDontShowIconsInMenusAttribute();
 
     void init();
     void cleanup();

@@ -358,7 +358,11 @@ QString DBusMenuExporter::iconNameForAction(QAction *action)
     DMRETURN_VALUE_IF_FAIL(action, QString());
 #ifdef HAVE_QICON_NAME
     QIcon icon = action->icon();
-    return icon.isNull() ? QString() : icon.name();
+    if (action->isIconVisibleInMenu() && !icon.isNull()) {
+        return icon.name();
+    } else {
+        return QString();
+    }
 #else
     return QString();
 #endif
