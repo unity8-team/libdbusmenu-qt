@@ -309,7 +309,7 @@ void DBusMenuExporter::doUpdateActions()
 
         for(; oldIt != oldEnd; ++oldIt) {
             QString key = oldIt.key();
-            QVariantMap::ConstIterator newIt = newProperties.find(key);
+            QVariantMap::ConstIterator newIt = newProperties.constFind(key);
             if (newIt != newEnd) {
                 if (newIt.value() != oldIt.value()) {
                     updatedProperties.insert(newIt.key(), newIt.value());
