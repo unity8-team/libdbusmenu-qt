@@ -50,6 +50,7 @@ private Q_SLOTS:
     void testActivateAction();
     void testTrackActionsOnlyOnce();
     void testHonorDontShowIconsInMenusAttribute();
+    void testDBusMenuObjectIsDeletedWhenExporterIsDeleted();
 
     void init();
     void cleanup();
