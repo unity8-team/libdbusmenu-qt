@@ -9,7 +9,7 @@ option(WITH_DOC "Build documentation (requires Doxygen)" ON)
 ## Package version
 set(dbusmenu_qt_VERSION_MAJOR 0)
 set(dbusmenu_qt_VERSION_MINOR 8)
-set(dbusmenu_qt_VERSION_PATCH 2)
+set(dbusmenu_qt_VERSION_PATCH 3)
 set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR}.${dbusmenu_qt_VERSION_PATCH})
 
 ## Lib version
@@ -20,7 +20,7 @@ set(dbusmenu_qt_lib_SOVERSION 2)
 set(dbusmenu_qt_lib_API_VERSION 5)
 
 ### Bump this one when changes do not extend the API
-set(dbusmenu_qt_lib_PATCH_VERSION 1)
+set(dbusmenu_qt_lib_PATCH_VERSION 2)
 
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
