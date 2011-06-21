@@ -36,6 +36,7 @@ DBusMenu::DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId)
 , m_parentId(parentId)
 {
     menu->installEventFilter(this);
+    connect(m_exporter, SIGNAL(destroyed(QObject*)), SLOT(deleteMe()));
 }
 
 DBusMenu::~DBusMenu()
@@ -72,23 +73,22 @@ bool DBusMenu::eventFilter(QObject *, QEvent *event)
 
 void DBusMenu::addAction(QAction *action)
 {
-    if (m_exporter.data()) {
-        m_exporter.data()->d->addAction(action, m_parentId);
-    }
+    m_exporter->d->addAction(action, m_parentId);
 }
 
 void DBusMenu::updateAction(QAction *action)
 {
-    if (m_exporter.data()) {
-        m_exporter.data()->d->updateAction(action);
-    }
+    m_exporter->d->updateAction(action);
 }
 
 void DBusMenu::removeAction(QAction *action)
 {
-    if (m_exporter.data()) {
-        m_exporter.data()->d->removeAction(action, m_parentId);
-    }
+    m_exporter->d->removeAction(action, m_parentId);
+}
+
+void DBusMenu::deleteMe()
+{
+    delete this;
 }
 
 #include "dbusmenu_p.moc"

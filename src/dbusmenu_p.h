@@ -23,7 +23,6 @@
 
 #include <QEvent>
 #include <QObject>
-#include <QWeakPointer>
 
 class QAction;
 class QMenu;
@@ -45,12 +44,15 @@ public:
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
+private Q_SLOTS:
+    void deleteMe();
+
 private:
     void addAction(QAction *action);
     void updateAction(QAction *action);
     void removeAction(QAction *action);
 
-    QWeakPointer<DBusMenuExporter> m_exporter;
+    DBusMenuExporter* m_exporter;
     int m_parentId;
 };
 

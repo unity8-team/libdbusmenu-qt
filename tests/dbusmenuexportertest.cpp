@@ -625,4 +625,28 @@ void DBusMenuExporterTest::testHonorDontShowIconsInMenusAttribute()
     QVERIFY(!item.properties.contains("icon-name"));
 }
 
+static bool hasInternalDBusMenuObject(QMenu* menu)
+{
+    Q_FOREACH(QObject* obj, menu->children()) {
+        if (obj->inherits("DBusMenu")) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// DBusMenuExporter adds an instance of an internal class named "DBusMenu" to
+// any QMenu it tracks. Check they go away when the exporter is deleted.
+void DBusMenuExporterTest::testDBusMenuObjectIsDeletedWhenExporterIsDeleted()
+{
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *a1 = inputMenu.addAction("a1");
+    QVERIFY2(hasInternalDBusMenuObject(&inputMenu), "Test setup failed");
+    delete exporter;
+    QVERIFY(!hasInternalDBusMenuObject(&inputMenu));
+}
+
 #include "dbusmenuexportertest.moc"
