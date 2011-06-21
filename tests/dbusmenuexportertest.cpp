@@ -61,6 +61,7 @@ static DBusMenuLayoutItemList getChildren(QDBusAbstractInterface* iface, int par
 void DBusMenuExporterTest::init()
 {
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
 }
 
 void DBusMenuExporterTest::cleanup()
@@ -597,6 +598,31 @@ void DBusMenuExporterTest::testTrackActionsOnlyOnce()
 
     QTest::qWait(500);
     QCOMPARE(trackCount(subMenu), 1);
+}
+
+// If desktop does not want icon in menus, check we do not export them
+void DBusMenuExporterTest::testHonorDontShowIconsInMenusAttribute()
+{
+    QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, true);
+    QMenu inputMenu;
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    QAction *action = new QAction("Undo", &inputMenu);
+    QIcon icon = QIcon::fromTheme("edit-undo");
+    QVERIFY(!icon.isNull());
+    action->setIcon(icon);
+    inputMenu.addAction(action);
+
+    // Check out exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Get exported menu info
+    QStringList propertyNames = QStringList() << "icon-name";
+    DBusMenuLayoutItemList list = getChildren(&iface, /*parentId=*/0, propertyNames);
+    DBusMenuLayoutItem item = list.first();
+    QVERIFY(item.id != 0);
+    QVERIFY(!item.properties.contains("icon-name"));
 }
 
 #include "dbusmenuexportertest.moc"
