@@ -1,3 +1,7 @@
+# 0.8.3.kde - 2011.06.21
+- If DBusMenuExporter is deleted, delete all DBusMenu instances which were working with it (Aurelien Gateau)
+- Only show icons in menu if the platform allows them (Michael Terry)
+
 # 0.8.2.kde - 2011.04.12
 - Shortcut handling: Translate "+" into "plus" and "-" into "minus" (LP BUG 712565) (Aurelien Gateau)
 
