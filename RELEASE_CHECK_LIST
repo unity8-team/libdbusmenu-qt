@@ -10,6 +10,10 @@
 - Unpack tarball, build and run tests
 - Test with KDE trunk
 - Sync the gitorious repository (at least the version number changes)
+  bzr format-patch -r tag:x.y.z-1..
+  mv *.diff $gitorious
+  cd $gitorious
+  git am --reject *.diff
 - If ok, create tag
   tag=x.y.z
   bzr tag $tag
