@@ -245,6 +245,73 @@ void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *acti
     // "icon-data";
 }
 
+static void collapseSeparator(QAction* action)
+{
+    action->setVisible(false);
+}
+
+// Unless the separatorsCollapsible property is set to false, Qt will get rid
+// of separators at the beginning and at the end of menus as well as collapse
+// multiple separators in the middle. For example, a menu like this:
+//
+// ---
+// Open
+// ---
+// ---
+// Quit
+// ---
+//
+// is displayed like this:
+//
+// Open
+// ---
+// Quit
+//
+// We fake this by setting separators invisible before exporting them.
+//
+// cf. https://bugs.launchpad.net/libdbusmenu-qt/+bug/793339
+void DBusMenuExporterPrivate::collapseSeparators(QMenu* menu)
+{
+    QList<QAction*> actions = menu->actions();
+
+    QList<QAction*>::Iterator it, begin = actions.begin(), end = actions.end();
+
+    // Get rid of separators at end
+    it = end - 1;
+    for (; it != begin; --it) {
+        if ((*it)->isSeparator()) {
+            collapseSeparator(*it);
+        } else {
+            break;
+        }
+    }
+    // end now points after the last visible entry
+    end = it + 1;
+    it = begin;
+
+    // Get rid of separators at beginnning
+    for (; it != end; ++it) {
+        if ((*it)->isSeparator()) {
+            collapseSeparator(*it);
+        } else {
+            break;
+        }
+    }
+
+    // Collapse separators in between
+    bool previousWasSeparator = false;
+    for (; it != end; ++it) {
+        QAction* action = *it;
+        if (action->isSeparator()) {
+            if (previousWasSeparator) {
+                collapseSeparator(action);
+            } else {
+                previousWasSeparator = true;
+            }
+        }
+    }
+}
+
 //-------------------------------------------------
 //
 // DBusMenuExporter
@@ -348,6 +415,10 @@ void DBusMenuExporter::doUpdateActions()
 void DBusMenuExporter::doEmitLayoutUpdated()
 {
     Q_FOREACH(int id, d->m_layoutUpdatedIds) {
+        QMenu* menu = d->menuForId(id);
+        if (menu && menu->separatorsCollapsible()) {
+            d->collapseSeparators(menu);
+        }
         d->m_dbusObject->LayoutUpdated(d->m_revision, id);
     }
     d->m_layoutUpdatedIds.clear();

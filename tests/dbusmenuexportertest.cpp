@@ -649,4 +649,51 @@ void DBusMenuExporterTest::testDBusMenuObjectIsDeletedWhenExporterIsDeleted()
     QVERIFY(!hasInternalDBusMenuObject(&inputMenu));
 }
 
+static bool checkSeparatorVisibility(const DBusMenuLayoutItem& item, bool visible)
+{
+    QVariantMap properties = item.properties;
+    DMRETURN_VALUE_IF_FAIL(properties.value("type").toString() == "separator", false);
+    if (properties.contains("visible")) {
+        return properties.value("visible").toBool() == visible;
+    } else {
+        // No property means item is visible
+        return visible;
+    }
+}
+
+static bool checkLabel(const DBusMenuLayoutItem& item, const QString& label)
+{
+    return item.properties.value("label").toString() == label;
+}
+
+void DBusMenuExporterTest::testMultipleSeparatorsAreCollapsed()
+{
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+    inputMenu.addSeparator();
+    inputMenu.addAction("a1");
+    inputMenu.addSeparator();
+    inputMenu.addSeparator();
+    inputMenu.addAction("a2");
+    inputMenu.addSeparator();
+
+    QTest::qWait(500);
+
+    // Check out exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    // Get exported menu info
+    QStringList propertyNames = QStringList();
+    DBusMenuLayoutItemList list = getChildren(&iface, /*parentId=*/0, propertyNames);
+
+    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
+    QVERIFY(checkLabel(list.takeFirst(), "a1"));
+    QVERIFY(checkSeparatorVisibility(list.takeFirst(), true));
+    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
+    QVERIFY(checkLabel(list.takeFirst(), "a2"));
+    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
+}
+
 #include "dbusmenuexportertest.moc"
