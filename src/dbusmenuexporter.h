@@ -55,6 +55,20 @@ public:
      */
     void activateAction(QAction *action);
 
+    /**
+     * The status of the menu. Can be one of "normal" or "notice". This can be
+     * used to notify the other side the menu should be made more visible.
+     * For example, appmenu uses it to tell Unity panel to show/hide the menubar
+     * when the Alt modifier is pressed/released.
+     */
+    void setStatus(const QString &status);
+
+    /**
+     * Returns the status of the menu.
+     * @ref setStatus
+     */
+    QString status() const;
+
 protected:
     /**
      * Must extract the icon name for action. This is the name which will

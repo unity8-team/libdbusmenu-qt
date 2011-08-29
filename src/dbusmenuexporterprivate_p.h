@@ -40,6 +40,8 @@ class DBusMenuExporterPrivate
 public:
     DBusMenuExporter *q;
 
+    QString m_objectPath;
+
     DBusMenuExporterDBus *m_dbusObject;
 
     QMenu *m_rootMenu;

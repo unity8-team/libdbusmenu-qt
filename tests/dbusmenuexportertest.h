@@ -53,6 +53,7 @@ private Q_SLOTS:
     void testDBusMenuObjectIsDeletedWhenExporterIsDeleted();
     void testSeparatorCollapsing_data();
     void testSeparatorCollapsing();
+    void testSetStatus();
 
     void init();
     void cleanup();

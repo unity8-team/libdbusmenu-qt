@@ -21,7 +21,9 @@
 #include "dbusmenuexporterdbus_p.h"
 
 // Qt
+#include <QDBusMessage>
 #include <QMenu>
+#include <QVariant>
 
 // Local
 #include "dbusmenuadaptor.h"
@@ -29,9 +31,13 @@
 #include "dbusmenushortcut_p.h"
 #include "debug_p.h"
 
+static const char *DBUSMENU_INTERFACE = "com.canonical.dbusmenu";
+static const char *FDO_PROPERTIES_INTERFACE = "org.freedesktop.DBus.Properties";
+
 DBusMenuExporterDBus::DBusMenuExporterDBus(DBusMenuExporter *exporter)
 : QObject(exporter)
 , m_exporter(exporter)
+, m_status("normal")
 {
     DBusMenuTypes_register();
     new DbusmenuAdaptor(this);
@@ -149,6 +155,31 @@ bool DBusMenuExporterDBus::AboutToShow(int id)
     menu->installEventFilter(&filter);
     QMetaObject::invokeMethod(menu, "aboutToShow");
     return filter.mChanged;
+}
+
+void DBusMenuExporterDBus::setStatus(const QString& status)
+{
+    if (m_status == status) {
+        return;
+    }
+    m_status = status;
+
+    QVariantMap map;
+    map.insert("Status", QVariant(status));
+
+    QDBusMessage msg = QDBusMessage::createSignal(m_exporter->d->m_objectPath, FDO_PROPERTIES_INTERFACE, "PropertiesChanged");
+    QVariantList args = QVariantList()
+        << DBUSMENU_INTERFACE
+        << map
+        << QStringList() // New properties: none
+        ;
+    msg.setArguments(args);
+    QDBusConnection::sessionBus().send(msg);
+}
+
+QString DBusMenuExporterDBus::status() const
+{
+    return m_status;
 }
 
 

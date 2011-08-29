@@ -65,6 +65,15 @@ public Q_SLOTS:
         args.push_back(removedPropsIds);
         append(args);
     }
+
+    void receiveCall(const QString& service, const QVariantMap& modifiedProperties, const QStringList& newProperties)
+    {
+        QVariantList args;
+        args.push_back(service);
+        args.push_back(modifiedProperties);
+        args.push_back(newProperties);
+        append(args);
+    }
 };
 
 class MenuFiller : public QObject
