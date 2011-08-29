@@ -649,23 +649,6 @@ void DBusMenuExporterTest::testDBusMenuObjectIsDeletedWhenExporterIsDeleted()
     QVERIFY(!hasInternalDBusMenuObject(&inputMenu));
 }
 
-static bool checkSeparatorVisibility(const DBusMenuLayoutItem& item, bool visible)
-{
-    QVariantMap properties = item.properties;
-    DMRETURN_VALUE_IF_FAIL(properties.value("type").toString() == "separator", false);
-    if (properties.contains("visible")) {
-        return properties.value("visible").toBool() == visible;
-    } else {
-        // No property means item is visible
-        return visible;
-    }
-}
-
-static bool checkLabel(const DBusMenuLayoutItem& item, const QString& label)
-{
-    return item.properties.value("label").toString() == label;
-}
-
 void DBusMenuExporterTest::testSeparatorCollapsing_data()
 {
     QTest::addColumn<QString>("input");
