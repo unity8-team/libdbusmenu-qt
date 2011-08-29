@@ -311,6 +311,8 @@ void DBusMenuExporterPrivate::collapseSeparators(QMenu* menu)
             } else {
                 previousWasSeparator = true;
             }
+        } else {
+            previousWasSeparator = false;
         }
     }
 }
