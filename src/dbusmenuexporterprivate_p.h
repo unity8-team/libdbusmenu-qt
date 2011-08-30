@@ -80,6 +80,8 @@ public:
     void emitLayoutUpdated(int id);
 
     void insertIconProperty(QVariantMap* map, QAction *action) const;
+
+    void collapseSeparators(QMenu*);
 };
 
 
