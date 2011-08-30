@@ -666,17 +666,42 @@ static bool checkLabel(const DBusMenuLayoutItem& item, const QString& label)
     return item.properties.value("label").toString() == label;
 }
 
-void DBusMenuExporterTest::testMultipleSeparatorsAreCollapsed()
+void DBusMenuExporterTest::testSeparatorCollapsing_data()
 {
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("middle-separators") << "a--b" << "a-b";
+    QTest::newRow("separators-at-begin") << "--a-b" << "a-b";
+    QTest::newRow("separators-at-end") << "a-b--" << "a-b";
+    QTest::newRow("empty-menu") << "" << "";
+}
+
+void DBusMenuExporterTest::testSeparatorCollapsing()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+
+    // Create menu from menu string
     QMenu inputMenu;
+
     QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
     DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
-    inputMenu.addSeparator();
-    inputMenu.addAction("a1");
-    inputMenu.addSeparator();
-    inputMenu.addSeparator();
-    inputMenu.addAction("a2");
-    inputMenu.addSeparator();
+
+    if (input.isEmpty()) {
+        // Pretend there was an action so that doEmitLayoutUpdated() is called even
+        // if the new menu is empty. If we don't do this we don't test
+        // DBusMenuExporterPrivate::collapseSeparators() for empty menus.
+        delete inputMenu.addAction("dummy");
+    }
+
+    Q_FOREACH(QChar ch, input) {
+        if (ch == '-') {
+            inputMenu.addSeparator();
+        } else {
+            inputMenu.addAction(ch);
+        }
+    }
 
     QTest::qWait(500);
 
@@ -688,12 +713,23 @@ void DBusMenuExporterTest::testMultipleSeparatorsAreCollapsed()
     QStringList propertyNames = QStringList();
     DBusMenuLayoutItemList list = getChildren(&iface, /*parentId=*/0, propertyNames);
 
-    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
-    QVERIFY(checkLabel(list.takeFirst(), "a1"));
-    QVERIFY(checkSeparatorVisibility(list.takeFirst(), true));
-    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
-    QVERIFY(checkLabel(list.takeFirst(), "a2"));
-    QVERIFY(checkSeparatorVisibility(list.takeFirst(), false));
+    // Recreate a menu string from the item list
+    QString output;
+    Q_FOREACH(const DBusMenuLayoutItem& item, list) {
+        QVariantMap properties = item.properties;
+        if (properties.contains("visible") && !properties.value("visible").toBool()) {
+            continue;
+        }
+        QString type = properties.value("type").toString();
+        if (type == "separator") {
+            output += '-';
+        } else {
+            output += properties.value("label").toString();
+        }
+    }
+
+    // Check it matches
+    QCOMPARE(output, expected);
 }
 
 #include "dbusmenuexportertest.moc"

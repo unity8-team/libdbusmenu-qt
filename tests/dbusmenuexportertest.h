@@ -51,7 +51,8 @@ private Q_SLOTS:
     void testTrackActionsOnlyOnce();
     void testHonorDontShowIconsInMenusAttribute();
     void testDBusMenuObjectIsDeletedWhenExporterIsDeleted();
-    void testMultipleSeparatorsAreCollapsed();
+    void testSeparatorCollapsing_data();
+    void testSeparatorCollapsing();
 
     void init();
     void cleanup();

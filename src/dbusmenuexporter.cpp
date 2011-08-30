@@ -273,6 +273,9 @@ static void collapseSeparator(QAction* action)
 void DBusMenuExporterPrivate::collapseSeparators(QMenu* menu)
 {
     QList<QAction*> actions = menu->actions();
+    if (actions.isEmpty()) {
+        return;
+    }
 
     QList<QAction*>::Iterator it, begin = actions.begin(), end = actions.end();
 
