@@ -671,9 +671,12 @@ void DBusMenuExporterTest::testSeparatorCollapsing_data()
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("expected");
 
+    QTest::newRow("one-separator") << "a-b" << "a-b";
+    QTest::newRow("two-separators") << "a-b-c" << "a-b-c";
     QTest::newRow("middle-separators") << "a--b" << "a-b";
     QTest::newRow("separators-at-begin") << "--a-b" << "a-b";
     QTest::newRow("separators-at-end") << "a-b--" << "a-b";
+    QTest::newRow("separators-everywhere") << "--a---bc--d--" << "a-bc-d";
     QTest::newRow("empty-menu") << "" << "";
 }
 
