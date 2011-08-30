@@ -327,6 +327,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
 , d(new DBusMenuExporterPrivate)
 {
     d->q = this;
+    d->m_objectPath = objectPath;
     d->m_rootMenu = menu;
     d->m_nextId = 1;
     d->m_revision = 1;
@@ -455,6 +456,16 @@ void DBusMenuExporter::activateAction(QAction *action)
 void DBusMenuExporter::slotActionDestroyed(QObject* object)
 {
     d->removeActionInternal(object);
+}
+
+void DBusMenuExporter::setStatus(const QString& status)
+{
+    d->m_dbusObject->setStatus(status);
+}
+
+QString DBusMenuExporter::status() const
+{
+    return d->m_dbusObject->status();
 }
 
 #include "dbusmenuexporter.moc"

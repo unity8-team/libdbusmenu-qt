@@ -171,6 +171,16 @@ License version 3 and version 2.1 along with this program.  If not, see
 			</dox:d>
 		</property>
 
+        <property name="Status" type="s" access="read">
+            <dox:d>
+            Tells if the menus are in a normal state or they believe that they
+            could use some attention.  Cases for showing them would be if help
+            were referring to them or they accessors were being highlighted.
+            This property can have two values: "normal" in almost all cases and
+            "notice" when they should have a higher priority to be shown.
+            </dox:d>
+        </property>
+
 <!-- Functions -->
 
 		<method name="GetLayout">

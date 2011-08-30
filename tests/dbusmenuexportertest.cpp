@@ -719,4 +719,48 @@ void DBusMenuExporterTest::testSeparatorCollapsing()
     QCOMPARE(output, expected);
 }
 
+static void checkPropertiesChangedArgs(const QVariantList& args, const QString& name, const QVariant& value)
+{
+    QCOMPARE(args[0].toString(), QString("com.canonical.dbusmenu"));
+    QVariantMap map;
+    map.insert(name, value);
+    QCOMPARE(args[1].toMap(), map);
+    QCOMPARE(args[2].toStringList(), QStringList());
+}
+
+void DBusMenuExporterTest::testSetStatus()
+{
+    QMenu inputMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter = new DBusMenuExporter(TEST_OBJECT_PATH, &inputMenu);
+    ManualSignalSpy spy;
+    QDBusConnection::sessionBus().connect(TEST_SERVICE, TEST_OBJECT_PATH, "org.freedesktop.DBus.Properties", "PropertiesChanged", "sa{sv}as", &spy, SLOT(receiveCall(QString, QVariantMap, QStringList)));
+
+    QTest::qWait(500);
+
+    // Check our exporter is on DBus
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface.isValid(), qPrintable(iface.lastError().message()));
+
+    QCOMPARE(exporter->status(), QString("normal"));
+
+    // Change status, a DBus signal should be emitted
+    exporter->setStatus("notice");
+    QCOMPARE(exporter->status(), QString("notice"));
+    QTest::qWait(500);
+    QCOMPARE(spy.count(), 1);
+    checkPropertiesChangedArgs(spy.takeFirst(), "Status", "notice");
+
+    // Same status => no signal
+    exporter->setStatus("notice");
+    QTest::qWait(500);
+    QCOMPARE(spy.count(), 0);
+
+    // Change status, a DBus signal should be emitted
+    exporter->setStatus("normal");
+    QTest::qWait(500);
+    QCOMPARE(spy.count(), 1);
+    checkPropertiesChangedArgs(spy.takeFirst(), "Status", "normal");
+}
+
 #include "dbusmenuexportertest.moc"
