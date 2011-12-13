@@ -437,6 +437,13 @@ void DBusMenuImporter::GetLayoutCallback(int parentId, QDBusPendingCallWatcher *
         connect(action, SIGNAL(triggered()),
             &d->m_mapper, SLOT(map()));
         d->m_mapper.setMapping(action, dbusMenuItem.id);
+
+        if (parentId == 0) {
+            // Super-ugly hack: the way dbusmenu is used in xul apps cause
+            // menus to be empty until "AboutToShow" is called!
+            // https://bugs.launchpad.net/libdbusmenu-qt/+bug/878165
+            d->m_interface->asyncCall("AboutToShow", dbusMenuItem.id);
+        }
     }
     #ifdef BENCHMARK
     DMDEBUG << "- Menu filled:" << sChrono.elapsed() << "ms";
