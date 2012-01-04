@@ -126,6 +126,8 @@ public:
         QMenu *menu = q->createMenu(parent);
         QObject::connect(menu, SIGNAL(aboutToShow()),
             q, SLOT(slotMenuAboutToShow()));
+        QObject::connect(menu, SIGNAL(aboutToHide()),
+            q, SLOT(slotMenuAboutToHide()));
         return menu;
     }
 
@@ -265,6 +267,13 @@ public:
     }
 
     void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList);
+
+    void sendEvent(int id, const QString &eventId)
+    {
+        QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
+        uint timestamp = QDateTime::currentDateTime().toTime_t();
+        m_interface->asyncCall("Event", id, eventId, empty, timestamp);
+    }
 };
 
 DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, QObject *parent)
@@ -445,9 +454,7 @@ void DBusMenuImporter::GetLayoutCallback(int parentId, QDBusPendingCallWatcher *
 
 void DBusMenuImporter::sendClickedEvent(int id)
 {
-    QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-    uint timestamp = QDateTime::currentDateTime().toTime_t();
-    d->m_interface->asyncCall("Event", id, QString("clicked"), empty, timestamp);
+    d->sendEvent(id, QString("clicked"));
 }
 
 void DBusMenuImporter::updateMenu()
@@ -525,6 +532,8 @@ void DBusMenuImporter::slotMenuAboutToShow()
     if (menu == d->m_menu) {
         menuReadyToBeShown();
     }
+
+    d->sendEvent(id, QString("opened"));
 }
 
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
@@ -548,6 +557,18 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
             DMWARNING << "Application did not refresh before timeout";
         }
     }
+}
+
+void DBusMenuImporter::slotMenuAboutToHide()
+{
+    QMenu *menu = qobject_cast<QMenu*>(sender());
+    Q_ASSERT(menu);
+
+    QAction *action = menu->menuAction();
+    Q_ASSERT(action);
+
+    int id = action->property(DBUSMENU_PROPERTY_ID).toInt();
+    d->sendEvent(id, QString("closed"));
 }
 
 QMenu *DBusMenuImporter::createMenu(QWidget *parent)
