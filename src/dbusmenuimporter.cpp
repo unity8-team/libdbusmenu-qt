@@ -27,13 +27,13 @@
 #include <QtDBus/QDBusReply>
 #include <QtDBus/QDBusVariant>
 #include <QtGui/QFont>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 #include <QtCore/QPointer>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidgetAction>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QWidgetAction>
 
 // Local
 #include "dbusmenutypes_p.h"
@@ -559,5 +559,3 @@ QIcon DBusMenuImporter::iconForName(const QString &/*name*/)
 {
     return QIcon();
 }
-
-#include "dbusmenuimporter.moc"

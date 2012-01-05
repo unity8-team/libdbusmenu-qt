@@ -1,10 +1,11 @@
-qt4_automoc(slowmenu.cpp)
-add_executable(slowmenu slowmenu.cpp)
+qt5_wrap_cpp(slowmenu_MOC_SRCS slowmenu.h)
+add_executable(slowmenu slowmenu.cpp ${slowmenu_MOC_SRCS})
 target_link_libraries(
     slowmenu
-    ${QT_QTGUI_LIBRARY}
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTDBUS_LIBRARY}
+    ${Qt5Gui_LIBRARIES}
+    ${Qt5Widgets_LIBRARIES}
+    ${Qt5Core_LIBRARIES}
+    ${Qt5DBus_LIBRARIES}
     dbusmenu-qt
     )
 
@@ -27,15 +28,17 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
     ${CMAKE_CURRENT_BINARY_DIR}/../src
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${QT_QTTEST_INCLUDE_DIR}
-    ${QT_QTDBUS_INCLUDE_DIR}
+    ${Qt5Gui_INCLUDE_DIRS}
+    ${Qt5Test_INCLUDE_DIRS}
+    ${Qt5DBus_INCLUDE_DIRS}
     )
 
 set(test_LIBRARIES
-    ${QT_QTGUI_LIBRARY}
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTDBUS_LIBRARY}
-    ${QT_QTTEST_LIBRARY}
+    ${Qt5Gui_LIBRARIES}
+    ${Qt5Widgets_LIBRARIES}
+    ${Qt5Core_LIBRARIES}
+    ${Qt5DBus_LIBRARIES}
+    ${Qt5Test_LIBRARIES}
     dbusmenu-qt
     )
 
@@ -47,9 +50,14 @@ set(dbusmenuexportertest_SRCS
     testutils.cpp
     )
 
-qt4_automoc(${dbusmenuexportertest_SRCS})
+set(dbusmenuexportertest_MOC_HEADERS
+    dbusmenuexportertest.h
+    testutils.h
+    )
 
-add_test_executable(dbusmenuexportertest ${dbusmenuexportertest_SRCS})
+qt5_wrap_cpp(dbusmenuexportertest_MOC_SRCS ${dbusmenuexportertest_MOC_HEADERS})
+
+add_test_executable(dbusmenuexportertest ${dbusmenuexportertest_SRCS} ${dbusmenuexportertest_MOC_SRCS})
 
 target_link_libraries(dbusmenuexportertest
     ${test_LIBRARIES}
@@ -61,9 +69,14 @@ set(dbusmenuimportertest_SRCS
     testutils.cpp
     )
 
-qt4_automoc(${dbusmenuimportertest_SRCS})
+set(dbusmenuimportertest_MOC_HEADERS
+    dbusmenuimportertest.h
+    testutils.h
+    )
 
-add_test_executable(dbusmenuimportertest ${dbusmenuimportertest_SRCS})
+qt5_wrap_cpp(dbusmenuimportertest_MOC_SRCS ${dbusmenuimportertest_MOC_HEADERS})
+
+add_test_executable(dbusmenuimportertest ${dbusmenuimportertest_SRCS} ${dbusmenuimportertest_MOC_SRCS})
 
 target_link_libraries(dbusmenuimportertest
     ${test_LIBRARIES}
@@ -74,9 +87,13 @@ set(dbusmenushortcuttest_SRCS
     dbusmenushortcuttest.cpp
     )
 
-qt4_automoc(${dbusmenushortcuttest_SRCS})
+set(dbusmenushortcuttest_MOC_HEADERS
+    dbusmenushortcuttest.h
+    )
 
-add_test_executable(dbusmenushortcuttest ${dbusmenushortcuttest_SRCS})
+qt5_wrap_cpp(dbusmenushortcuttest_MOC_SRCS ${dbusmenushortcuttest_MOC_HEADERS})
+
+add_test_executable(dbusmenushortcuttest ${dbusmenushortcuttest_SRCS} ${dbusmenushortcuttest_MOC_SRCS})
 
 target_link_libraries(dbusmenushortcuttest
     ${test_LIBRARIES}

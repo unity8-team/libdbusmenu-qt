@@ -27,7 +27,7 @@
 
 // Qt
 #include <QtCore/QObject>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 #include <QtCore/QVariant>
 
 class ManualSignalSpy : public QObject, public QList<QVariantList>

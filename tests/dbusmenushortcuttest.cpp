@@ -81,5 +81,3 @@ void DBusMenuShortcutTest::testConverter()
     QKeySequence sequence = keyList.toKeySequence();
     QCOMPARE(sequence.toString(), keySequence.toString());
 }
-
-#include "dbusmenushortcuttest.moc"

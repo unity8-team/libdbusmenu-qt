@@ -25,8 +25,8 @@
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
-#include <QtGui/QIcon>
-#include <QtGui/QMenu>
+#include <QtWidgets/QIcon>
+#include <QtWidgets/QMenu>
 #include <QtTest>
 
 // DBusMenuQt
@@ -762,5 +762,3 @@ void DBusMenuExporterTest::testSetStatus()
     QCOMPARE(spy.count(), 1);
     checkPropertiesChangedArgs(spy.takeFirst(), "Status", "normal");
 }
-
-#include "dbusmenuexportertest.moc"

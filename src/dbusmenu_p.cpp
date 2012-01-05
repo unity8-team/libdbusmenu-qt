@@ -21,9 +21,9 @@
 #include "dbusmenu_p.h"
 
 // Qt
-#include <QtGui/QAction>
+#include <QtWidgets/QAction>
 #include <QtGui/QActionEvent>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 
 // Local
 #include "dbusmenuexporter.h"
@@ -90,5 +90,3 @@ void DBusMenu::deleteMe()
 {
     delete this;
 }
-
-#include "dbusmenu_p.moc"

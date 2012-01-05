@@ -22,7 +22,7 @@
 
 // Qt
 #include <QtDBus/QDBusMessage>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 #include <QtCore/QVariant>
 
 // Local
@@ -182,5 +182,3 @@ QString DBusMenuExporterDBus::status() const
     return m_status;
 }
 
-
-#include "dbusmenuexporterdbus_p.moc"

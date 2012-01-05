@@ -24,7 +24,7 @@ endif (MSVC)
 # Check whether QIcon::name() exists. It was added in late Qt 4.7 cycle, and is
 # not present in betas.
 set(CMAKE_REQUIRED_INCLUDES "${QT_INCLUDE_DIR}")
-set(CMAKE_REQUIRED_LIBRARIES "${QT_QTGUI_LIBRARIES};${QT_QTCORE_LIBRARIES}")
+set(CMAKE_REQUIRED_LIBRARIES "${Qt5Gui_LIBRARIES};${Qt5Core_LIBRARIES}")
 check_cxx_source_compiles("
 #include <QtGui/QIcon>
 int main() {
@@ -49,14 +49,21 @@ set(dbusmenu_qt_SRCS
     utils.cpp
     )
 
+set(dbusmenu_qt_MOC_HEADERS
+    dbusmenu_p.h
+    dbusmenuexporter.h
+    dbusmenuexporterdbus_p.h
+    dbusmenuimporter.h
+    )
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}/src
     )
 
-qt4_automoc(${dbusmenu_qt_SRCS})
+qt5_wrap_cpp(dbusmenu_qt_MOC_SRCS ${dbusmenu_qt_MOC_HEADERS})
 
-qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
+qt5_add_dbus_adaptor(dbusmenu_qt_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/com.canonical.dbusmenu.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
     )
@@ -65,16 +72,16 @@ configure_file(dbusmenu_version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
     )
 
-add_library(dbusmenu-qt SHARED ${dbusmenu_qt_SRCS})
+add_library(dbusmenu-qt SHARED ${dbusmenu_qt_SRCS} ${dbusmenu_qt_MOC_SRCS})
 set_target_properties(dbusmenu-qt PROPERTIES
     VERSION ${dbusmenu_qt_lib_VERSION}
     SOVERSION ${dbusmenu_qt_lib_SOVERSION}
     )
 
 target_link_libraries(dbusmenu-qt
-    ${QT_QTGUI_LIBRARIES}
-    ${QT_QTDBUS_LIBRARIES}
-    ${QT_QTCORE_LIBRARIES}
+    ${Qt5Gui_LIBRARIES}
+    ${Qt5DBus_LIBRARIES}
+    ${Qt5Core_LIBRARIES}
     )
 
 install(TARGETS dbusmenu-qt

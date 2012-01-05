@@ -30,5 +30,3 @@ void waitForDeferredDeletes()
         QCoreApplication::processEvents();
     }
 }
-
-#include "testutils.moc"

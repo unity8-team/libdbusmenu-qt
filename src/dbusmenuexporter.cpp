@@ -23,11 +23,11 @@
 // Qt
 #include <QtCore/QDateTime>
 #include <QtCore/QMap>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 #include <QtCore/QSet>
 #include <QtCore/QTimer>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidgetAction>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QWidgetAction>
 
 // Local
 #include "dbusmenu_config.h"
@@ -468,4 +468,3 @@ QString DBusMenuExporter::status() const
     return d->m_dbusObject->status();
 }
 
-#include "dbusmenuexporter.moc"

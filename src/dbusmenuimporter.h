@@ -123,7 +123,7 @@ private:
     void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);
 
     // Use Q_PRIVATE_SLOT to avoid exposing DBusMenuItemList
-    Q_PRIVATE_SLOT(d, void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList));
+//    Q_PRIVATE_SLOT(d, void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList));
 };
 
 #endif /* DBUSMENUIMPORTER_H */

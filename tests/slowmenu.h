@@ -21,7 +21,7 @@
 #ifndef SLOWMENU_H
 #define SLOWMENU_H
 
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 
 class SlowMenu : public QMenu
 {

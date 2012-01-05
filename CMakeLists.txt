@@ -45,13 +45,19 @@ add_custom_target(distcheck
     )
 add_dependencies(distcheck dist)
 
-find_package(Qt4 4.6.0 REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5DBus REQUIRED)
+find_package(Qt5DBusTools REQUIRED)
+find_package(Qt5Xml REQUIRED)
+find_package(Qt5Test REQUIRED)
 
 include_directories(
     ${QT_INCLUDE_DIR}
-    ${QT_QTCORE_INCLUDE_DIR}
-    ${QT_QTDBUS_INCLUDE_DIR}
-    ${QT_QTGUI_INCLUDE_DIR}
+    ${Qt5Core_INCLUDE_DIRS}
+    ${Qt5DBus_INCLUDE_DIRS}
+    ${Qt5Gui_INCLUDE_DIRS}
     )
 
 configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)

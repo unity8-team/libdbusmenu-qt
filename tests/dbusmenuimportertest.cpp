@@ -25,8 +25,8 @@
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
-#include <QtGui/QIcon>
-#include <QtGui/QMenu>
+#include <QtWidgets/QIcon>
+#include <QtWidgets/QMenu>
 #include <QtTest>
 
 // DBusMenuQt
@@ -283,5 +283,3 @@ void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
         QVERIFY(child.isNull());
     }
 }
-
-#include "dbusmenuimportertest.moc"

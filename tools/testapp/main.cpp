@@ -18,11 +18,11 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtDBus/QDBusConnection>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 
 #include <qjson/parser.h>
 
