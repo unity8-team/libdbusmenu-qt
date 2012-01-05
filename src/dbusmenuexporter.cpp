@@ -21,13 +21,13 @@
 #include "dbusmenuexporter.h"
 
 // Qt
-#include <QDateTime>
-#include <QMap>
-#include <QMenu>
-#include <QSet>
-#include <QTimer>
-#include <QToolButton>
-#include <QWidgetAction>
+#include <QtCore/QDateTime>
+#include <QtCore/QMap>
+#include <QtGui/QMenu>
+#include <QtCore/QSet>
+#include <QtCore/QTimer>
+#include <QtGui/QToolButton>
+#include <QtGui/QWidgetAction>
 
 // Local
 #include "dbusmenu_config.h"

@@ -21,8 +21,8 @@
 #ifndef DBUSMENU_H
 #define DBUSMENU_H
 
-#include <QEvent>
-#include <QObject>
+#include <QtCore/QEvent>
+#include <QtCore/QObject>
 
 class QAction;
 class QMenu;

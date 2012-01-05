@@ -21,7 +21,7 @@
 #include "utils_p.h"
 
 // Qt
-#include <QString>
+#include <QtCore/QString>
 
 QString swapMnemonicChar(const QString &in, const char src, const char dst)
 {

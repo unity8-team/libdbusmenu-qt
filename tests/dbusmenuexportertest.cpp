@@ -22,11 +22,11 @@
 #include "dbusmenuexportertest.h"
 
 // Qt
-#include <QDBusConnection>
-#include <QDBusInterface>
-#include <QDBusReply>
-#include <QIcon>
-#include <QMenu>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusInterface>
+#include <QtDBus/QDBusReply>
+#include <QtGui/QIcon>
+#include <QtGui/QMenu>
 #include <QtTest>
 
 // DBusMenuQt

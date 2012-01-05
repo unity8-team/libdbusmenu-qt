@@ -21,9 +21,9 @@
 #include "dbusmenu_p.h"
 
 // Qt
-#include <QAction>
-#include <QActionEvent>
-#include <QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QActionEvent>
+#include <QtGui/QMenu>
 
 // Local
 #include "dbusmenuexporter.h"

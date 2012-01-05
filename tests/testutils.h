@@ -26,9 +26,9 @@
 #include <dbusmenutypes_p.h>
 
 // Qt
-#include <QObject>
-#include <QMenu>
-#include <QVariant>
+#include <QtCore/QObject>
+#include <QtGui/QMenu>
+#include <QtCore/QVariant>
 
 class ManualSignalSpy : public QObject, public QList<QVariantList>
 {

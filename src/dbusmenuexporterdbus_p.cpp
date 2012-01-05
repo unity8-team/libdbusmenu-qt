@@ -21,9 +21,9 @@
 #include "dbusmenuexporterdbus_p.h"
 
 // Qt
-#include <QDBusMessage>
-#include <QMenu>
-#include <QVariant>
+#include <QtDBus/QDBusMessage>
+#include <QtGui/QMenu>
+#include <QtCore/QVariant>
 
 // Local
 #include "dbusmenuadaptor.h"

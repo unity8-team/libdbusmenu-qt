@@ -25,7 +25,7 @@
 #include <QtGui>
 
 // Qt
-#include <QObject>
+#include <QtCore/QObject>
 
 // Local
 

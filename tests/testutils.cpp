@@ -20,7 +20,7 @@
 */
 #include "testutils.h"
 
-#include <QCoreApplication>
+#include <QtCore/QCoreApplication>
 
 void waitForDeferredDeletes()
 {

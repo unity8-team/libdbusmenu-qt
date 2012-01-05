@@ -21,7 +21,7 @@
 #ifndef DEBUG_P_H
 #define DEBUG_P_H
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 #define _DMBLUE  "\033[34m"
 #define _DMRED   "\033[31m"

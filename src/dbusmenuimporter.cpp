@@ -21,19 +21,19 @@
 #include "dbusmenuimporter.h"
 
 // Qt
-#include <QCoreApplication>
-#include <QDBusConnection>
-#include <QDBusInterface>
-#include <QDBusReply>
-#include <QDBusVariant>
-#include <QFont>
-#include <QMenu>
-#include <QPointer>
-#include <QSignalMapper>
-#include <QTime>
-#include <QTimer>
-#include <QToolButton>
-#include <QWidgetAction>
+#include <QtCore/QCoreApplication>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusInterface>
+#include <QtDBus/QDBusReply>
+#include <QtDBus/QDBusVariant>
+#include <QtGui/QFont>
+#include <QtGui/QMenu>
+#include <QtCore/QPointer>
+#include <QtCore/QSignalMapper>
+#include <QtCore/QTime>
+#include <QtCore/QTimer>
+#include <QtGui/QToolButton>
+#include <QtGui/QWidgetAction>
 
 // Local
 #include "dbusmenutypes_p.h"
