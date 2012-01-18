@@ -21,6 +21,7 @@
 #include "dbusmenuexporter.h"
 
 // Qt
+#include <QBuffer>
 #include <QDateTime>
 #include <QMap>
 #include <QMenu>
@@ -242,7 +243,9 @@ void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *acti
         return;
     }
 
-    // "icon-data";
+    QBuffer buffer;
+    icon.pixmap(16).save(&buffer, "PNG");
+    map->insert("icon-data", buffer.data());
 }
 
 static void collapseSeparator(QAction* action)
