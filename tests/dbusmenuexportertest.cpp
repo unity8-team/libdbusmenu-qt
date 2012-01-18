@@ -788,15 +788,12 @@ void DBusMenuExporterTest::testGetIconDataProperty()
 
     // Get properties
     QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
-    //QDBusReply<DBusMenuItemList> reply = iface.call("GetChildren", 0, QStringList());
     DBusMenuLayoutItemList layoutItemlist = getChildren(&iface, 0, QStringList());
     QCOMPARE(layoutItemlist.count(), 1);
 
-    QList<int> ids=QList<int>() << layoutItemlist[0].id;
+    QList<int> ids = QList<int>() << layoutItemlist[0].id;
 
     QDBusReply<DBusMenuItemList> reply = iface.call("GetGroupProperties", QVariant::fromValue(ids), QStringList());
-    /*
-    QVERIFY2(reply.isValid(), qPrintable(reply.error().message()));*/
 
     DBusMenuItemList itemlist = reply.value();
     QCOMPARE(itemlist.count(), 1);
