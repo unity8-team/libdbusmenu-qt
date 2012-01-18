@@ -777,6 +777,7 @@ void DBusMenuExporterTest::testGetIconDataProperty()
         rect.adjust(2, 2, -2, -2);
         painter.fillRect(rect, Qt::green);
     }
+
     QIcon icon(QPixmap::fromImage(img));
 
     // Create a menu with the icon and export it
@@ -800,8 +801,8 @@ void DBusMenuExporterTest::testGetIconDataProperty()
     DBusMenuItemList itemlist = reply.value();
     QCOMPARE(itemlist.count(), 1);
 
-    /*// Check we have the right property
-    DBusMenuItem item = list.takeFirst();
+    // Check we have the right property
+    DBusMenuItem item = itemlist.takeFirst();
     QVERIFY(!item.properties.contains("icon-name"));
     QVERIFY(item.properties.contains("icon-data"));
 
@@ -810,7 +811,7 @@ void DBusMenuExporterTest::testGetIconDataProperty()
     QVERIFY(!data.isEmpty());
     QImage result;
     QVERIFY(result.loadFromData(data, "PNG"));
-    QCOMPARE(result, img);*/
+    QCOMPARE(result, img);
 }
 
 #include "dbusmenuexportertest.moc"
