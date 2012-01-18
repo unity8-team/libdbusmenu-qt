@@ -54,6 +54,7 @@ private Q_SLOTS:
     void testSeparatorCollapsing_data();
     void testSeparatorCollapsing();
     void testSetStatus();
+    void testGetIconDataProperty();
 
     void init();
     void cleanup();

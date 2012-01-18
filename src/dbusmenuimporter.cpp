@@ -55,7 +55,8 @@ static const int ABOUT_TO_SHOW_TIMEOUT = 3000;
 static const int REFRESH_TIMEOUT = 4000;
 
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
-static const char *DBUSMENU_PROPERTY_ICON = "_dbusmenu_icon";
+static const char *DBUSMENU_PROPERTY_ICON_NAME = "_dbusmenu_icon_name";
+static const char *DBUSMENU_PROPERTY_ICON_DATA_HASH = "_dbusmenu_icon_data_hash";
 
 struct Task
 {
@@ -197,7 +198,9 @@ public:
         } else if (key == "toggle-state") {
             updateActionChecked(action, value);
         } else if (key == "icon-name") {
-            updateActionIcon(action, value);
+            updateActionIconByName(action, value);
+        } else if (key == "icon-data") {
+            updateActionIconByData(action, value);
         } else if (key == "visible") {
             updateActionVisible(action, value);
         } else if (key == "shortcut") {
@@ -225,19 +228,37 @@ public:
         }
     }
 
-    void updateActionIcon(QAction *action, const QVariant &value)
+    void updateActionIconByName(QAction *action, const QVariant &value)
     {
         QString iconName = value.toString();
-        QString previous = action->property(DBUSMENU_PROPERTY_ICON).toString();
+        QString previous = action->property(DBUSMENU_PROPERTY_ICON_NAME).toString();
         if (previous == iconName) {
             return;
         }
-        action->setProperty(DBUSMENU_PROPERTY_ICON, iconName);
+        action->setProperty(DBUSMENU_PROPERTY_ICON_NAME, iconName);
         if (iconName.isEmpty()) {
             action->setIcon(QIcon());
             return;
         }
         action->setIcon(q->iconForName(iconName));
+    }
+
+    void updateActionIconByData(QAction *action, const QVariant &value)
+    {
+        QByteArray data = QByteArray::fromBase64(value.toByteArray());
+        uint dataHash = qHash(data);
+        uint previousDataHash = action->property(DBUSMENU_PROPERTY_ICON_DATA_HASH).toUInt();
+        if (previousDataHash == dataHash) {
+            return;
+        }
+        action->setProperty(DBUSMENU_PROPERTY_ICON_DATA_HASH, dataHash);
+        QPixmap pix;
+        if (!pix.loadFromData(data)) {
+            DMWARNING << "Failed to decode icon-data property for action" << action->text();
+            action->setIcon(QIcon());
+            return;
+        }
+        action->setIcon(QIcon(pix));
     }
 
     void updateActionVisible(QAction *action, const QVariant &value)

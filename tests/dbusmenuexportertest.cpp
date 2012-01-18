@@ -763,4 +763,52 @@ void DBusMenuExporterTest::testSetStatus()
     checkPropertiesChangedArgs(spy.takeFirst(), "Status", "normal");
 }
 
+void DBusMenuExporterTest::testGetIconDataProperty()
+{
+    // Create an icon
+    QImage img(16, 16, QImage::Format_ARGB32);
+    {
+        QPainter painter(&img);
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        QRect rect = img.rect();
+        painter.fillRect(rect, Qt::transparent);
+        rect.adjust(2, 2, -2, -2);
+        painter.fillRect(rect, Qt::red);
+        rect.adjust(2, 2, -2, -2);
+        painter.fillRect(rect, Qt::green);
+    }
+
+    QIcon icon(QPixmap::fromImage(img));
+
+    // Create a menu with the icon and export it
+    QMenu inputMenu;
+    QAction* a1 = inputMenu.addAction("a1");
+    a1->setIcon(icon);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Get properties
+    QDBusInterface iface(TEST_SERVICE, TEST_OBJECT_PATH);
+    DBusMenuLayoutItemList layoutItemlist = getChildren(&iface, 0, QStringList());
+    QCOMPARE(layoutItemlist.count(), 1);
+
+    QList<int> ids = QList<int>() << layoutItemlist[0].id;
+
+    QDBusReply<DBusMenuItemList> reply = iface.call("GetGroupProperties", QVariant::fromValue(ids), QStringList());
+
+    DBusMenuItemList itemlist = reply.value();
+    QCOMPARE(itemlist.count(), 1);
+
+    // Check we have the right property
+    DBusMenuItem item = itemlist.takeFirst();
+    QVERIFY(!item.properties.contains("icon-name"));
+    QVERIFY(item.properties.contains("icon-data"));
+
+    // Check saved image is the same
+    QByteArray data = item.properties.value("icon-data").toByteArray();
+    QVERIFY(!data.isEmpty());
+    QImage result;
+    QVERIFY(result.loadFromData(QByteArray::fromBase64(data), "PNG"));
+    QCOMPARE(result, img);
+}
+
 #include "dbusmenuexportertest.moc"

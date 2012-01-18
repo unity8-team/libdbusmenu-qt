@@ -284,4 +284,46 @@ void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
     }
 }
 
+void DBusMenuImporterTest::testIconData()
+{
+    RegisterServiceHelper helper;
+
+    // Create an icon
+    QImage img(16, 16, QImage::Format_ARGB32);
+    {
+        QPainter painter(&img);
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        QRect rect = img.rect();
+        painter.fillRect(rect, Qt::transparent);
+        rect.adjust(2, 2, -2, -2);
+        painter.fillRect(rect, Qt::red);
+        rect.adjust(2, 2, -2, -2);
+        painter.fillRect(rect, Qt::green);
+    }
+    QIcon inputIcon(QPixmap::fromImage(img));
+
+    // Export a menu
+    QMenu inputMenu;
+    QAction *a1 = inputMenu.addAction("a1");
+    a1->setIcon(inputIcon);
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    // Import the menu
+    DBusMenuImporter *importer = new DBusMenuImporter(TEST_SERVICE, TEST_OBJECT_PATH);
+    QTest::qWait(500);
+
+    // Check icon of action
+    QMenu *outputMenu = importer->menu();
+    QCOMPARE(outputMenu->actions().count(), 1);
+
+    QIcon outputIcon = outputMenu->actions().first()->icon();
+    QVERIFY(!outputIcon.isNull());
+
+    QImage result = outputIcon.pixmap(16).toImage();
+    QByteArray origBytes, resultBytes;
+    img.save(origBytes);
+    result.save(resultBytes);
+    QCOMPARE(origBytes,resultBytes);
+}
+
 #include "dbusmenuimportertest.moc"
