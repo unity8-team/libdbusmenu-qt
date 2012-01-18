@@ -320,7 +320,10 @@ void DBusMenuImporterTest::testIconData()
     QVERIFY(!outputIcon.isNull());
 
     QImage result = outputIcon.pixmap(16).toImage();
-    QCOMPARE(img, result);
+    QByteArray origBytes, resultBytes;
+    img.save(origBytes);
+    result.save(resultBytes);
+    QCOMPARE(origBytes,resultBytes);
 }
 
 #include "dbusmenuimportertest.moc"
