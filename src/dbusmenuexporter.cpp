@@ -245,7 +245,7 @@ void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *acti
 
     QBuffer buffer;
     icon.pixmap(16).save(&buffer, "PNG");
-    map->insert("icon-data", buffer.data());
+    map->insert("icon-data", buffer.data().toBase64());
 }
 
 static void collapseSeparator(QAction* action)

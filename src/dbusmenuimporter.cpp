@@ -245,7 +245,7 @@ public:
 
     void updateActionIconByData(QAction *action, const QVariant &value)
     {
-        QByteArray data = value.toByteArray();
+        QByteArray data = QByteArray::fromBase64(value.toByteArray());
         uint dataHash = qHash(data);
         uint previousDataHash = action->property(DBUSMENU_PROPERTY_ICON_DATA_HASH).toUInt();
         if (previousDataHash == dataHash) {
@@ -254,6 +254,7 @@ public:
         action->setProperty(DBUSMENU_PROPERTY_ICON_DATA_HASH, dataHash);
         QPixmap pix;
         if (!pix.loadFromData(data)) {
+            DMWARNING << "Failed to decode icon-data property for action" << action->text();
             action->setIcon(QIcon());
             return;
         }
