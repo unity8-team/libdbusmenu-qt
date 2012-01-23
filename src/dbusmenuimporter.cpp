@@ -245,7 +245,7 @@ public:
 
     void updateActionIconByData(QAction *action, const QVariant &value)
     {
-        QByteArray data = QByteArray::fromBase64(value.toByteArray());
+        QByteArray data = value.toByteArray();
         uint dataHash = qHash(data);
         uint previousDataHash = action->property(DBUSMENU_PROPERTY_ICON_DATA_HASH).toUInt();
         if (previousDataHash == dataHash) {

@@ -807,7 +807,7 @@ void DBusMenuExporterTest::testGetIconDataProperty()
     QByteArray data = item.properties.value("icon-data").toByteArray();
     QVERIFY(!data.isEmpty());
     QImage result;
-    QVERIFY(result.loadFromData(QByteArray::fromBase64(data), "PNG"));
+    QVERIFY(result.loadFromData(data, "PNG"));
     QCOMPARE(result, img);
 }
 
