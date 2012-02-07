@@ -47,8 +47,6 @@
 static QTime sChrono;
 #endif
 
-typedef void (DBusMenuImporter::*DBusMenuImporterMethod)(int, QDBusPendingCallWatcher*);
-
 static const char *DBUSMENU_INTERFACE = "com.canonical.dbusmenu";
 
 static const int ABOUT_TO_SHOW_TIMEOUT = 3000;
@@ -57,17 +55,6 @@ static const int REFRESH_TIMEOUT = 4000;
 static const char *DBUSMENU_PROPERTY_ID = "_dbusmenu_id";
 static const char *DBUSMENU_PROPERTY_ICON_NAME = "_dbusmenu_icon_name";
 static const char *DBUSMENU_PROPERTY_ICON_DATA_HASH = "_dbusmenu_icon_data_hash";
-
-struct Task
-{
-    Task()
-    : m_id(0)
-    , m_method(0)
-    {}
-
-    int m_id;
-    DBusMenuImporterMethod m_method;
-};
 
 static QAction *createKdeTitle(QAction *action, QWidget *parent)
 {
@@ -92,7 +79,6 @@ public:
 
     QDBusAbstractInterface *m_interface;
     QMenu *m_menu;
-    QMap<QDBusPendingCallWatcher *, Task> m_taskForWatcher;
     typedef QMap<int, QPointer<QAction> > ActionForId;
     ActionForId m_actionForId;
     QSignalMapper m_mapper;
@@ -111,13 +97,9 @@ public:
         #endif
         QDBusPendingCall call = m_interface->asyncCall("GetLayout", id, 1, QStringList());
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, q);
+        watcher->setProperty(DBUSMENU_PROPERTY_ID, id);
         QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-            q, SLOT(dispatch(QDBusPendingCallWatcher*)));
-
-        Task task;
-        task.m_id = id;
-        task.m_method = &DBusMenuImporter::GetLayoutCallback;
-        m_taskForWatcher.insert(watcher, task);
+            q, SLOT(slotGetLayoutFinished(QDBusPendingCallWatcher*)));
 
         return watcher;
     }
@@ -354,16 +336,6 @@ QMenu *DBusMenuImporter::menu() const
     return d->m_menu;
 }
 
-void DBusMenuImporter::dispatch(QDBusPendingCallWatcher *watcher)
-{
-    Task task = d->m_taskForWatcher.take(watcher);
-    if (!task.m_method) {
-        DMWARNING << "No task for watcher!";
-        return;
-    }
-    (this->*task.m_method)(task.m_id, watcher);
-}
-
 void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList)
 {
     Q_FOREACH(const DBusMenuItem &item, updatedList) {
@@ -401,33 +373,10 @@ void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
     actionActivationRequested(action);
 }
 
-void DBusMenuImporter::GetPropertiesCallback(int id, QDBusPendingCallWatcher *watcher)
+void DBusMenuImporter::slotGetLayoutFinished(QDBusPendingCallWatcher *watcher)
 {
-    #ifdef BENCHMARK
-    DMDEBUG << "- Parsing updated properties for id" << id << sChrono.elapsed() << "ms";
-    #endif
-    QStringList requestedProperties = watcher->property("requestedProperties").toStringList();
-    QDBusReply<QVariantMap> reply = *watcher;
-    if (!reply.isValid()) {
-        DMWARNING << reply.error().message();
-        return;
-    }
+    int parentId = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
 
-    QVariantMap properties = reply.value();
-
-    QAction *action = d->m_actionForId.value(id);
-    if (!action) {
-        DMWARNING << "No action for id" << id;
-        return;
-    }
-    d->updateAction(action, properties, requestedProperties);
-    #ifdef BENCHMARK
-    DMDEBUG << "- Item updated" << id << sChrono.elapsed() << "ms";
-    #endif
-}
-
-void DBusMenuImporter::GetLayoutCallback(int parentId, QDBusPendingCallWatcher *watcher)
-{
     QDBusPendingReply<uint, DBusMenuLayoutItem> reply = *watcher;
     if (!reply.isValid()) {
         DMWARNING << reply.error().message();

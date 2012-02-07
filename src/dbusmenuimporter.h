@@ -106,21 +106,18 @@ protected:
     virtual QIcon iconForName(const QString &);
 
 private Q_SLOTS:
-    void dispatch(QDBusPendingCallWatcher *);
     void sendClickedEvent(int);
     void slotMenuAboutToShow();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemActivationRequested(int id, uint timestamp);
     void processPendingLayoutUpdates();
     void slotLayoutUpdated(uint revision, int parentId);
+    void slotGetLayoutFinished(QDBusPendingCallWatcher *);
 
 private:
     Q_DISABLE_COPY(DBusMenuImporter)
     DBusMenuImporterPrivate *const d;
     friend class DBusMenuImporterPrivate;
-
-    void GetLayoutCallback(int id, QDBusPendingCallWatcher *);
-    void GetPropertiesCallback(int id, QDBusPendingCallWatcher *);
 
     // Use Q_PRIVATE_SLOT to avoid exposing DBusMenuItemList
     Q_PRIVATE_SLOT(d, void slotItemsPropertiesUpdated(const DBusMenuItemList &updatedList, const DBusMenuItemKeysList &removedList));
