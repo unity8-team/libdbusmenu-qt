@@ -39,33 +39,15 @@
 
 QTEST_MAIN(DBusMenuImporterTest)
 
-static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
+static const char *TEST_SERVICE = "com.canonical.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
-
-/**
- * Helper class to register TEST_SERVICE.
- * We don't do this in some init()/cleanup() methods because for some tests the
- * service must not be registered.
- */
-class RegisterServiceHelper
-{
-public:
-    RegisterServiceHelper()
-    {
-        QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
-    }
-
-    ~RegisterServiceHelper()
-    {
-        QVERIFY(QDBusConnection::sessionBus().unregisterService(TEST_SERVICE));
-    }
-};
 
 Q_DECLARE_METATYPE(QAction*)
 
 void DBusMenuImporterTest::initTestCase()
 {
     qRegisterMetaType<QAction*>("QAction*");
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
 }
 
 void DBusMenuImporterTest::cleanup()
@@ -75,8 +57,6 @@ void DBusMenuImporterTest::cleanup()
 
 void DBusMenuImporterTest::testStandardItem()
 {
-    RegisterServiceHelper helper;
-
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
     action->setVisible(false);
@@ -100,8 +80,6 @@ void DBusMenuImporterTest::testStandardItem()
 
 void DBusMenuImporterTest::testAddingNewItem()
 {
-    RegisterServiceHelper helper;
-
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
@@ -118,8 +96,6 @@ void DBusMenuImporterTest::testAddingNewItem()
 
 void DBusMenuImporterTest::testShortcut()
 {
-    RegisterServiceHelper helper;
-
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
     action->setShortcut(Qt::CTRL | Qt::Key_S);
@@ -158,8 +134,6 @@ void DBusMenuImporterTest::testDeletingImporterWhileWaitingForAboutToShow()
 
 void DBusMenuImporterTest::testDynamicMenu()
 {
-    RegisterServiceHelper helper;
-
     QMenu rootMenu;
     QAction* a1 = new QAction("a1", &rootMenu);
     QAction* a2 = new QAction("a2", &rootMenu);
@@ -214,8 +188,6 @@ void DBusMenuImporterTest::testDynamicMenu()
 
 void DBusMenuImporterTest::testActionActivationRequested()
 {
-    RegisterServiceHelper helper;
-
     // Export a menu
     QMenu inputMenu;
     QAction *inputA1 = inputMenu.addAction("a1");
@@ -247,8 +219,6 @@ void DBusMenuImporterTest::testActionActivationRequested()
 
 void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
 {
-    RegisterServiceHelper helper;
-
     // Export a menu
     QMenu inputMenu;
     inputMenu.addAction("a1");
@@ -286,8 +256,6 @@ void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
 
 void DBusMenuImporterTest::testIconData()
 {
-    RegisterServiceHelper helper;
-
     // Create an icon
     QImage img(16, 16, QImage::Format_ARGB32);
     {
