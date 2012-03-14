@@ -108,6 +108,7 @@ protected:
 private Q_SLOTS:
     void sendClickedEvent(int);
     void slotMenuAboutToShow();
+    void slotMenuAboutToHide();
     void slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *);
     void slotItemActivationRequested(int id, uint timestamp);
     void processPendingLayoutUpdates();
