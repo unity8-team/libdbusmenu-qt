@@ -9,22 +9,10 @@
 - Create tarball
 - Unpack tarball, build and run tests
 - Test with KDE trunk
-- Sync the gitorious repository (at least the version number changes)
-  bzr format-patch -r tag:x.y.z-1..
-  mv *.diff $gitorious
-  cd $gitorious
-  git am --reject *.diff
 - If ok, create tag
   tag=x.y.z
   bzr tag $tag
-  cd $gitorious
-  git tag $tag.kde
-  cd -
 - Push
   bzr push
-  cd $gitorious
-  git push
-  git push --tags
-  cd -
 - Upload tarball
   lp-project-upload libdbusmenu-qt $tag libdbusmenu-qt-$tag.tar.bz2
