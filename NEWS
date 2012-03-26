@@ -1,3 +1,8 @@
+# 0.9.1 - 2012.03.26
+- Work around xul apps not showing menu on first click (LP BUG 878165) (Aurelien Gateau)
+- Add support for "opened" and "closed" events (Aurelien Gateau)
+- Add support for icon-data (LP BUG 633339) (Christoph Spielmann)
+
 # 0.9.0 - 2011.08.30
 - Add support for the "Status" dbusmenu property. Will be used by appmenu-qt for LP BUG 737419 (Aurelien Gateau)
 - Collapse multiple separators, get rid of starting and trailing separators (LP BUG 793339) (Aurelien Gateau)
