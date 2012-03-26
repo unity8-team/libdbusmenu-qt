@@ -1,5 +1,4 @@
 # 0.9.1 - 2012.03.26
-- Work around xul apps not showing menu on first click (LP BUG 878165) (Aurelien Gateau)
 - Add support for "opened" and "closed" events (Aurelien Gateau)
 - Add support for icon-data (LP BUG 633339) (Christoph Spielmann)
 
