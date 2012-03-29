@@ -334,6 +334,7 @@ DBusMenuExporter::DBusMenuExporter(const QString &objectPath, QMenu *menu, const
     d->m_rootMenu = menu;
     d->m_nextId = 1;
     d->m_revision = 1;
+    d->m_emittedLayoutUpdatedOnce = false;
     d->m_itemUpdatedTimer = new QTimer(this);
     d->m_layoutUpdatedTimer = new QTimer(this);
     d->m_dbusObject = new DBusMenuExporterDBus(this);
@@ -416,6 +417,14 @@ void DBusMenuExporter::doUpdateActions()
         }
     }
     d->m_itemUpdatedIds.clear();
+    if (!d->m_emittedLayoutUpdatedOnce) {
+        // No need to tell the world about action changes: nobody knows the
+        // menu layout so nobody knows about the actions.
+        // Note: We can't stop in DBusMenuExporterPrivate::addAction(), we
+        // still need to reach this method because we want our properties to be
+        // updated, even if we don't announce changes.
+        return;
+    }
     if (!updatedList.isEmpty() || !removedList.isEmpty()) {
         d->m_dbusObject->ItemsPropertiesUpdated(updatedList, removedList);
     }
@@ -423,12 +432,24 @@ void DBusMenuExporter::doUpdateActions()
 
 void DBusMenuExporter::doEmitLayoutUpdated()
 {
+    // Collapse separators for all updated menus
     Q_FOREACH(int id, d->m_layoutUpdatedIds) {
         QMenu* menu = d->menuForId(id);
         if (menu && menu->separatorsCollapsible()) {
             d->collapseSeparators(menu);
         }
-        d->m_dbusObject->LayoutUpdated(d->m_revision, id);
+    }
+
+    // Tell the world about the update
+    if (d->m_emittedLayoutUpdatedOnce) {
+        Q_FOREACH(int id, d->m_layoutUpdatedIds) {
+            d->m_dbusObject->LayoutUpdated(d->m_revision, id);
+        }
+    } else {
+        // First time we emit LayoutUpdated, no need to emit several layout
+        // updates, signals the whole layout (id==0) has been updated
+        d->m_dbusObject->LayoutUpdated(d->m_revision, 0);
+        d->m_emittedLayoutUpdatedOnce = true;
     }
     d->m_layoutUpdatedIds.clear();
 }

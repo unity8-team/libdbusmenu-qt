@@ -50,6 +50,7 @@ public:
     QMap<QAction *, int> m_idForAction;
     int m_nextId;
     uint m_revision;
+    bool m_emittedLayoutUpdatedOnce;
 
     QSet<int> m_itemUpdatedIds;
     QTimer *m_itemUpdatedTimer;
