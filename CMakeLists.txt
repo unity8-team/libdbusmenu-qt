@@ -9,7 +9,7 @@ option(WITH_DOC "Build documentation (requires Doxygen)" ON)
 ## Package version
 set(dbusmenu_qt_VERSION_MAJOR 0)
 set(dbusmenu_qt_VERSION_MINOR 9)
-set(dbusmenu_qt_VERSION_PATCH 1)
+set(dbusmenu_qt_VERSION_PATCH 2)
 set(dbusmenu_qt_VERSION ${dbusmenu_qt_VERSION_MAJOR}.${dbusmenu_qt_VERSION_MINOR}.${dbusmenu_qt_VERSION_PATCH})
 
 ## Lib version

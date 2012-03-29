@@ -1,3 +1,8 @@
+# 0.9.2 - 2012.03.29
+- Fix disabling and hiding actions (Aurelien Gateau)
+- Avoid spamming dbus at startup (Aurelien Gateau)
+- Do not print warnings when not necessary (Aurelien Gateau)
+
 # 0.9.1 - 2012.03.26
 - Add support for "opened" and "closed" events (Aurelien Gateau)
 - Add support for icon-data (LP BUG 633339) (Christoph Spielmann)
