@@ -265,7 +265,9 @@ public:
             return q->menu();
         }
         QAction *action = m_actionForId.value(id);
-        DMRETURN_VALUE_IF_FAIL(action, 0);
+        if (!action) {
+            return 0;
+        }
         return action->menu();
     }
 
@@ -350,7 +352,7 @@ void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList 
     Q_FOREACH(const DBusMenuItem &item, updatedList) {
         QAction *action = m_actionForId.value(item.id);
         if (!action) {
-            DMWARNING << "No action for id" << item.id;
+            // We don't know this action. It probably is in a menu we haven't fetched yet.
             continue;
         }
 
@@ -365,7 +367,7 @@ void DBusMenuImporterPrivate::slotItemsPropertiesUpdated(const DBusMenuItemList 
     Q_FOREACH(const DBusMenuItemKeys &item, removedList) {
         QAction *action = m_actionForId.value(item.id);
         if (!action) {
-            DMWARNING << "No action for id" << item.id;
+            // We don't know this action. It probably is in a menu we haven't fetched yet.
             continue;
         }
 
@@ -398,7 +400,10 @@ void DBusMenuImporter::slotGetLayoutFinished(QDBusPendingCallWatcher *watcher)
     DBusMenuLayoutItem rootItem = reply.argumentAt<1>();
 
     QMenu *menu = d->menuForId(parentId);
-    DMRETURN_IF_FAIL(menu);
+    if (!menu) {
+        DMWARNING << "No menu for id" << parentId;
+        return;
+    }
 
     menu->clear();
 
