@@ -237,6 +237,8 @@ void DBusMenuImporterTest::testActionsAreDeletedWhenImporterIs()
     QCOMPARE(outputMenu->actions().count(), 2);
     QMenu *outputSubMenu = outputMenu->actions().at(1)->menu();
     QVERIFY(outputSubMenu);
+    // Fake aboutToShow so that outputSubMenu is populated
+    QMetaObject::invokeMethod(outputSubMenu, "aboutToShow");
     QCOMPARE(outputSubMenu->actions().count(), 1);
 
     children << outputMenu->actions().at(0);
