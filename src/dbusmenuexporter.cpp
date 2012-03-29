@@ -378,21 +378,31 @@ void DBusMenuExporter::doUpdateActions()
         QVariantMap  updatedProperties;
         QStringList  removedProperties;
 
-        // Fill removedProperties and updatedProperties
+        // Find updated and removed properties
+        QVariantMap::ConstIterator newEnd = newProperties.constEnd();
+
         QVariantMap::ConstIterator
             oldIt = oldProperties.constBegin(),
             oldEnd = oldProperties.constEnd();
-        QVariantMap::Iterator newEnd = newProperties.end();
-
         for(; oldIt != oldEnd; ++oldIt) {
             QString key = oldIt.key();
             QVariantMap::ConstIterator newIt = newProperties.find(key);
             if (newIt != newEnd) {
                 if (newIt.value() != oldIt.value()) {
-                    updatedProperties.insert(newIt.key(), newIt.value());
+                    updatedProperties.insert(key, newIt.value());
                 }
             } else {
                 removedProperties << key;
+            }
+        }
+
+        // Find new properties (treat them as updated properties)
+        QVariantMap::ConstIterator newIt = newProperties.constBegin();
+        for (; newIt != newEnd; ++newIt) {
+            QString key = newIt.key();
+            oldIt = oldProperties.find(key);
+            if (oldIt == oldEnd) {
+                updatedProperties.insert(key, newIt.value());
             }
         }
 

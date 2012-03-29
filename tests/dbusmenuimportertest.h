@@ -42,6 +42,8 @@ private Q_SLOTS:
     void testActionActivationRequested();
     void testActionsAreDeletedWhenImporterIs();
     void testIconData();
+    void testInvisibleItem();
+    void testDisabledItem();
 
     void initTestCase();
 };
