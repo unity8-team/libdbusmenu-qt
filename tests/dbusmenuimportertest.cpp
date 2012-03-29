@@ -59,7 +59,6 @@ void DBusMenuImporterTest::testStandardItem()
 {
     QMenu inputMenu;
     QAction *action = inputMenu.addAction("Test");
-    action->setVisible(false);
     DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
 
     DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
@@ -68,14 +67,7 @@ void DBusMenuImporterTest::testStandardItem()
     QMenu *outputMenu = importer.menu();
     QCOMPARE(outputMenu->actions().count(), 1);
     QAction *outputAction = outputMenu->actions().first();
-    QVERIFY(!outputAction->isVisible());
     QCOMPARE(outputAction->text(), QString("Test"));
-
-    // Make the action visible, outputAction should become visible as well
-    action->setVisible(true);
-    QTest::qWait(500);
-
-    QVERIFY(outputAction->isVisible());
 }
 
 void DBusMenuImporterTest::testAddingNewItem()
@@ -294,6 +286,58 @@ void DBusMenuImporterTest::testIconData()
     img.save(origBytes);
     result.save(resultBytes);
     QCOMPARE(origBytes,resultBytes);
+}
+
+void DBusMenuImporterTest::testInvisibleItem()
+{
+    QMenu inputMenu;
+    QAction *action = inputMenu.addAction("Test");
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    QTest::qWait(500);
+
+    QMenu *outputMenu = importer.menu();
+    QCOMPARE(outputMenu->actions().count(), 1);
+    QAction *outputAction = outputMenu->actions().first();
+
+    QVERIFY(outputAction->isVisible());
+
+    // Hide the action
+    action->setVisible(false);
+    QTest::qWait(500);
+    QVERIFY(!outputAction->isVisible());
+
+    // Show the action
+    action->setVisible(true);
+    QTest::qWait(500);
+    QVERIFY(outputAction->isVisible());
+}
+
+void DBusMenuImporterTest::testDisabledItem()
+{
+    QMenu inputMenu;
+    QAction *action = inputMenu.addAction("Test");
+    DBusMenuExporter exporter(TEST_OBJECT_PATH, &inputMenu);
+
+    DBusMenuImporter importer(TEST_SERVICE, TEST_OBJECT_PATH);
+    QTest::qWait(500);
+
+    QMenu *outputMenu = importer.menu();
+    QCOMPARE(outputMenu->actions().count(), 1);
+    QAction *outputAction = outputMenu->actions().first();
+    QVERIFY(outputAction->isEnabled());
+
+    // Disable the action
+    DMDEBUG << "Disabling";
+    action->setEnabled(false);
+    QTest::qWait(500);
+    QVERIFY(!outputAction->isEnabled());
+
+    // Enable the action
+    action->setEnabled(true);
+    QTest::qWait(500);
+    QVERIFY(outputAction->isEnabled());
 }
 
 #include "dbusmenuimportertest.moc"
