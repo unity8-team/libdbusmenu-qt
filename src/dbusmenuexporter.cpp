@@ -386,7 +386,7 @@ void DBusMenuExporter::doUpdateActions()
             oldEnd = oldProperties.constEnd();
         for(; oldIt != oldEnd; ++oldIt) {
             QString key = oldIt.key();
-            QVariantMap::ConstIterator newIt = newProperties.find(key);
+            QVariantMap::ConstIterator newIt = newProperties.constFind(key);
             if (newIt != newEnd) {
                 if (newIt.value() != oldIt.value()) {
                     updatedProperties.insert(key, newIt.value());
@@ -400,7 +400,7 @@ void DBusMenuExporter::doUpdateActions()
         QVariantMap::ConstIterator newIt = newProperties.constBegin();
         for (; newIt != newEnd; ++newIt) {
             QString key = newIt.key();
-            oldIt = oldProperties.find(key);
+            oldIt = oldProperties.constFind(key);
             if (oldIt == oldEnd) {
                 updatedProperties.insert(key, newIt.value());
             }
