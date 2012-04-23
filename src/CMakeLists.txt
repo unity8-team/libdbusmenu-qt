@@ -73,7 +73,8 @@ target_link_libraries(dbusmenu-qt
     )
 
 install(TARGETS dbusmenu-qt
-    LIBRARY DESTINATION lib${LIB_SUFFIX})
+    LIBRARY DESTINATION lib${LIB_SUFFIX}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY .
     DESTINATION include/dbusmenu-qt
