@@ -7,7 +7,9 @@ their menus over DBus.
 
 # Author
 
-Canonical DX Team, Aurélien Gâteau <aurelien.gateau@canonical.com>
+Canonical DX Team
+Maintainer: Renato Filho <renato.filho@canonical.com>
+Former maintainer: Aurélien Gâteau
 
 # Documentation
 
