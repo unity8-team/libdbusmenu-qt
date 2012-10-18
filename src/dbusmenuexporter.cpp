@@ -236,7 +236,6 @@ void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *acti
     QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
         map->insert("icon-name", iconName);
-        return;
     }
     QIcon icon = action->icon();
     if (icon.isNull()) {
