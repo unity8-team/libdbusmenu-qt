@@ -233,19 +233,20 @@ void DBusMenuExporterPrivate::emitLayoutUpdated(int id)
 
 void DBusMenuExporterPrivate::insertIconProperty(QVariantMap *map, QAction *action) const
 {
-    QString iconName = q->iconNameForAction(action);
+    // provide the icon name for per-theme lookups
+    const QString iconName = q->iconNameForAction(action);
     if (!iconName.isEmpty()) {
         map->insert("icon-name", iconName);
-        return;
-    }
-    QIcon icon = action->icon();
-    if (icon.isNull()) {
-        return;
     }
 
-    QBuffer buffer;
-    icon.pixmap(16).save(&buffer, "PNG");
-    map->insert("icon-data", buffer.data());
+    // provide the serialized icon data in case the icon
+    // is unnamed or the name isn't supported by the theme
+    const QIcon icon = action->icon();
+    if (!icon.isNull()) {
+        QBuffer buffer;
+        icon.pixmap(16).save(&buffer, "PNG");
+        map->insert("icon-data", buffer.data());
+    }
 }
 
 static void collapseSeparator(QAction* action)
