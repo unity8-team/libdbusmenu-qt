@@ -49,7 +49,9 @@ include_directories(
     ${CMAKE_BINARY_DIR}/src
     )
 
+if (NOT Qt5Widgets_FOUND)
 qt4_automoc(${dbusmenu_qt_SRCS})
+endif()
 
 qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/com.canonical.dbusmenu.xml

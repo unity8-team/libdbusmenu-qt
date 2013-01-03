@@ -44,14 +44,25 @@ add_custom_target(distcheck
     )
 add_dependencies(distcheck dist)
 
+find_package(Qt5Widgets QUIET)
+if (Qt5Widgets_FOUND)
+   find_package(Qt5DBus REQUIRED)
+   include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
+   find_package(extra-cmake-modules 0.0.2 REQUIRED)
+   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EXTRA_CMAKE_MODULES_MODULE_PATH})
+   find_package(Qt5Transitional REQUIRED Core)
+   set(CMAKE_AUTOMOC ON)
+   set(CMAKE_AUTOMOC_RELAXED_MODE ON)
+else()
 find_package(Qt4 REQUIRED)
-
 include_directories(
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
     )
+endif()
+
 
 configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)
 
@@ -60,7 +71,9 @@ install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
     )
 
 add_subdirectory(src)
+if (NOT Qt5Widgets_FOUND) # TODO port tests to Qt5
 add_subdirectory(tests)
+endif()
 add_subdirectory(tools)
 
 if(WITH_DOC)
