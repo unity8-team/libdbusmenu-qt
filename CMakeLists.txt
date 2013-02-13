@@ -48,26 +48,29 @@ find_package(Qt5Widgets QUIET)
 if (Qt5Widgets_FOUND)
    find_package(Qt5DBus REQUIRED)
    include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
-   find_package(extra-cmake-modules 0.0.2 REQUIRED)
-   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EXTRA_CMAKE_MODULES_MODULE_PATH})
+   find_package(ECM 0.0.4 REQUIRED)
+   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
    find_package(Qt5Transitional REQUIRED Core)
    set(CMAKE_AUTOMOC ON)
    set(CMAKE_AUTOMOC_RELAXED_MODE ON)
+   include(GNUInstallDirs)
+   set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 else()
-find_package(Qt4 REQUIRED)
-include_directories(
+  find_package(Qt4 REQUIRED)
+  include_directories(
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
     )
+  set(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
 endif()
 
 
 configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)
 
 install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
-    DESTINATION lib${LIB_SUFFIX}/pkgconfig
+        DESTINATION ${LIB_DESTINATION}/pkgconfig
     )
 
 add_subdirectory(src)
