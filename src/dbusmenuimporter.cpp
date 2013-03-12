@@ -34,6 +34,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QWidgetAction>
+#include <QX11Info>
 
 // Local
 #include "dbusmenutypes_p.h"
@@ -276,7 +277,7 @@ public:
     void sendEvent(int id, const QString &eventId)
     {
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-        uint timestamp = QDateTime::currentDateTime().toTime_t();
+        uint timestamp = QX11Info::appTime();
         m_interface->asyncCall("Event", id, eventId, empty, timestamp);
     }
 };
