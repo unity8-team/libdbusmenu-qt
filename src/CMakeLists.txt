@@ -50,13 +50,17 @@ include_directories(
     )
 
 if (NOT Qt5Widgets_FOUND)
-qt4_automoc(${dbusmenu_qt_SRCS})
+    qt4_automoc(${dbusmenu_qt_SRCS})
+    qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
+        ${CMAKE_CURRENT_SOURCE_DIR}/com.canonical.dbusmenu.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
+        )
+else()
+    qt5_add_dbus_adaptor(dbusmenu_qt_SRCS
+        ${CMAKE_CURRENT_SOURCE_DIR}/com.canonical.dbusmenu.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
+        )
 endif()
-
-qt4_add_dbus_adaptor(dbusmenu_qt_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/com.canonical.dbusmenu.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/dbusmenuexporterdbus_p.h DBusMenuExporterDBus
-    )
 
 configure_file(dbusmenu_version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
