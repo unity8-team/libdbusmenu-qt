@@ -24,8 +24,34 @@ set(dbusmenu_qt_lib_PATCH_VERSION 0)
 
 set(dbusmenu_qt_lib_VERSION ${dbusmenu_qt_lib_SOVERSION}.${dbusmenu_qt_lib_API_VERSION}.${dbusmenu_qt_lib_PATCH_VERSION})
 
+# Detect for which Qt version we're building
+find_package(Qt5Widgets QUIET)
+if (Qt5Widgets_FOUND)
+   find_package(Qt5DBus REQUIRED)
+   include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
+   find_package(Qt5Core REQUIRED)
+   set(CMAKE_AUTOMOC ON)
+   set(CMAKE_AUTOMOC_RELAXED_MODE ON)
+   include(GNUInstallDirs)
+   set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+   set(QT_SUFFIX "qt5")
+else()
+  find_package(Qt4 REQUIRED)
+  include_directories(
+    ${QT_INCLUDE_DIR}
+    ${QT_QTCORE_INCLUDE_DIR}
+    ${QT_QTDBUS_INCLUDE_DIR}
+    ${QT_QTGUI_INCLUDE_DIR}
+    )
+  set(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
+
+  set(QT_SUFFIX "qt")
+endif()
+
 # dist targets
-set(ARCHIVE_NAME libdbusmenu-qt-${dbusmenu_qt_VERSION})
+set(ARCHIVE_NAME libdbusmenu-${QT_SUFFIX}-${dbusmenu_qt_VERSION})
 add_custom_target(dist
     COMMAND bzr export --root=${ARCHIVE_NAME} ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -44,31 +70,9 @@ add_custom_target(distcheck
     )
 add_dependencies(distcheck dist)
 
-find_package(Qt5Widgets QUIET)
-if (Qt5Widgets_FOUND)
-   find_package(Qt5DBus REQUIRED)
-   include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
-   find_package(Qt5Core REQUIRED)
-   set(CMAKE_AUTOMOC ON)
-   set(CMAKE_AUTOMOC_RELAXED_MODE ON)
-   include(GNUInstallDirs)
-   set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-else()
-  find_package(Qt4 REQUIRED)
-  include_directories(
-    ${QT_INCLUDE_DIR}
-    ${QT_QTCORE_INCLUDE_DIR}
-    ${QT_QTDBUS_INCLUDE_DIR}
-    ${QT_QTGUI_INCLUDE_DIR}
-    )
-  set(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
-endif()
+configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-${QT_SUFFIX}.pc @ONLY)
 
-
-configure_file(dbusmenu-qt.pc.in ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc @ONLY)
-
-install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-qt.pc
+install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-${QT_SUFFIX}.pc
         DESTINATION ${LIB_DESTINATION}/pkgconfig
     )
 
@@ -86,6 +90,6 @@ if(WITH_DOC)
         )
 
     install(DIRECTORY ${CMAKE_BINARY_DIR}/html/
-        DESTINATION share/doc/dbusmenu-qt
+        DESTINATION share/doc/dbusmenu-${QT_SUFFIX}
         )
 endif(WITH_DOC)

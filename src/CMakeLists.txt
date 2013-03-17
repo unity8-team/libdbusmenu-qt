@@ -66,28 +66,28 @@ configure_file(dbusmenu_version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
     )
 
-add_library(dbusmenu-qt SHARED ${dbusmenu_qt_SRCS})
-set_target_properties(dbusmenu-qt PROPERTIES
+add_library(dbusmenu-${QT_SUFFIX} SHARED ${dbusmenu_qt_SRCS})
+set_target_properties(dbusmenu-${QT_SUFFIX} PROPERTIES
     VERSION ${dbusmenu_qt_lib_VERSION}
     SOVERSION ${dbusmenu_qt_lib_SOVERSION}
     )
 
-target_link_libraries(dbusmenu-qt
+target_link_libraries(dbusmenu-${QT_SUFFIX}
     ${QT_QTGUI_LIBRARIES}
     ${QT_QTDBUS_LIBRARIES}
     ${QT_QTCORE_LIBRARIES}
     )
 
-install(TARGETS dbusmenu-qt
+install(TARGETS dbusmenu-${QT_SUFFIX}
     LIBRARY DESTINATION ${LIB_DESTINATION}
     RUNTIME DESTINATION bin)
 
 install(DIRECTORY .
-    DESTINATION include/dbusmenu-qt
+    DESTINATION include/dbusmenu-${QT_SUFFIX}
     FILES_MATCHING PATTERN "*.h"
     PATTERN "*_p.h" EXCLUDE
     )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
-    DESTINATION include/dbusmenu-qt/
+    DESTINATION include/dbusmenu-${QT_SUFFIX}/
     )
