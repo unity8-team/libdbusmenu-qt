@@ -17,7 +17,7 @@ if (NOT Qt5Widgets_FOUND)
         )
 
     target_link_libraries(dbusmenubench-qtapp
-        dbusmenu-qt5
+        dbusmenu-qt
         ${QT_QTGUI_LIBRARY}
         ${QT_QTCORE_LIBRARY}
         ${QT_QTDBUS_LIBRARY}
@@ -36,7 +36,7 @@ else()
         )
    
     target_link_libraries(dbusmenubench-qtapp
-        dbusmenu-qt
+        dbusmenu-qt5
         ${Qt5Gui_LIBRARIES}
         ${Qt5Core_LIBRARIES}
         ${Qt5DBus_LIBRARIES}
