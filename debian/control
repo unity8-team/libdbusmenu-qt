@@ -3,10 +3,7 @@ Section: libs
 Priority: optional
 Build-Depends: debhelper (>= 8.1.3~), 
 		cmake (>= 2.8.5),
-		libqt5core5,
-		libqt5gui5,
-		libqt5dbus5,
-		libqt5widgets5,
+		qtbase5-dev,
 		libqjson-dev,
 		doxygen
 Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
@@ -32,7 +29,7 @@ Package: libdbusmenu-qt5-dev
 Section: libdevel
 Architecture: any
 Depends: libdbusmenu-qt5 (= ${binary:Version}),
-	 libqt4-dev,
+	 qtbase5-dev,
 	 ${misc:Depends}
 Description: Qt5 implementation of the DBusMenu protocol (development)
  This library provides a Qt5 implementation of the DBusMenu protocol.
