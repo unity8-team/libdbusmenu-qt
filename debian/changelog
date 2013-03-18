@@ -1,0 +1,5 @@
+libdbusmenu-qt5 (0.1.0) UNRELEASED; urgency=low
+
+  * Initial release. Qt5 packaging for the libdbusmenu-qt package.
+
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Sun, 17 Mar 2013 00:03:18 +0100
