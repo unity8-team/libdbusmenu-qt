@@ -4,7 +4,7 @@ set(qtapp_SRCS
 
 add_executable(dbusmenubench-qtapp ${qtapp_SRCS})
 
-if (NOT Qt5Widgets_FOUND)
+if (NOT USE_QT5)
     # Qt4
     include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../src
