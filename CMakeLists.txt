@@ -100,6 +100,6 @@ if(WITH_DOC)
         )
 
     install(DIRECTORY ${CMAKE_BINARY_DIR}/html/
-        DESTINATION share/doc/libdbusmenu-${QT_SUFFIX}-doc
+        DESTINATION share/doc/libdbusmenu-qt-doc
         )
 endif(WITH_DOC)

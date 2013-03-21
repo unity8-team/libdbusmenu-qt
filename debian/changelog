@@ -1,4 +1,4 @@
-libdbusmenu-qt5 (0.1.0) UNRELEASED; urgency=low
+libdbusmenu-qt (0.1.0) UNRELEASED; urgency=low
 
   * Initial release. Qt5 packaging for the libdbusmenu-qt package.
 

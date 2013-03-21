@@ -83,11 +83,11 @@ install(TARGETS dbusmenu-${QT_SUFFIX}
     RUNTIME DESTINATION bin)
 
 install(DIRECTORY .
-    DESTINATION include/dbusmenu-${QT_SUFFIX}
+    DESTINATION include/dbusmenu-qt
     FILES_MATCHING PATTERN "*.h"
     PATTERN "*_p.h" EXCLUDE
     )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
-    DESTINATION include/dbusmenu-${QT_SUFFIX}/
+    DESTINATION include/dbusmenu-qt/
     )

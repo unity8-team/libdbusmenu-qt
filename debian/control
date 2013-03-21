@@ -1,9 +1,9 @@
-Source: libdbusmenu-qt5
+Source: libdbusmenu-qt
 Section: libs
 Priority: optional
 Build-Depends: debhelper (>= 8.1.3~), 
 		cmake (>= 2.8.5),
-		qtbase5-dev (>= 5.0.1+dfsg-0ubuntu4),
+		qtbase5-dev (>= 5.0.1+dfsg-0ubuntu4~test1),
 		libqjson-dev,
 		doxygen
 Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
@@ -11,7 +11,7 @@ XSBC-Original-Maintainer: Jonathan Riddell <jriddell@ubuntu.com>
 Standards-Version: 3.9.2
 Homepage: https://launchpad.net/libdbusmenu-qt
 
-Package: libdbusmenu-qt5
+Package: libdbusmenu-qt
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
@@ -25,10 +25,10 @@ Description: Qt5 implementation of the DBusMenu protocol
  .
  This package provides shared libraries.
 
-Package: libdbusmenu-qt5-dev
+Package: libdbusmenu-qt-dev
 Section: libdevel
 Architecture: any
-Depends: libdbusmenu-qt5 (= ${binary:Version}),
+Depends: libdbusmenu-qt (= ${binary:Version}),
 	 qtbase5-dev (>= 5.0.1+dfsg-0ubuntu4),
 	 ${misc:Depends}
 Description: Qt5 implementation of the DBusMenu protocol (development)
@@ -39,7 +39,7 @@ Description: Qt5 implementation of the DBusMenu protocol (development)
  .
  This package provides header files for development.
 
-Package: libdbusmenu-qt5-doc
+Package: libdbusmenu-qt-doc
 Section: doc
 Architecture: all
 Depends: libjs-jquery, 
