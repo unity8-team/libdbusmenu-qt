@@ -42,8 +42,6 @@ if (USE_QT5)
     find_package(Qt5Core REQUIRED)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOMOC_RELAXED_MODE ON)
-    include(GNUInstallDirs)
-    set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
     set(QT_SUFFIX "qt5")
@@ -55,10 +53,12 @@ else()
       ${QT_QTDBUS_INCLUDE_DIR}
       ${QT_QTGUI_INCLUDE_DIR}
       )
-    set(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
 
     set(QT_SUFFIX "qt")
 endif()
+
+include(GNUInstallDirs)
+set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 # dist targets
 set(ARCHIVE_NAME libdbusmenu-${QT_SUFFIX}-${dbusmenu_qt_VERSION})
@@ -100,6 +100,6 @@ if(WITH_DOC)
         )
 
     install(DIRECTORY ${CMAKE_BINARY_DIR}/html/
-        DESTINATION share/doc/libdbusmenu-qt-doc
+        DESTINATION share/doc/libdbusmenu-${QT_SUFFIX}-doc
         )
 endif(WITH_DOC)

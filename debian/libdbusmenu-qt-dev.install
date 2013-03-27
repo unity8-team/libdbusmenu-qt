@@ -1,0 +1,3 @@
+usr/include/dbusmenu-qt/*
+usr/lib/*/lib*-qt.so
+usr/lib/*/pkgconfig/dbusmenu-qt.pc

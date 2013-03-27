@@ -9,8 +9,8 @@
 override_dh_auto_configure:
 	mkdir qt4
 	mkdir qt5
-	cd qt4 && cmake -DUSE_QT4=true ../
-	cd qt5 && cmake -DUSE_QT5=true ../
+	cd qt4 && QT_SELECT=qt4 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT4=true ../
+	cd qt5 && QT_SELECT=qt5 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true ../
 
 override_dh_auto_build:
 	cd qt4 && make
@@ -22,13 +22,14 @@ override_dh_clean:
 	rm -rf qt5
 
 override_dh_auto_install:
-	dh_auto_install
+	cd qt4 && make DESTDIR=../debian/tmp install
+	cd qt5 && make DESTDIR=../debian/tmp install
 	echo "Removing embedded jquery javascript library..."
-	rm debian/tmp/usr/share/doc/libdbusmenu-qt5-doc/jquery.js
 	rm debian/tmp/usr/share/doc/libdbusmenu-qt-doc/jquery.js
+	rm debian/tmp/usr/share/doc/libdbusmenu-qt5-doc/jquery.js
 
-override_dh_makeshlibs:
-#	dh_makeshlibs -V 'libdbusmenu-qt5 (>=0.1.0)'
+override_dh_install:
+	dh_install --fail-missing
 
 override_dh_auto_test:
 	echo "Skipping tests (can't test inside chroot)..."
