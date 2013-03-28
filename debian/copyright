@@ -6,13 +6,13 @@ Source: https://launchpad.net/libdbusmenu-qt
 Files: src/*
 Copyright: 2009-2010, Canonical
 Author: Aurelien Gateau <aurelien.gateau@canonical.com>
-License: LGPL-2+
+License: LGPL-2
 
 Files: debian/*
 Copyright: 2010, Praveen Arimbrathodiyil <pravi.a@gmail.com>
-License: LGPL-2+
+License: LGPL-2
 
-License: LGPL-2+
+License: LGPL-2
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Library General Public
  License (LGPL) as published by the Free Software Foundation;
