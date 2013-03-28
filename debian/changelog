@@ -16,6 +16,10 @@ libdbusmenu-qt (0.9.2-0ubuntu5) UNRELEASED; urgency=low
   * debian/control: bump debhelper Build-Depends to 9.
   * debian/source.lintian-overrides: drop the override.
   * debian/watch: dropped; no longer needed with inline packaging.
+  * debian/control:
+    - bump Standards-Version to 3.9.4. 
+    - add Vcs-Bzr/Vcs-Browser.
+    - add comments for developers.
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 27 Mar 2013 15:49:56 +0100
 
