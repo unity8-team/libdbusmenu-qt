@@ -7,7 +7,7 @@ Build-Depends:
  doxygen,
  libqjson-dev,
  libqt4-dev,
- qtbase5-dev (>= 5.0.1+dfsg-0ubuntu4~test1),
+ qtbase5-dev,
 Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
 XSBC-Original-Maintainer: Jonathan Riddell <jriddell@ubuntu.com>
 Standards-Version: 3.9.2
@@ -55,10 +55,7 @@ Description: Qt implementation of the DBusMenu protocol (development)
 Package: libdbusmenu-qt5-dev
 Section: libdevel
 Architecture: any
-Depends:
- libdbusmenu-qt5 (= ${binary:Version}),
- qtbase5-dev (>= 5.0.1+dfsg-0ubuntu4~test1),
- ${misc:Depends},
+Depends: libdbusmenu-qt5 (= ${binary:Version}), qtbase5-dev, ${misc:Depends}
 Description: Qt5 implementation of the DBusMenu protocol (development)
  This library provides a Qt5 implementation of the DBusMenu protocol.
  .
