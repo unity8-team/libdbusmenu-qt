@@ -35,9 +35,9 @@ override_dh_auto_test:
 	echo "Skipping tests (can't test inside chroot)..."
 
 override_dh_gencontrol:
-	dh_gencontrol
-
 	# Ugly hack, since we don't want to have Qt5 as our depends, we prefer
 	# those as Suggests for now
-	sed -i '/^Depends/s/libqt5[^,]*, //g' debian/libdbusmenu-qt5/DEBIAN/control
-	sed -i '/^Depends/s/,[^,]* libqt5.*$$//' debian/libdbusmenu-qt5/DEBIAN/control
+	sed -i '/^shlibs/s/libqt5[^,]*, //g' debian/libdbusmenu-qt5.substvars
+	sed -i '/^shlibs/s/,[^,]* libqt5.*$$//' debian/libdbusmenu-qt5.substvars
+
+	dh_gencontrol
