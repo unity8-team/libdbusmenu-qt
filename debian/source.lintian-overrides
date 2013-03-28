@@ -1,0 +1,3 @@
+# Using an experimental compat level for multiarch, ie, 
+# compat 9 in debhelper 8.1.3, hence overriding this tag.
+libdbusmenu-qt source: package-needs-versioned-debhelper-build-depends 9
