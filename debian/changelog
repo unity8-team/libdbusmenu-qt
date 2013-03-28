@@ -1,5 +1,6 @@
 libdbusmenu-qt (0.9.2-0ubuntu5) UNRELEASED; urgency=low
 
+  [ Łukasz 'sil2100' Zemczak ]
   * Add inline packaging metadata.
   * debian/control, 
     debian/libdbusmenu-qt5.install,
@@ -9,6 +10,12 @@ libdbusmenu-qt (0.9.2-0ubuntu5) UNRELEASED; urgency=low
   * debian/rules:
     - Enable a double build - first build a Qt4 version of libdbusmenu for
       libdbusmenu-qt2 and then a Qt5 version for libdbusmenu-qt5
+
+  [ Mathieu Trudel-Lapierre ]
+  * debian/copyright: fix copyright stanza for LGPL 2.
+  * debian/control: bump debhelper Build-Depends to 9.
+  * debian/source.lintian-overrides: drop the override.
+  * debian/watch: dropped; no longer needed with inline packaging.
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 27 Mar 2013 15:49:56 +0100
 
