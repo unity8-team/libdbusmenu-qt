@@ -3,8 +3,8 @@ exec_prefix=@CMAKE_INSTALL_PREFIX@
 libdir=@CMAKE_INSTALL_PREFIX@/lib
 includedir=@CMAKE_INSTALL_PREFIX@/include/dbusmenu-qt
 
-Name: libdbusmenu-qt
+Name: libdbusmenu-@QT_SUFFIX@
 Description: Qt implementation of dbusmenu spec
 Version: @dbusmenu_qt_VERSION@
-Libs: -L${libdir} -ldbusmenu-qt
+Libs: -L${libdir} -ldbusmenu-@QT_SUFFIX@
 Cflags: -I${includedir}
