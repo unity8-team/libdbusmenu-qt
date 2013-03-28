@@ -31,6 +31,10 @@ Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
 	 ${shlibs:Depends}
+Suggests: libqt5core5,
+	 libqt5dbus5,
+	 libqt5gui5,
+	 libqt5widgets5,
 Multi-Arch: same
 Description: Qt5 implementation of the DBusMenu protocol
  This library provides a Qt5 implementation of the DBusMenu protocol.
