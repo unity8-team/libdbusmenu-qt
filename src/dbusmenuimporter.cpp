@@ -278,6 +278,9 @@ public:
     {
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
         uint timestamp = QX11Info::appTime();
+        if (timestamp == 0) { // X11 unavailable
+            timestamp = QDateTime::currentDateTime().toTime_t();
+        }
         m_interface->asyncCall("Event", id, eventId, empty, timestamp);
     }
 };
