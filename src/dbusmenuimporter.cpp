@@ -34,7 +34,10 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QWidgetAction>
+
+#ifdef Q_WS_X11
 #include <QX11Info>
+#endif
 
 // Local
 #include "dbusmenutypes_p.h"
@@ -277,10 +280,12 @@ public:
     void sendEvent(int id, const QString &eventId)
     {
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-        uint timestamp = QX11Info::appTime();
-        if (timestamp == 0) { // X11 unavailable
-            timestamp = QDateTime::currentDateTime().toTime_t();
-        }
+        uint timestamp;
+        #ifdef Q_WS_X11
+        timestamp = QX11Info::appTime();
+        #else
+        timestamp = QDateTime::currentDateTime().toTime_t();
+        #endif
         m_interface->asyncCall("Event", id, eventId, empty, timestamp);
     }
 };
