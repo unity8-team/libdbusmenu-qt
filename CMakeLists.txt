@@ -44,7 +44,11 @@ add_custom_target(distcheck
     )
 add_dependencies(distcheck dist)
 
-find_package(Qt5Widgets QUIET)
+option(QT4_BUILD "Force building with Qt4 even if Qt5 is found")
+if (NOT QT4_BUILD)
+    find_package(Qt5Widgets QUIET)
+endif()
+
 if (Qt5Widgets_FOUND)
    find_package(Qt5DBus REQUIRED)
    include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
@@ -63,7 +67,7 @@ else()
     ${QT_QTDBUS_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
     )
-  set(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
+  set(LIB_DESTINATION "lib${LIB_SUFFIX}")
 endif()
 
 
