@@ -1,26 +1,26 @@
 Source: libdbusmenu-qt
 Section: libs
 Priority: optional
-Build-Depends:
- cmake (>= 2.8.5),
- debhelper (>= 9),
- doxygen,
- libqjson-dev,
- libqt4-dev,
- qtbase5-dev,
+Build-Depends: cmake (>= 2.8.5),
+               debhelper (>= 9),
+               doxygen,
+               libqjson-dev,
+               libqt4-dev,
+               qtbase5-dev,
 Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
 XSBC-Original-Maintainer: Jonathan Riddell <jriddell@ubuntu.com>
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/libdbusmenu-qt
-# If you aren't ~indicator-applet-developers but need to upload packaging changes,
-# just go ahead.  ~indicator-applet-developers will notice and sync up the code again.
-Vcs-Bzr: https://code.launchpad.net/~indicator-applet-developers/appmenu-qt/trunk
-Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/appmenu-qt/trunk/files
+# If you aren't ~dbusmenu-team but need to upload packaging changes,
+# just go ahead.  ~dbusmenu-team will notice and sync up the code again.
+Vcs-Bzr: https://code.launchpad.net/~dbusmenu-team/libdbusmenu-qt/trunk
+Vcs-Browser: https://bazaar.launchpad.net/~dbusmenu-team/libdbusmenu-qt/trunk/files
 
 Package: libdbusmenu-qt2
 Architecture: any
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends},
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
 Multi-Arch: same
 Description: Qt implementation of the DBusMenu protocol
  This library provides a Qt implementation of the DBusMenu protocol.
@@ -32,9 +32,13 @@ Description: Qt implementation of the DBusMenu protocol
 
 Package: libdbusmenu-qt5
 Architecture: any
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Suggests: libqt5core5, libqt5dbus5, libqt5gui5, libqt5widgets5
+Pre-Depends: ${misc:Pre-Depends},
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Suggests: libqt5core5,
+          libqt5dbus5,
+          libqt5gui5,
+          libqt5widgets5,
 Multi-Arch: same
 Description: Qt5 implementation of the DBusMenu protocol
  This library provides a Qt5 implementation of the DBusMenu protocol.
@@ -47,7 +51,9 @@ Description: Qt5 implementation of the DBusMenu protocol
 Package: libdbusmenu-qt-dev
 Section: libdevel
 Architecture: any
-Depends: libdbusmenu-qt2 (= ${binary:Version}), libqt4-dev, ${misc:Depends}
+Depends: libdbusmenu-qt2 (= ${binary:Version}),
+         libqt4-dev,
+         ${misc:Depends},
 Description: Qt implementation of the DBusMenu protocol (development)
  This library provides a Qt implementation of the DBusMenu protocol.
  .
@@ -59,7 +65,9 @@ Description: Qt implementation of the DBusMenu protocol (development)
 Package: libdbusmenu-qt5-dev
 Section: libdevel
 Architecture: any
-Depends: libdbusmenu-qt5 (= ${binary:Version}), qtbase5-dev, ${misc:Depends}
+Depends: libdbusmenu-qt5 (= ${binary:Version}),
+         qtbase5-dev,
+         ${misc:Depends},
 Description: Qt5 implementation of the DBusMenu protocol (development)
  This library provides a Qt5 implementation of the DBusMenu protocol.
  .
@@ -71,7 +79,8 @@ Description: Qt5 implementation of the DBusMenu protocol (development)
 Package: libdbusmenu-qt-doc
 Section: doc
 Architecture: all
-Depends: libjs-jquery, ${misc:Depends}
+Depends: libjs-jquery,
+         ${misc:Depends},
 Description: Qt implementation of the DBusMenu protocol (documentation)
  This library provides a Qt implementation of the DBusMenu protocol.
  .
@@ -83,7 +92,8 @@ Description: Qt implementation of the DBusMenu protocol (documentation)
 Package: libdbusmenu-qt5-doc
 Section: doc
 Architecture: all
-Depends: libjs-jquery, ${misc:Depends}
+Depends: libjs-jquery,
+         ${misc:Depends},
 Description: Qt5 implementation of the DBusMenu protocol (documentation)
  This library provides a Qt5 implementation of the DBusMenu protocol.
  .
