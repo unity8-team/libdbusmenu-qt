@@ -1,9 +1,13 @@
-libdbusmenu-qt (0.9.2daily13.03.28-0ubuntu2) UNRELEASED; urgency=low
+libdbusmenu-qt (0.9.2daily13.05.02-0ubuntu1) saucy; urgency=low
 
+  [ Łukasz 'sil2100' Zemczak ]
   * debian/control, debian/rules:
     - Modifications related to compliance with our packaging standards
 
- -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Thu, 02 May 2013 17:29:01 +0200
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 244
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 02 May 2013 22:59:30 +0000
 
 libdbusmenu-qt (0.9.2daily13.03.28-0ubuntu1) raring; urgency=low
 
