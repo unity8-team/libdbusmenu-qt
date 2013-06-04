@@ -1,4 +1,4 @@
-ibdbusmenu-qt (0.9.2daily13.03.28-0ubuntu1) raring; urgency=low
+libdbusmenu-qt (0.9.2daily13.03.28-0ubuntu1) raring; urgency=low
 
   [ Łukasz 'sil2100' Zemczak ]
   * Add inline packaging metadata.
