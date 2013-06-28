@@ -1,3 +1,14 @@
+libdbusmenu-qt (0.9.2+13.10.20130628-0ubuntu1) saucy; urgency=low
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Fix the pkg-config file for the libdbusmenu-qt5 case, as the
+    includedir was missing the correct QT_SUFFIX.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 246
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Jun 2013 02:03:12 +0000
+
 libdbusmenu-qt (0.9.2daily13.05.02-0ubuntu1) saucy; urgency=low
 
   [ Łukasz 'sil2100' Zemczak ]
