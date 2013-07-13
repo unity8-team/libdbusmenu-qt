@@ -34,6 +34,17 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QWidgetAction>
+#ifdef Q_WS_X11
+#include <QX11Info>
+#elif !defined(QT_NO_X11) && QT_VERSION >= QT_VERSION_CHECK(5,1,0)
+#include "qtx11info_x11.h"
+#elif !defined(QT_NO_X11) && QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformwindow.h>
+#include <QScreen>
+#include <QApplication>
+#include <xcb/xcb.h>
+#endif
 
 // Local
 #include "dbusmenutypes_p.h"
@@ -70,6 +81,22 @@ static QAction *createKdeTitle(QAction *action, QWidget *parent)
     QWidgetAction *titleAction = new QWidgetAction(parent);
     titleAction->setDefaultWidget(titleWidget);
     return titleAction;
+}
+
+static uint getAppTime() {
+#if defined(Q_WS_X11) || (!defined(QT_NO_X11) && QT_VERSION >= QT_VERSION_CHECK(5,1,0))
+    return QX11Info::appTime();
+#elif !defined(QT_NO_X11) && QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    if (!qApp)
+        return 0;
+    QPlatformNativeInterface *native = qApp->platformNativeInterface();
+    if (!native)
+        return 0;
+    QScreen* screen = QGuiApplication::primaryScreen();
+    return static_cast<xcb_timestamp_t>(reinterpret_cast<quintptr>(native->nativeResourceForScreen("apptime", screen)));
+#else
+    return QDateTime::currentDateTime().toTime_t();;
+#endif
 }
 
 class DBusMenuImporterPrivate
@@ -276,7 +303,7 @@ public:
     void sendEvent(int id, const QString &eventId)
     {
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-        uint timestamp = QDateTime::currentDateTime().toTime_t();
+        uint timestamp = getAppTime();
         m_interface->asyncCall("Event", id, eventId, empty, timestamp);
     }
 };

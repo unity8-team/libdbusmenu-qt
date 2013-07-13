@@ -7,6 +7,7 @@ Build-Depends: cmake (>= 2.8.5),
                libqjson-dev,
                libqt4-dev,
                qtbase5-dev,
+               qtbase5-private-dev,
 Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
 XSBC-Original-Maintainer: Jonathan Riddell <jriddell@ubuntu.com>
 Standards-Version: 3.9.4
