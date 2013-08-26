@@ -276,8 +276,7 @@ public:
     void sendEvent(int id, const QString &eventId)
     {
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
-        uint timestamp = QDateTime::currentDateTime().toTime_t();
-        m_interface->asyncCall("Event", id, eventId, empty, timestamp);
+        m_interface->asyncCall("Event", id, eventId, empty, 0u);
     }
 };
 
