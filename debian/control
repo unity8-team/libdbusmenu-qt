@@ -13,8 +13,8 @@ Standards-Version: 3.9.4
 Homepage: https://launchpad.net/libdbusmenu-qt
 # If you aren't ~dbusmenu-team but need to upload packaging changes,
 # just go ahead.  ~dbusmenu-team will notice and sync up the code again.
-Vcs-Bzr: https://code.launchpad.net/~dbusmenu-team/libdbusmenu-qt/trunk
-Vcs-Browser: https://bazaar.launchpad.net/~dbusmenu-team/libdbusmenu-qt/trunk/files
+Vcs-Bzr: https://code.launchpad.net/~dbusmenu-team/libdbusmenu-qt/13.10
+Vcs-Browser: https://bazaar.launchpad.net/~dbusmenu-team/libdbusmenu-qt/13.10/files
 
 Package: libdbusmenu-qt2
 Architecture: any
