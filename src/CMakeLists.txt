@@ -89,8 +89,12 @@ else()
 endif()
 
 install(TARGETS dbusmenu-${QT_SUFFIX}
+    EXPORT dbusmenu-${QT_SUFFIX}-targets
     LIBRARY DESTINATION ${LIB_DESTINATION}
     RUNTIME DESTINATION bin)
+
+install(EXPORT dbusmenu-${QT_SUFFIX}-targets
+    DESTINATION ${LIB_DESTINATION}/cmake/dbusmenu-${QT_SUFFIX})
 
 install(DIRECTORY .
     DESTINATION include/dbusmenu-${QT_SUFFIX}
