@@ -91,17 +91,18 @@ endif()
 install(TARGETS dbusmenu-${QT_SUFFIX}
     EXPORT dbusmenu-${QT_SUFFIX}-targets
     LIBRARY DESTINATION ${LIB_DESTINATION}
-    RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION bin
+    )
 
 install(EXPORT dbusmenu-${QT_SUFFIX}-targets
-    DESTINATION ${LIB_DESTINATION}/cmake/dbusmenu-${QT_SUFFIX})
+    DESTINATION ${CMAKECONFIG_INSTALL_DIR})
 
 install(DIRECTORY .
-    DESTINATION include/dbusmenu-${QT_SUFFIX}
+    DESTINATION ${INCLUDE_INSTALL_DIR}
     FILES_MATCHING PATTERN "*.h"
     PATTERN "*_p.h" EXCLUDE
     )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dbusmenu_version.h
-    DESTINATION include/dbusmenu-${QT_SUFFIX}
+    DESTINATION ${INCLUDE_INSTALL_DIR}
     )
