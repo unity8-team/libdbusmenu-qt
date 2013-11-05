@@ -47,7 +47,7 @@ public:
      */
     DBusMenuExporter(const QString &dbusObjectPath, QMenu *menu, const QDBusConnection &dbusConnection = QDBusConnection::sessionBus());
 
-    ~DBusMenuExporter();
+    virtual ~DBusMenuExporter();
 
     /**
      * Asks the matching DBusMenuImporter to activate @p action. For menus it
