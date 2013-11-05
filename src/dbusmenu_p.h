@@ -39,7 +39,7 @@ class DBusMenu : public QObject
     Q_OBJECT
 public:
     DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId);
-    ~DBusMenu();
+    virtual ~DBusMenu();
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
