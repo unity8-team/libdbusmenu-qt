@@ -11,8 +11,8 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 override_dh_auto_configure:
 	mkdir qt4
 	mkdir qt5
-	cd qt4 && QT_SELECT=qt4 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT4=true ../
-	cd qt5 && QT_SELECT=qt5 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true ../
+	cd qt4 && QT_SELECT=qt4 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT4=true -DCMAKE_BUILD_TYPE=RelWithDebInfo ../
+	cd qt5 && QT_SELECT=qt5 cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true -DCMAKE_BUILD_TYPE=RelWithDebInfo ../
 
 override_dh_auto_build:
 	cd qt4 && make
