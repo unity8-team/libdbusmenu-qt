@@ -189,6 +189,7 @@ public:
             updateActionVisible(action, value);
         } else if (key == "shortcut") {
             updateActionShortcut(action, value);
+        } else if (key == "children-display") {
         } else {
             DMWARNING << "Unhandled property update" << key;
         }
@@ -420,6 +421,11 @@ void DBusMenuImporter::slotGetLayoutFinished(QDBusPendingCallWatcher *watcher)
         connect(action, SIGNAL(triggered()),
             &d->m_mapper, SLOT(map()));
         d->m_mapper.setMapping(action, dbusMenuItem.id);
+
+        if( action->menu() )
+        {
+          d->refresh( dbusMenuItem.id )->waitForFinished();
+        }
     }
     #ifdef BENCHMARK
     DMDEBUG << "- Menu filled:" << sChrono.elapsed() << "ms";
