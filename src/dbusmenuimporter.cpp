@@ -445,12 +445,8 @@ void DBusMenuImporter::updateMenu()
 
 static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
-    QTime time;
-    time.start();
     QPointer<QDBusPendingCallWatcher> watcher(_watcher);
-    while (watcher && !watcher->isFinished() && time.elapsed() < maxWait) {
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
+    watcher->waitForFinished();
 
     if (!watcher) {
         // Watcher died. This can happen if importer got deleted while we were
@@ -459,15 +455,12 @@ static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
         return false;
     }
 
-    // Tricky: watcher has indicated it is finished, but its finished() signal
-    // has not been emitted yet. Calling waitForFinished() ensures it is
-    // emitted.
-    if (watcher->isFinished()) {
-        watcher->waitForFinished();
-        return true;
-    } else {
+    if (watcher->isError()) {
+        DMWARNING << watcher->error().message();
         return false;
     }
+
+    return true;
 }
 
 void DBusMenuImporter::slotMenuAboutToShow()
