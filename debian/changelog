@@ -1,3 +1,17 @@
+libdbusmenu-qt (0.9.2+14.04.20140217.1-0ubuntu1) trusty; urgency=low
+
+  [ Pete Woods ]
+  * Fix compile warning when building with -Wpedantic (extra semicolon).
+
+  [ Ted Gould ]
+  * Flushing trunk with a release
+
+  [ Timo Jyrinki ]
+  * Drop reference to libqt5core5 which will get renamed. (LP:
+    #1271058). (LP: #1271058)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Feb 2014 18:03:31 +0000
+
 libdbusmenu-qt (0.9.2+14.04.20131209-0ubuntu1) trusty; urgency=low
 
   [ Marcus Tomlinson ]
