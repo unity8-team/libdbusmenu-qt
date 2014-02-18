@@ -445,11 +445,17 @@ void DBusMenuImporter::updateMenu()
 
 static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
-    QTime time;
-    time.start();
     QPointer<QDBusPendingCallWatcher> watcher(_watcher);
-    while (watcher && !watcher->isFinished() && time.elapsed() < maxWait) {
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+    {
+        QTimer timer;
+        timer.setSingleShot(true);
+        QEventLoop loop;
+        loop.connect(&timer, SIGNAL(timeout()), SLOT(quit()));
+        loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
+        timer.start(maxWait);
+        loop.exec();
+        timer.stop();
     }
 
     if (!watcher) {
@@ -459,15 +465,17 @@ static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
         return false;
     }
 
-    // Tricky: watcher has indicated it is finished, but its finished() signal
-    // has not been emitted yet. Calling waitForFinished() ensures it is
-    // emitted.
-    if (watcher->isFinished()) {
-        watcher->waitForFinished();
-        return true;
-    } else {
+    if(!watcher->isFinished()) {
+        // Timed out
         return false;
     }
+
+    if (watcher->isError()) {
+        DMWARNING << watcher->error().message();
+        return false;
+    }
+
+    return true;
 }
 
 void DBusMenuImporter::slotMenuAboutToShow()
