@@ -446,6 +446,7 @@ void DBusMenuImporter::updateMenu()
 static bool waitForWatcher(QDBusPendingCallWatcher * watcher, int maxWait)
 {
     QEventLoop loop;
+    QTimer::singleShot(maxWait, &loop, SLOT(quit()));
     loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
     loop.exec();
 
