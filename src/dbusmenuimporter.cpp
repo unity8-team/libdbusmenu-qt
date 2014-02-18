@@ -443,8 +443,10 @@ void DBusMenuImporter::updateMenu()
     QMetaObject::invokeMethod(menu(), "aboutToShow");
 }
 
-static bool waitForWatcher(QDBusPendingCallWatcher * watcher, int maxWait)
+static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
+    QPointer<QDBusPendingCallWatcher> watcher(_watcher);
+
     QEventLoop loop;
     QTimer::singleShot(maxWait, &loop, SLOT(quit()));
     loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
@@ -454,6 +456,11 @@ static bool waitForWatcher(QDBusPendingCallWatcher * watcher, int maxWait)
         // Watcher died. This can happen if importer got deleted while we were
         // waiting. See:
         // https://bugs.kde.org/show_bug.cgi?id=237156
+        return false;
+    }
+
+    if(!watcher->isFinished()) {
+        // Timed out
         return false;
     }
 
