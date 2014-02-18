@@ -447,10 +447,16 @@ static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
 {
     QPointer<QDBusPendingCallWatcher> watcher(_watcher);
 
-    QEventLoop loop;
-    QTimer::singleShot(maxWait, &loop, SLOT(quit()));
-    loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
-    loop.exec();
+    {
+        QTimer timer;
+        timer.setSingleShot(true);
+        QEventLoop loop;
+        loop.connect(&timer, SIGNAL(timeout()), SLOT(quit()));
+        loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
+        timer.start(maxWait);
+        loop.exec();
+        timer.stop();
+    }
 
     if (!watcher) {
         // Watcher died. This can happen if importer got deleted while we were
