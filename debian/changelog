@@ -1,3 +1,10 @@
+libdbusmenu-qt (0.9.2+14.04.20140218.2-0ubuntu1) trusty; urgency=low
+
+  [ Pete Woods ]
+  * Remove busy watcher (LP: #1280372)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 18 Feb 2014 14:33:02 +0000
+
 libdbusmenu-qt (0.9.2+14.04.20140217.1-0ubuntu1) trusty; urgency=low
 
   [ Pete Woods ]
