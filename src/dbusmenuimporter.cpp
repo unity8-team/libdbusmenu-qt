@@ -89,6 +89,8 @@ public:
 
     bool m_mustEmitMenuUpdated;
 
+    DBusMenuImporterType m_type;
+
     QDBusPendingCallWatcher *refresh(int id)
     {
         #ifdef BENCHMARK
@@ -279,9 +281,51 @@ public:
         QVariant empty = QVariant::fromValue(QDBusVariant(QString()));
         m_interface->asyncCall("Event", id, eventId, empty, 0u);
     }
+
+    bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
+    {
+        QPointer<QDBusPendingCallWatcher> watcher(_watcher);
+
+        if(m_type == ASYNCHRONOUS) {
+            QTimer timer;
+            timer.setSingleShot(true);
+            QEventLoop loop;
+            loop.connect(&timer, SIGNAL(timeout()), SLOT(quit()));
+            loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
+            timer.start(maxWait);
+            loop.exec();
+            timer.stop();
+
+            if (!watcher) {
+                // Watcher died. This can happen if importer got deleted while we were
+                // waiting. See:
+                // https://bugs.kde.org/show_bug.cgi?id=237156
+                return false;
+            }
+
+            if(!watcher->isFinished()) {
+                // Timed out
+                return false;
+            }
+        } else {
+            watcher->waitForFinished();
+        }
+
+        if (watcher->isError()) {
+            DMWARNING << watcher->error().message();
+            return false;
+        }
+
+        return true;
+    }
 };
 
 DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, QObject *parent)
+: DBusMenuImporter(service, path, ASYNCHRONOUS, parent)
+{
+}
+
+DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, DBusMenuImporterType type, QObject *parent)
 : QObject(parent)
 , d(new DBusMenuImporterPrivate)
 {
@@ -291,6 +335,8 @@ DBusMenuImporter::DBusMenuImporter(const QString &service, const QString &path, 
     d->m_interface = new QDBusInterface(service, path, DBUSMENU_INTERFACE, QDBusConnection::sessionBus(), this);
     d->m_menu = 0;
     d->m_mustEmitMenuUpdated = false;
+
+    d->m_type = type;
 
     connect(&d->m_mapper, SIGNAL(mapped(int)), SLOT(sendClickedEvent(int)));
 
@@ -443,41 +489,6 @@ void DBusMenuImporter::updateMenu()
     QMetaObject::invokeMethod(menu(), "aboutToShow");
 }
 
-static bool waitForWatcher(QDBusPendingCallWatcher * _watcher, int maxWait)
-{
-    QPointer<QDBusPendingCallWatcher> watcher(_watcher);
-
-    {
-        QTimer timer;
-        timer.setSingleShot(true);
-        QEventLoop loop;
-        loop.connect(&timer, SIGNAL(timeout()), SLOT(quit()));
-        loop.connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)), SLOT(quit()));
-        timer.start(maxWait);
-        loop.exec();
-        timer.stop();
-    }
-
-    if (!watcher) {
-        // Watcher died. This can happen if importer got deleted while we were
-        // waiting. See:
-        // https://bugs.kde.org/show_bug.cgi?id=237156
-        return false;
-    }
-
-    if(!watcher->isFinished()) {
-        // Timed out
-        return false;
-    }
-
-    if (watcher->isError()) {
-        DMWARNING << watcher->error().message();
-        return false;
-    }
-
-    return true;
-}
-
 void DBusMenuImporter::slotMenuAboutToShow()
 {
     QMenu *menu = qobject_cast<QMenu*>(sender());
@@ -501,7 +512,7 @@ void DBusMenuImporter::slotMenuAboutToShow()
 
     QPointer<QObject> guard(this);
 
-    if (!waitForWatcher(watcher, ABOUT_TO_SHOW_TIMEOUT)) {
+    if (!d->waitForWatcher(watcher, ABOUT_TO_SHOW_TIMEOUT)) {
         DMWARNING << "Application did not answer to AboutToShow() before timeout";
     }
 
@@ -541,7 +552,7 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
     if (needRefresh || menu->actions().isEmpty()) {
         d->m_idsRefreshedByAboutToShow << id;
         watcher = d->refresh(id);
-        if (!waitForWatcher(watcher, REFRESH_TIMEOUT)) {
+        if (!d->waitForWatcher(watcher, REFRESH_TIMEOUT)) {
             DMWARNING << "Application did not refresh before timeout";
         }
     }
