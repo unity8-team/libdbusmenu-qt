@@ -35,6 +35,16 @@ class QIcon;
 class QMenu;
 
 class DBusMenuImporterPrivate;
+
+/**
+ * Determine whether internal method calls should allow the Qt event loop
+ * to execute or not
+ */
+enum DBusMenuImporterType {
+    ASYNCHRONOUS,
+    SYNCHRONOUS
+};
+
 /**
  * A DBusMenuImporter instance can recreate a menu serialized over DBus by
  * DBusMenuExporter
@@ -47,6 +57,12 @@ public:
      * Creates a DBusMenuImporter listening over DBus on service, path
      */
     DBusMenuImporter(const QString &service, const QString &path, QObject *parent = 0);
+
+    /**
+     * Creates a DBusMenuImporter listening over DBus on service, path, with either async
+     * or sync DBus calls
+     */
+    DBusMenuImporter(const QString &service, const QString &path, DBusMenuImporterType type, QObject *parent = 0);
 
     virtual ~DBusMenuImporter();
 
