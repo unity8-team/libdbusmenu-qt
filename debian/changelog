@@ -1,3 +1,15 @@
+libdbusmenu-qt (0.9.3+14.10.20140619-0ubuntu1) utopic; urgency=low
+
+  [ Aurélien Gâteau ]
+  * Fix build with Clang
+  * With this change, users of dbusmenu-qt no longer need to call
+    include_directories(${dbusmenu-qt5_INCLUDE_DIRS}). Simply adding
+    dbusmenu-qt5 to the target_link_libraries() call takes care of
+    defining the include directory. This requires CMake 2.8.11, so I
+    bumped the minimum version numbers accordingly.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 19 Jun 2014 09:07:18 +0000
+
 libdbusmenu-qt (0.9.3+14.04.20140314-0ubuntu1) trusty; urgency=medium
 
   [ Pete Woods ]
