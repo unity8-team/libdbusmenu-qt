@@ -93,6 +93,10 @@ else()
         )
 endif()
 
+# Make sure linking to the target adds dbusmenu-qt install directory
+target_include_directories(dbusmenu-${QT_SUFFIX}
+    INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
+
 install(TARGETS dbusmenu-${QT_SUFFIX}
     EXPORT dbusmenu-${QT_SUFFIX}-targets
     LIBRARY DESTINATION ${LIB_DESTINATION}

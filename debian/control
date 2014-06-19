@@ -1,7 +1,7 @@
 Source: libdbusmenu-qt
 Section: libs
 Priority: optional
-Build-Depends: cmake (>= 2.8.5),
+Build-Depends: cmake (>= 2.8.11),
                debhelper (>= 9),
                doxygen,
                libqjson-dev,
