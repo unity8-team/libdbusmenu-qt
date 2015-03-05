@@ -138,6 +138,7 @@ void DBusMenuExporterTest::testGetAllProperties()
         << "label"
         << "enabled"
         << "icon-name"
+        << "icon-data" // Icon data is always provided if the icon is valid.
         << "visible"
         ;
 

@@ -90,9 +90,7 @@ install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-${QT_SUFFIX}.pc
     )
 
 add_subdirectory(src)
-if (NOT USE_QT5) # TODO port tests to Qt5
 add_subdirectory(tests)
-endif()
 add_subdirectory(tools)
 
 if(WITH_DOC)
