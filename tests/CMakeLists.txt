@@ -70,12 +70,12 @@ endmacro(create_check_target)
 
 enable_testing()
 
+
 # dbusmenuexportertest
 set(dbusmenuexportertest_SRCS
     dbusmenuexportertest.cpp
     testutils.cpp
     )
-
 
 if (NOT USE_QT5)
     qt4_automoc(${dbusmenuexportertest_SRCS})
@@ -87,12 +87,12 @@ target_link_libraries(dbusmenuexportertest
     ${test_LIBRARIES}
     )
 
+
 # dbusmenuimportertest
 set(dbusmenuimportertest_SRCS
     dbusmenuimportertest.cpp
     testutils.cpp
     )
-
 
 if (NOT USE_QT5)
     qt4_automoc(${dbusmenuimportertest_SRCS})
@@ -104,11 +104,11 @@ target_link_libraries(dbusmenuimportertest
     ${test_LIBRARIES}
     )
 
+
 # dbusmenushortcuttest
 set(dbusmenushortcuttest_SRCS
     dbusmenushortcuttest.cpp
     )
-
 
 if (NOT USE_QT5)
     qt4_automoc(${dbusmenushortcuttest_SRCS})
