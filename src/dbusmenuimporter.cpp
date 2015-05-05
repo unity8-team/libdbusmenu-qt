@@ -433,6 +433,7 @@ void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
 void DBusMenuImporter::slotGetLayoutFinished(QDBusPendingCallWatcher *watcher)
 {
     int parentId = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
+    watcher->deleteLater();
 
     QDBusPendingReply<uint, DBusMenuLayoutItem> reply = *watcher;
     if (!reply.isValid()) {
@@ -538,6 +539,7 @@ void DBusMenuImporter::slotMenuAboutToShow()
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
     int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
+    watcher->deleteLater();
 
     QDBusPendingReply<bool> reply = *watcher;
     if (reply.isError()) {
