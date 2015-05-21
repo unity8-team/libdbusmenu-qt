@@ -553,8 +553,8 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
 
     if (needRefresh || menu->actions().isEmpty()) {
         d->m_idsRefreshedByAboutToShow << id;
-        watcher = d->refresh(id);
-        if (!d->waitForWatcher(watcher, REFRESH_TIMEOUT)) {
+        QDBusPendingCallWatcher *watcher2 = d->refresh(id);
+        if (!d->waitForWatcher(watcher2, REFRESH_TIMEOUT)) {
             DMWARNING << "Application did not refresh before timeout";
         }
     }
