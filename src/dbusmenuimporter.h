@@ -58,17 +58,10 @@ public:
 
 public Q_SLOTS:
     /**
-     * Simulates a QMenu::aboutToShow() signal on the menu returned by menu(),
-     * ensuring it is up to date in case the menu is populated on the fly. It
-     * is not mandatory to call this method, showing the menu with
-     * QMenu::popup() or QMenu::exec() will generates an aboutToShow() signal,
-     * but calling it before ensures the size-hint of the menu is correct when
-     * it is time to show it, avoiding wrong positioning.
+     * Load the menu
      *
-     * menuUpdated() will be emitted when the menu is ready.
-     *
-     * Not that the aboutToShow() signal is only sent to the root menu, not to
-     * any submenu.
+     * Will emit menuUpdated() when complete.
+     * This should be done before showing a menu
      */
     void updateMenu();
 
