@@ -340,4 +340,3 @@ void DBusMenuImporterTest::testDisabledItem()
     QVERIFY(outputAction->isEnabled());
 }
 
-#include "dbusmenuimportertest.moc"

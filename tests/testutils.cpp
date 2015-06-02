@@ -31,4 +31,3 @@ void waitForDeferredDeletes()
     }
 }
 
-#include "testutils.moc"
