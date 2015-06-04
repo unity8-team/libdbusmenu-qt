@@ -433,6 +433,7 @@ void DBusMenuImporter::slotItemActivationRequested(int id, uint /*timestamp*/)
 void DBusMenuImporter::slotGetLayoutFinished(QDBusPendingCallWatcher *watcher)
 {
     int parentId = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
+    watcher->deleteLater();
 
     QDBusPendingReply<uint, DBusMenuLayoutItem> reply = *watcher;
     if (!reply.isValid()) {
@@ -538,6 +539,7 @@ void DBusMenuImporter::slotMenuAboutToShow()
 void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
     int id = watcher->property(DBUSMENU_PROPERTY_ID).toInt();
+    watcher->deleteLater();
 
     QDBusPendingReply<bool> reply = *watcher;
     if (reply.isError()) {
@@ -551,8 +553,8 @@ void DBusMenuImporter::slotAboutToShowDBusCallFinished(QDBusPendingCallWatcher *
 
     if (needRefresh || menu->actions().isEmpty()) {
         d->m_idsRefreshedByAboutToShow << id;
-        watcher = d->refresh(id);
-        if (!d->waitForWatcher(watcher, REFRESH_TIMEOUT)) {
+        QDBusPendingCallWatcher *watcher2 = d->refresh(id);
+        if (!d->waitForWatcher(watcher2, REFRESH_TIMEOUT)) {
             DMWARNING << "Application did not refresh before timeout";
         }
     }
