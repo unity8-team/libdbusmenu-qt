@@ -1,3 +1,11 @@
+libdbusmenu-qt (0.9.3+15.10.20150604-0ubuntu1) wily; urgency=medium
+
+  [ David Edmundson ]
+  * fix leaks
+  * fix leaks
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 04 Jun 2015 23:13:02 +0000
+
 libdbusmenu-qt (0.9.3+14.10.20140619-0ubuntu1) utopic; urgency=low
 
   [ Aurélien Gâteau ]
