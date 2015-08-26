@@ -55,10 +55,12 @@ int DBusMenuExporterPrivate::idForAction(QAction *action) const
 
 void DBusMenuExporterPrivate::addMenu(QMenu *menu, int parentId)
 {
-    if (menu->findChild<DBusMenu *>()) {
+    Q_FOREACH(DBusMenu *m, menu->findChildren<DBusMenu *>()) {
         // This can happen if a menu is removed from its parent and added back
         // See KDE bug 254066
-        return;
+        if(m->exporter() == q) {
+            return;
+        }
     }
     new DBusMenu(menu, q, parentId);
     Q_FOREACH(QAction *action, menu->actions()) {

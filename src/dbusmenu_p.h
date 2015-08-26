@@ -41,6 +41,8 @@ public:
     DBusMenu(QMenu *menu, DBusMenuExporter *exporter, int parentId);
     virtual ~DBusMenu();
 
+    DBusMenuExporter* exporter() const;
+
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 

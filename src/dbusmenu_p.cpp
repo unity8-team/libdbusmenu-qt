@@ -91,4 +91,9 @@ void DBusMenu::deleteMe()
     delete this;
 }
 
+DBusMenuExporter* DBusMenu::exporter() const
+{
+    return m_exporter;
+}
+
 #include "dbusmenu_p.moc"
