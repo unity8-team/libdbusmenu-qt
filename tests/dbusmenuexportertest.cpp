@@ -42,6 +42,7 @@ QTEST_MAIN(DBusMenuExporterTest)
 
 static const char *TEST_SERVICE = "org.kde.dbusmenu-qt-test";
 static const char *TEST_OBJECT_PATH = "/TestMenuBar";
+static const char *TEST_OBJECT_PATH2 = "/TestMenuBar2";
 
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -598,6 +599,29 @@ void DBusMenuExporterTest::testTrackActionsOnlyOnce()
 
     QTest::qWait(500);
     QCOMPARE(trackCount(subMenu), 1);
+}
+
+// Check that menu can be exported with two different exporters
+void DBusMenuExporterTest::testMultipleExporters()
+{
+    QMenu mainMenu;
+    QVERIFY(QDBusConnection::sessionBus().registerService(TEST_SERVICE));
+    DBusMenuExporter *exporter1 = new DBusMenuExporter(TEST_OBJECT_PATH, &mainMenu);
+    DBusMenuExporter *exporter2 = new DBusMenuExporter(TEST_OBJECT_PATH2, &mainMenu);
+
+    QMenu* subMenu = new QMenu("File");
+    subMenu->addAction("a1");
+    mainMenu.addAction(subMenu->menuAction());
+
+    QDBusInterface iface1(TEST_SERVICE, TEST_OBJECT_PATH);
+    QVERIFY2(iface1.isValid(), qPrintable(iface1.lastError().message()));
+
+    QDBusInterface iface2(TEST_SERVICE, TEST_OBJECT_PATH2);
+    QVERIFY2(iface2.isValid(), qPrintable(iface2.lastError().message()));
+
+    QCOMPARE(getChildren(&iface1, 0, QStringList()).count(), mainMenu.actions().count());
+    QCOMPARE(getChildren(&iface2, 0, QStringList()).count(), mainMenu.actions().count());
+
 }
 
 // If desktop does not want icon in menus, check we do not export them
