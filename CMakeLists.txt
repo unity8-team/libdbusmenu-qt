@@ -57,6 +57,23 @@ else()
     set(QT_SUFFIX "qt")
 endif()
 
+include (CheckCXXCompilerFlag)
+# Check some compiler flags
+check_cxx_compiler_flag(-fvisibility=hidden __DBUSMENU_HAVE_GCC_VISIBILITY)
+if (__DBUSMENU_HAVE_GCC_VISIBILITY AND NOT WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+endif (__DBUSMENU_HAVE_GCC_VISIBILITY AND NOT WIN32)
+
+check_cxx_compiler_flag(-Woverloaded-virtual __DBUSMENU_HAVE_W_OVERLOADED_VIRTUAL)
+if (__DBUSMENU_HAVE_W_OVERLOADED_VIRTUAL)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual")
+endif (__DBUSMENU_HAVE_W_OVERLOADED_VIRTUAL)
+
+check_cxx_compiler_flag(-std=c++11 __DBUSMENU_HAVE_CXX11)
+if (__DBUSMENU_HAVE_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif (__DBUSMENU_HAVE_CXX11)
+
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 set(LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
@@ -90,9 +107,7 @@ install(FILES ${CMAKE_BINARY_DIR}/dbusmenu-${QT_SUFFIX}.pc
     )
 
 add_subdirectory(src)
-if (NOT USE_QT5) # TODO port tests to Qt5
 add_subdirectory(tests)
-endif()
 add_subdirectory(tools)
 
 if(WITH_DOC)
