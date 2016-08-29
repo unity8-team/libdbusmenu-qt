@@ -50,6 +50,12 @@ typedef QList<DBusMenuItem> DBusMenuItemList;
 
 Q_DECLARE_METATYPE(DBusMenuItemList)
 
+//// DBusMenuShortcut
+
+class DBusMenuShortcut;
+
+QDBusArgument &operator<<(QDBusArgument &argument, const DBusMenuShortcut &);
+const QDBusArgument &operator>>(const QDBusArgument &argument, DBusMenuShortcut &);
 
 //// DBusMenuItemKeys
 /**

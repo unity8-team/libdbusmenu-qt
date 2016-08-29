@@ -45,6 +45,7 @@ enable_testing()
 set(dbusmenuexportertest_SRCS
     dbusmenuexportertest.cpp
     testutils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/dbusmenutypes_p.cpp
     )
 
 qt4_automoc(${dbusmenuexportertest_SRCS})
